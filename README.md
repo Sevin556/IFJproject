@@ -1,0 +1,2 @@
+# IFJproject
+Rip skupina
