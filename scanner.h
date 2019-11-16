@@ -1,6 +1,6 @@
 /*
 * Predmet  :   IFJ / IAL
-* Súbor    :   parser.h - Syntaktický a semantický analyzátor
+* Súbor    :   scanner.c - Implementácia lexikálneho analyzátora
 * Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
 * Tým č    :   127
 * Varianta :   I
@@ -10,15 +10,19 @@
 *            xzakji02, Jiří Žák
 */
 
-#ifndef IFJ_PARSER_H
-#define IFJ_PARSER_H
+#ifndef _SCANNER_H_
+#define _SCANNER_H_
 
-#include <stdio.h>
-#include "scanner.h"
 #include "string.h"
 
-void printTest();
+/* štrukturovaný typ tToken */
+typedef struct {
+    int type;         /* typ lexému */
+    string lexeme;    /* obsah lexémy */
+} tToken;
 
-int tokenType(tToken);
+typedef enum {
+    tStart
+} tState;
 
-#endif //IFJ_PARSER_H
+#endif  //_SCANNER_H_

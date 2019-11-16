@@ -1,11 +1,20 @@
-//
-// Created by zak on 28.10.19.
-//
+/*
+* Predmet  :   IFJ / IAL
+* Súbor    :   string.c - Pomocna knihovna lexikálního analyzátoru
+* Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
+* Tým č    :   127
+* Varianta :   I
+* Autoři   : xhalom00, Ivan Halomi
+*            xhiner00, Martin Hiner
+*            xsevci64, Adam Ševčík
+*            xzakji02, Jiří Žák
+*/
+
 #include "string.h"
 
-int stringInit(string *str){
-    str->value = (char*)malloc(sizeof(char)*INIT_ALLOC_SIZE);
-    if(str->value == NULL)
+int stringInit(string *str) {
+    str->value = (char *) malloc(sizeof(char) * INIT_ALLOC_SIZE);
+    if (str->value == NULL)
         return ERR_INTERN;
     str->length = 0;
     str->value = '\0';
@@ -13,10 +22,10 @@ int stringInit(string *str){
     return OK;
 }
 
-int stringAddChar(string *str, char c){
-    if(str->length + 1 >= str->lengthAllocated){
-        str->value = (char*)realloc(str->value, str->lengthAllocated + INIT_ALLOC_SIZE +sizeof(char));
-        if(str->value == NULL)
+int stringAddChar(string *str, char c) {
+    if (str->length + 1 >= str->lengthAllocated) {
+        str->value = (char *) realloc(str->value, str->lengthAllocated + INIT_ALLOC_SIZE + sizeof(char));
+        if (str->value == NULL)
             return ERR_INTERN;
         str->lengthAllocated += INIT_ALLOC_SIZE;
     }
@@ -26,10 +35,26 @@ int stringAddChar(string *str, char c){
     return OK;
 }
 
-int stringAddString(string *str, char *c){
+int stringAddString(string *str, char *c) {
     int result_code;
     for (unsigned int i = 0; i < strlen(c); i++) {
         result_code = stringAddChar(str, c[i]);
     }
     return result_code;
+}
+
+void stringChangeLastChar(string *str, char c) {
+    if (str->length > 0) {
+        str->value[str->length - 1] = c;
+    }
+}
+
+void stringDeleteLastChar(string *str) {
+    str->value[str->length - 1] = '\0';
+    str->length--;
+}
+
+void stringFree(string *str) {
+    free(str->value);
+    free(str);
 }
