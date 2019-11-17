@@ -27,6 +27,7 @@ typedef struct variable {
 
 typedef struct function {
     int type;
+    int NumOfParams;
     bool defined;
     bool declared;
     string param;
