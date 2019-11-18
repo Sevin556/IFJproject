@@ -13,32 +13,53 @@
 #include "parser.h"
 #include "symtable.h"
 
-tSymtable gTable; // globalna tabulka 
+tSymtable gTable; // globalna tabulka
 tSymtable lTable; // lokalna tabulka
+tToken aktToken;
 
+//zavolas len raz niekde v maine
+ERR_VAL parse() {
 
+    symTableInit(&gTable);
 
-void printTest(){
-    printf("test\n");
+    ERR_VAL rett;
+    if ((rett = doParse()) != OK) {
+        rett = ERR_SYN;
+    } else {
+        doParse();
+    }
+
+    return rett;
 }
 
-/*int tokenType(){
-}*/
-ERR_VAL doParse(){      //toto budes rekurzivne volat 
+ERR_VAL doParse() {      //toto budes rekurzivne volat
+    ERR_VAL rett;
+    aktToken = get_token();
+    switch (aktToken.type){
+        case sFunction:
+        case sIdentificator:
+            rett = deklarace();
+            if(rett != OK)
+                return ERR_SYN;
+    }
+    return OK;
+}
+
+ERR_VAL deklarace() {
+    ERR_VAL rett;
+    switch (aktToken.type){
+        case sIdentificator:
+            rett = declarationVariable();
+        case sFunction:
+            rett = declarationFunction();
+    }
+}
+
+ERR_VAL declarationVariable() {
+    ERR_VAL rett;
 
 }
 
-
-//zavolas len raz niekde v maine 
-ERR_VAL parse(){    
-
-symTableInit(&gTable);
-
-ERR_VAL rett;
-if ((rett=doParse) != OK)
-{
-	printf("failure ");
-
-}
+ERR_VAL declarationFunction() {
 
 }
