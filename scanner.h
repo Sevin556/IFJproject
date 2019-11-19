@@ -52,9 +52,9 @@ typedef enum {
         sPlus,                      /* návratový podtyp */
 
         /*  */
-        sComma,
-        sLeftBracket,
-        sRightBracket,
+        sComma,                     /* návratový typ */
+        sLeftBracket,               /* návratový typ */
+        sRightBracket,              /* návratový typ */
 
         /* id/keyword */
         sIdentificatorOrKeyword,
