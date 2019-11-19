@@ -16,7 +16,7 @@
 #include "string.h"
 
 /* štrukturovaný dátový typ tToken */
-typedef struct {
+typedef struct structToken {
         int type;             /* typ lexému */
         int subtype;          /* pomocný podtyp */
         int line;             /* riadok lexému */
@@ -59,7 +59,13 @@ typedef enum {
         /* id/keyword */
         sIdentificatorOrKeyword,
         sIdentificator,             /* návratový typ */
-        sKeyword,                   /* návratový typ */
+        sDef,                       /* návratový typ */
+        sElse,                      /* návratový typ */
+        sIf,                        /* návratový typ */
+        sNone,                      /* návratový typ */
+        sPass,                      /* návratový typ */
+        sReturn,                    /* návratový typ */
+        sWhile,                     /* návratový typ */
 
         /* komentáre */
         sLineComment,
@@ -70,7 +76,7 @@ typedef enum {
         sStringRead,
         sStringEscape,
         sStringEscapeHex,
-        sStringEscapeHexValue,
+        //sStringEscapeHexValue, -redundant
         sString,                    /* návratový typ */
 
         /* čísla */
@@ -88,6 +94,9 @@ typedef enum {
 } tState;
 
 
-tToken get_token(void);
+tToken* get_token(void);
+tToken* init_token(void);
+void assignType(tToken*);
+
 
 #endif  //_SCANNER_H_
