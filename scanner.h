@@ -1,79 +1,92 @@
 /*
-* Predmet  :   IFJ / IAL
-* Súbor    :   scanner.c - Implementácia lexikálneho analyzátora
-* Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
-* Tým č    :   127
-* Varianta :   I
-* Autoři   : xhalom00, Ivan Halomi
-*            xhiner00, Martin Hiner
-*            xsevci64, Adam Ševčík
-*            xzakji02, Jiří Žák
-*/
+ * Predmet  :   IFJ / IAL
+ * Súbor    :   scanner.c - Implementácia lexikálneho analyzátora
+ * Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
+ * Tým č    :   127
+ * Varianta :   I
+ * Autoři   : xhalom00, Ivan Halomi
+ *            xhiner00, Martin Hiner
+ *            xsevci64, Adam Ševčík
+ *            xzakji02, Jiří Žák
+ */
 
 #ifndef _SCANNER_H_
 #define _SCANNER_H_
 
 #include "string.h"
 
-/* štrukturovaný typ tToken */
+/* štrukturovaný dátový typ tToken */
 typedef struct {
-    int type;         /* typ lexému */
-    string data;    /* obsah lexémy */
+        int type;             /* typ lexému */
+        int subtype;          /* pomocný podtyp */
+        int line;             /* riadok lexému */
+        string data;          /* obsah lexému */
 } tToken;
 
+
 typedef enum {
-    sStart,             /* počiatočný stav */
+        sStart,                     /* počiatočný stav */
 
-    sEOL,
-    sEOF,
+        sEOL,                       /* návratový typ */
+        sEOF,                       /* návratový typ */
 
-    sIndent,
-    sDedent,
-    sDentDecide,
-    sDentEnd,
+        sIndent,                    /* návratový typ */
+        sDedent,                    /* návratový typ */
+        sDentDecide,
+        sDentEnd,
 
-    sMore,              /*  */
-    sMoreEqual,
-    sLess,
-    sLessEqual,
-    sInequal,
-    sInequalMid,
-    sEqual,
-    sAssignment,
-    sDivideFloat,
-    sDivideInteger,
-    sMultiplication,
-    sMinus,
-    sPlus,
+        /* operandy*/
+        sOperand,                   /* návratový typ */
+        sMore,                      /* návratový podtyp */
+        sMoreEqual,                 /* návratový podtyp */
+        sLess,                      /* návratový podtyp */
+        sLessEqual,                 /* návratový podtyp */
+        sInequal,                   /* návratový podtyp */
+        sInequalMid,
+        sEqual,                     /* návratový podtyp */
+        sAssignment,                /* návratový podtyp */
+        sDivideFloat,               /* návratový podtyp */
+        sDivideInteger,             /* návratový podtyp */
+        sMultiplication,            /* návratový podtyp */
+        sMinus,                     /* návratový podtyp */
+        sPlus,                      /* návratový podtyp */
 
-    sSemicolon,
-    sComma,
-    sLeftBracket,
-    sRightBracket,
+        /*  */
+        sComma,
+        sLeftBracket,
+        sRightBracket,
 
-    sIdentificatorOrKeyword,
-    sIdentificator,
-    sKeyword,
+        /* id/keyword */
+        sIdentificatorOrKeyword,
+        sIdentificator,             /* návratový typ */
+        sKeyword,                   /* návratový typ */
 
-    sLineComment,
-    sBlockComment,
+        /* komentáre */
+        sLineComment,
+        sBlockComment,
 
-    sStringStart,
-    sStringRead,
-    sStringEscape,
-    sStringEscapeHex,
-    sStringEscapeHexValue,
-    sString,
+        /* string */
+        sStringStart,
+        sStringRead,
+        sStringEscape,
+        sStringEscapeHex,
+        sStringEscapeHexValue,
+        sString,                    /* návratový typ */
 
-    sIntegerOrDouble,
-    sInteger,
-    sDoublePoint,
-    sDoublePointNumber,
-    sDoubleExponent,
-    sDoubleExponentOperator,
-    sDoubleExponentNumber
+        /* čísla */
+        sNumber,                    /* návratový typ */
+        sIntegerOrDouble,
+        sInteger,                   /* návratový podtyp */
+        sDoublePoint,
+        sDoublePointNumber,         /* návratový podtyp */
+        sDoubleExponent,
+        sDoubleExponentOperator,
+        sDoubleExponentNumber,       /* návratový podtyp */
 
+        /* chyba */
+        sLexError = -1
 } tState;
+
 
 tToken get_token(void);
 
