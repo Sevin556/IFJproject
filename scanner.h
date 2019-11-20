@@ -14,6 +14,12 @@
 #define _SCANNER_H_
 
 #include "string.h"
+#include <stdbool.h>
+
+#define MAX_DENT 100
+
+/* jednoducé pole pre počítanie indentov používané ako LIFO zásobník */
+typedef int tStack;
 
 /* štrukturovaný dátový typ tToken */
 typedef struct structToken {
@@ -33,7 +39,7 @@ typedef enum {
         sIndent,                    /* návratový typ */
         sDedent,                    /* návratový typ */
         sDentDecide,
-        sDentEnd,
+        //sDentEnd, -redundant
 
         /* operandy*/
         sOperand,                   /* návratový typ */
@@ -42,7 +48,7 @@ typedef enum {
         sLess,                      /* návratový podtyp */
         sLessEqual,                 /* návratový podtyp */
         sInequal,                   /* návratový podtyp */
-        sInequalMid,
+        //sInequalMid,  -redundant
         sEqual,                     /* návratový podtyp */
         sAssignment,                /* návratový podtyp */
         sDivideFloat,               /* návratový podtyp */
@@ -50,11 +56,11 @@ typedef enum {
         sMultiplication,            /* návratový podtyp */
         sMinus,                     /* návratový podtyp */
         sPlus,                      /* návratový podtyp */
+        sLeftBracket,               /* návratový podtyp */
+        sRightBracket,              /* návratový podtyp */
 
-        /*  */
+        /* , */
         sComma,                     /* návratový typ */
-        sLeftBracket,               /* návratový typ */
-        sRightBracket,              /* návratový typ */
 
         /* id/keyword */
         sIdentificatorOrKeyword,
@@ -90,7 +96,7 @@ typedef enum {
         sDoubleExponentNumber,       /* návratový podtyp */
 
         /* chyba */
-        sLexError = -1
+        sLexError
 } tState;
 
 
@@ -98,5 +104,10 @@ tToken* get_token(void);
 tToken* init_token(void);
 void assignType(tToken*);
 
+/* funkcie pre prácu so stackom */
+void stackPush(tStack*, int);
+void stackPop(tStack*);
+int stackTop(tStack*);
+bool stackEmpty(tStack*);
 
 #endif  //_SCANNER_H_
