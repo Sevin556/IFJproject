@@ -14,6 +14,8 @@
 #define _SCANNER_H_
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <ctype.h>
 #include "string.h"
 
 
@@ -51,7 +53,6 @@ typedef enum {
         sInequal,                   /* návratový podtyp */
         //sInequalMid,  -redundant
         sEqual,                     /* návratový podtyp */
-        sAssignment,                /* návratový podtyp */
         sDivideFloat,               /* návratový podtyp */
         sDivideInteger,             /* návratový podtyp */
         sMultiplication,            /* návratový podtyp */
@@ -62,6 +63,8 @@ typedef enum {
 
         /* , */
         sComma,                     /* návratový typ */
+        sAssignment,                /* návratový typ */
+        sColon,                     /* návratový typ */
 
         /* id/keyword */
         sIdentificatorOrKeyword,
@@ -102,6 +105,7 @@ typedef enum {
 
 
 tToken* get_token(void);
+void unget_token(tToken* t);
 tToken* init_token(void);
 void assignType(tToken*);
 
