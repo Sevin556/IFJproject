@@ -13,8 +13,9 @@
 #ifndef _SCANNER_H_
 #define _SCANNER_H_
 
-#include "string.h"
 #include <stdbool.h>
+#include "string.h"
+
 
 #define MAX_DENT 100
 
@@ -26,7 +27,7 @@ typedef struct structToken {
         int type;             /* typ lexému */
         int subtype;          /* pomocný podtyp */
         int line;             /* riadok lexému */
-        string data;          /* obsah lexému */
+        string* data;          /* obsah lexému */
 } tToken;
 
 
