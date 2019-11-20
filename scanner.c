@@ -13,9 +13,6 @@
 #include "scanner.h"
 #include "err_code.h"
 #include "string.h"
-#include <stdio.h>
-#include <stdbool.h>
-#include <ctype.h>
 
 tToken* get_token(void) {
         tState state;
@@ -133,72 +130,80 @@ tToken* get_token(void) {
                                 state = sIntegerOrDouble;
                         } else
 
+                        /* colon */
+                        if(c == ':') {
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
+
+                                state = sColon;
+                        }
+
                         /* operators */
                         if(c == '+') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sPlus;
+                                state = sPlus;
                         } else
                         if(c == '-') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sMinus;
+                                state = sMinus;
                         } else
                         if(c == '*') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sMultiplication;
+                                state = sMultiplication;
                         } else
                         if(c == '/') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sDivideFloat;
+                                state = sDivideFloat;
                         } else
                         if(c == '>') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sMore;
+                                state = sMore;
                         } else
                         if(c == '<') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sLess;
+                                state = sLess;
                         } else
                         if(c == '!') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sInequal;
+                                state = sInequal;
                         } else
                         if(c == '=') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sAssignment;
+                                state = sAssignment;
                         } else
                         if(c == '(') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sLeftBracket;
+                                state = sLeftBracket;
                         } else
                         if(c == ')') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sRightBracket;
+                                state = sRightBracket;
                         } else
                         if(c == ',') {
-                          token->line = line_cnt;
-                          stringAddChar(token->data, c);
+                                token->line = line_cnt;
+                                stringAddChar(token->data, c);
 
-                          state = sComma;
+                                state = sComma;
                         }
 
                         break;
@@ -565,177 +570,187 @@ tToken* get_token(void) {
                 /********* Number End ******************/
 
 
+                /************** sColon Start ****************/
+                case sColon:
+                        ungetc(c, stdin);
+
+                        token->type = sColon;
+                        return token;
+                        break;
+                /************** sColon End ****************/
+
+
                 /********* Operators Start *******************************/
                 /************** sMore Start ****************/
                 case sMore:
-                  if(c == '=') {
-                    stringAddChar(token->data, c);
-                    state = sMoreEqual;
-                  } else {
-                    ungetc(c, stdin);
+                        if(c == '=') {
+                                stringAddChar(token->data, c);
+                                state = sMoreEqual;
+                        } else {
+                                ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sMore;
-                    return token;
-                  }
+                                token->type = sOperand;
+                                token->subtype = sMore;
+                                return token;
+                        }
                         break;
                 /************** sMore End ****************/
 
                 /************** sMoreEqual Start ****************/
                 case sMoreEqual:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sMoreEqual;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sMoreEqual;
+                        return token;
                         break;
                 /************** sMoreEqual End ****************/
 
                 /************** sLess Start ****************/
                 case sLess:
-                  if(c == '=') {
-                    stringAddChar(token->data, c);
-                    state = sLessEqual;
-                  } else {
-                    ungetc(c, stdin);
+                        if(c == '=') {
+                                stringAddChar(token->data, c);
+                                state = sLessEqual;
+                        } else {
+                                ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sLess;
-                    return token;
-                  }
+                                token->type = sOperand;
+                                token->subtype = sLess;
+                                return token;
+                        }
                         break;
                 /************** sLess End ****************/
 
                 /************** sLessEqual Start ****************/
                 case sLessEqual:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sLessEqual;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sLessEqual;
+                        return token;
                         break;
                 /************** sLessEqual End ****************/
 
                 /************** sInequal Start ****************/
                 case sInequal:
-                  if(c == '=') {
-                    stringAddChar(token->data, c);
+                        if(c == '=') {
+                                stringAddChar(token->data, c);
 
-                    token->type = sOperand;
-                    token->subtype = sInequal;
-                    return token;
-                  } else {
-                    state = sLexError;
-                  }
+                                token->type = sOperand;
+                                token->subtype = sInequal;
+                                return token;
+                        } else {
+                                state = sLexError;
+                        }
                         break;
                 /************** sInequal End ****************/
 
                 /************** sAssignment Start ****************/
                 case sAssignment:
-                  if(c == '=') {
-                    stringAddChar(token->data, c);
-                    state = sEqual;
-                  } else {
-                    ungetc(c, stdin);
+                        if(c == '=') {
+                                stringAddChar(token->data, c);
+                                state = sEqual;
+                        } else {
+                                ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sAssignment;
-                    return token;
-                  }
+                                token->type = sOperand;
+                                token->subtype = sAssignment;
+                                return token;
+                        }
                         break;
                 /************** sAssignment End ****************/
 
                 /************** sEqual Start ****************/
                 case sEqual:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sEqual;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sEqual;
+                        return token;
                         break;
                 /************** sEqual End ****************/
 
                 /************** sDivideFloat Start ****************/
                 case sDivideFloat:
-                  if(c == '/') {
-                    stringAddChar(token->data, c);
-                    state = sDivideInteger;
-                  } else {
-                    ungetc(c, stdin);
+                        if(c == '/') {
+                                stringAddChar(token->data, c);
+                                state = sDivideInteger;
+                        } else {
+                                ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sDivideFloat;
-                    return token;
-                  }
+                                token->type = sOperand;
+                                token->subtype = sDivideFloat;
+                                return token;
+                        }
                         break;
                 /************** sDivideFloat End ****************/
 
                 /************** sDivideInteger Start ****************/
                 case sDivideInteger:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sDivideInteger;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sDivideInteger;
+                        return token;
                         break;
                 /************** sDivideInteger End ****************/
 
                 /************** sMultiplication Start ****************/
                 case sMultiplication:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sMultiplication;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sMultiplication;
+                        return token;
                         break;
                 /************** sMultiplication End ****************/
 
                 /************** sMinus Start ****************/
                 case sMinus:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sMinus;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sMinus;
+                        return token;
                         break;
                 /************** sMinus End ****************/
 
                 /************** sPlus Start ****************/
                 case sPlus:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sPlus;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sPlus;
+                        return token;
                         break;
                 /************** sPlus End ****************/
 
                 /************** sComma Start ****************/
                 case sComma:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sComma;
-                    return token;
+                        token->type = sComma;
+                        return token;
                         break;
                 /************** sComma End ****************/
 
                 /************** sLeftBracket Start ****************/
                 case sLeftBracket:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sLeftBracket;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sLeftBracket;
+                        return token;
                         break;
                 /************** sLeftBracket End ****************/
 
                 /************** sRightBracket Start ****************/
                 case sRightBracket:
-                    ungetc(c, stdin);
+                        ungetc(c, stdin);
 
-                    token->type = sOperand;
-                    token->subtype = sRightBracket;
-                    return token;
+                        token->type = sOperand;
+                        token->subtype = sRightBracket;
+                        return token;
                         break;
                 /************** sRightBracket End ****************/
                 /********* Operators End *******************************/
@@ -755,10 +770,10 @@ tToken* get_token(void) {
                 case sOperand: break;
 
                 case sLexError:
-                  stringAddString(token->data, "Lexikálne chyba\n");
-                  token->type = sLexError;
-                  token->line = line_cnt;
-                 break;
+                        stringAddString(token->data, "Lexikálne chyba\n");
+                        token->type = sLexError;
+                        token->line = line_cnt;
+                        break;
 
                 }
         }
@@ -779,6 +794,13 @@ tToken* init_token(void) {
         stringInit(tmp->data);
 
         return tmp;
+}
+
+/* vrátenie tokenu na vstup */
+void unget_token(tToken* t) {
+        for(int i = 0; i < t->data->length; i++) {
+                ungetc(t->data->value[i], stdin);
+        }
 }
 
 
