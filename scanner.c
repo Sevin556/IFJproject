@@ -767,6 +767,14 @@ tToken* get_token(void) {
                 case sString:
                 case sNumber:
                 case sInteger:
+                case sInputS:
+                case sInputI:
+                case sInputF:
+                case sPrint:
+                case sLen:
+                case sSubstr:
+                case sOrd:
+                case sChr:                    
                 case sOperand: break;
 
                 case sLexError:
@@ -791,7 +799,7 @@ tToken* init_token(void) {
         tmp->line = -1;
         tmp->type = -1;
         tmp->subtype = -1;
-        stringInit(tmp->data);
+        stringInit(&tmp->data);
 
         return tmp;
 }
@@ -826,6 +834,30 @@ void assignType(tToken* t) {
         } else
         if(strcmp(t->data->value, "while") == 0) {
                 t->type = sWhile;
+        } else
+        if(strcmp(t->data->value, "inputs") == 0) {
+                t->type = sInputS;
+        } else
+        if(strcmp(t->data->value, "inputi") == 0) {
+                t->type = sInputI;
+        } else
+        if(strcmp(t->data->value, "inputf") == 0) {
+                t->type = sInputF;
+        } else
+        if(strcmp(t->data->value, "print") == 0) {
+                t->type = sPrint;
+        } else
+        if(strcmp(t->data->value, "len") == 0) {
+                t->type = sLen;
+        } else
+        if(strcmp(t->data->value, "substr") == 0) {
+                t->type = sSubstr;
+        } else
+        if(strcmp(t->data->value, "ord") == 0) {
+                t->type = sOrd;
+        } else
+        if(strcmp(t->data->value, "chr") == 0) {
+                t->type = sChr;
         } else {
                 /* nieje keyword */
                 t->type = sIdentificator;
