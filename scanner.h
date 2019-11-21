@@ -29,7 +29,7 @@ typedef struct structToken {
         int type;             /* typ lexému */
         int subtype;          /* pomocný podtyp */
         int line;             /* riadok lexému */
-        string* data;          /* obsah lexému */
+        string data;          /* obsah lexému */
 } tToken;
 
 
@@ -60,17 +60,17 @@ typedef enum {
         sPlus,                      /* návratový podtyp */
         sLeftBracket,               /* návratový podtyp */
         sRightBracket,              /* návratový podtyp */
-        
-        
-        sDollar,                    /*dollar pre expresionstack*/ 
+
         /* , */
         sComma,                     /* návratový typ */
         sAssignment,                /* návratový typ */
         sColon,                     /* návratový typ */
 
-        /* id/keyword */
+        /* id */
         sIdentificatorOrKeyword,
         sIdentificator,             /* návratový typ */
+
+        /* keywords */
         sDef,                       /* návratový typ */
         sElse,                      /* návratový typ */
         sIf,                        /* návratový typ */
@@ -78,6 +78,16 @@ typedef enum {
         sPass,                      /* návratový typ */
         sReturn,                    /* návratový typ */
         sWhile,                     /* návratový typ */
+
+        /* built-in functions */
+        sInputS,                    /* návratový typ */
+        sInputI,                    /* návratový typ */
+        sInputF,                    /* návratový typ */
+        sPrint,                     /* návratový typ */
+        sLen,                       /* návratový typ */
+        sSubstr,                    /* návratový typ */
+        sOrd,                       /* návratový typ */
+        sChr,                       /* návratový typ */
 
         /* komentáre */
         sLineComment,
@@ -112,9 +122,9 @@ tToken* init_token(void);
 void assignType(tToken*);
 
 /* funkcie pre prácu so stackom */
-//void stackPush(tStack*, int);
-//void stackPop(tStack*);
-//int stackTop(tStack*);
-//bool stackEmpty(tStack*);
+void stackPush(tStack*, int);
+void stackPop(tStack*);
+int stackTop(tStack*);
+bool stackEmpty(tStack*);
 
 #endif  //_SCANNER_H_
