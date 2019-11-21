@@ -17,13 +17,18 @@
 #include "scanner.h"
 #include <stdbool.h>
 #include "lifo.h"
+#include "string.h"
+#include "stdlib.h"
 
 typedef struct
-{
-	tToken *Token;
-	exprTable  priorita;
+{   
+    int TokenType;
+	int type;
+    int subtype;
+	int TableIndex;
 	bool Redukovany;
-	bool zeroflag;
+    string *tokenData;
+	
 }tRedukToken;
 
 typedef enum
@@ -37,5 +42,5 @@ typedef enum
 }exprTable;
 
 
-zjednodus(*tStack,*tStack,*bool);
+ERR_VALL zjednodus(*tStack,*tStack,*bool);
 #endif //IFJ_EXPRPARSER_H

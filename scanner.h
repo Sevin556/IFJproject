@@ -60,7 +60,9 @@ typedef enum {
         sPlus,                      /* návratový podtyp */
         sLeftBracket,               /* návratový podtyp */
         sRightBracket,              /* návratový podtyp */
-
+        
+        
+        sDollar,                    /*dollar pre expresionstack*/ 
         /* , */
         sComma,                     /* návratový typ */
         sAssignment,                /* návratový typ */
@@ -110,9 +112,9 @@ tToken* init_token(void);
 void assignType(tToken*);
 
 /* funkcie pre prácu so stackom */
-void stackPush(tStack*, int);
-void stackPop(tStack*);
-int stackTop(tStack*);
-bool stackEmpty(tStack*);
+//void stackPush(tStack*, int);
+//void stackPop(tStack*);
+//int stackTop(tStack*);
+//bool stackEmpty(tStack*);
 
 #endif  //_SCANNER_H_

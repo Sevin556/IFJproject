@@ -111,7 +111,7 @@ void symTableInsertFunction(tSymtable *Tab, string str) {
     stringInit(&parametrs);
     data->retType = -1;
     data->declared = data->defined = NULL;
-    data->param = parametrs;
+   // data->param = parametrs;
     BSTInsert(&(Tab->root), str.value, data, ndtFunction);
 }
 

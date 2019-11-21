@@ -16,7 +16,7 @@ typedef enum {
 typedef struct tBSTNode {
     char *Key;                                         /* klic */
     tNodeDataType nodeDataType;                      /* typ dat, ktera uzel uchovava (funkce, promenna) */
-    void *Data;                                      /* uzitecny obsah uzlu */
+    void *Data;                                      /* typ hodnoty uzlu */
     struct tBSTNode *LPtr;                          /* ukazatel na levy podstrom */
     struct tBSTNode *RPtr;                          /* ukazatel na pravy podstrom */
 } *tBSTNodePtr;
@@ -29,7 +29,7 @@ typedef struct function {
     int retType;
     bool defined;
     bool declared;
-    string param;
+    //string param;
     string paramName[10];
 } tFunction;
 

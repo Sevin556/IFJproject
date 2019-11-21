@@ -36,7 +36,7 @@ exprTable Table[15][15] =
 /*"VAR"*/{H,	H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		ERROR,	H,		H,		ERROR}
 };
 
-int tableSelect(tRedukToken token){
+int tableIndexSelect(tRedukToken token){
 
     if (token.Token->type == NULL)
     return 13;
@@ -56,7 +56,7 @@ int tableSelect(tRedukToken token){
 
 
 
-tToken *exprParing(tToken *dostanyToken)
+ERR_VAL *exprParing(tToken *dostanyToken)
 {
     ptrStack stack;
     ptrStack Rstack;
@@ -98,7 +98,7 @@ tToken *exprParing(tToken *dostanyToken)
 			stackPush(&stack,temp);
 		}
 
-        switch (Table[indexInTable][selectTable(actToken)])
+        switch (Table[indexInTable][selectIndexTable(actToken)])
         {
         case H:
             {
@@ -127,6 +127,7 @@ tToken *exprParing(tToken *dostanyToken)
             }
             break;
         case L:
+
 
 
         default:
