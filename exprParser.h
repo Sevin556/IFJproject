@@ -21,12 +21,13 @@
 #include "stdlib.h"
 
 typedef struct
-{   
+{  
     int TokenType;
 	int type;
     int subtype;
 	int TableIndex;
-	bool Redukovany;
+	bool Redukuj;
+	bool terminal;
     string *tokenData;
 	
 }tRedukToken;
@@ -42,5 +43,4 @@ typedef enum
 }exprTable;
 
 
-ERR_VALL zjednodus(*tStack,*tStack,*bool);
 #endif //IFJ_EXPRPARSER_H
