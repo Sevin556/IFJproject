@@ -34,20 +34,27 @@ int stackFull(tStack* s);
  */
 tRedukToken *stackTop(tStack* s);
 /**
- *Vrací velikost zásobníku.
+ *Vracia velkosť stacku
  */
 int stackLenght(tStack *s);
 /**
- * @brief Odstraní prvek z vrcholu zásobníku
+ * @brief Popne vrchny prvok
  */
 void stackPop( tStack* s);
 
 tRedukToken *stackTopPop ( tStack* s);
 /**
- * @brief Vloží znak na vrchol zásobníku.
+ * @brief Vrati prvok z daneho indexu
  */
-bool checkMoreOperators(tStack* s);
+tRedukToken *stackIndex ( tStack* s,int index);
+
+/**
+ * @brief Pushne prvok na top stacku
+ */
 void stackPush(tStack* s, tRedukToken token);
-void stackPrint(char* stackName, tStack* s);
-void stackClear(tStack* s);
+
+/**
+ * @brief Vrati index topu
+ */
+int IndexOfTop(tStack* s);
 #endif

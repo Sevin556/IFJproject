@@ -43,12 +43,22 @@ int stackEmpty (tStack* s ) {
 int stackFull (tStack* s ) {
 	return ((s->top < (int)s->size) ? 0 : 1);
 }
+int IndexOfTop(tStack* s)
+{
+	return s->top;
+}
 
 tRedukToken *stackTop ( tStack* s) {
 	if (stackEmpty(s))
 		return NULL;
 	else
 		return (&(s->arr[s->top]));
+}
+tRedukToken *stackIndex ( tStack* s,int index) {
+	if (stackEmpty(s))
+		return NULL;
+	else
+		return (&(s->arr[index]));
 }
 
 tRedukToken *stackTopPop ( tStack* s) {
