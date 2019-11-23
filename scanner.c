@@ -21,8 +21,8 @@ bool FirstToken = true;
 tToken* get_token(void) {
         tState state;
         char c;
-        static tStack stack[MAX_DENT];
-        stack[0] = 0;      /* zarážka */
+        static tIndentStack stackI[MAX_DENT];
+        stackI[0] = 0;      /* zarážka */
         tToken *token = init_token();
 
         int indent_cnt = 0;
@@ -37,13 +37,13 @@ tToken* get_token(void) {
                         /****************počiatocný stav********************/
                         /* check Dedent */
                         if(FirstToken && c != ' ') {
-                                if(stackEmpty(stack)) {
+                                if(stackEmptyI(stackI)) {
                                         /* no indentation */
                                         FirstToken = false;
                                 } else {
                                         /* dedent needed */
                                         ungetc(c, stdin);
-                                        stackPop(stack);
+                                        stackPopI(stackI);
                                         state = sDedent;
                                         break;
                                 }
@@ -262,7 +262,7 @@ tToken* get_token(void) {
                         if(c == '\n') {
                                 state = sStart;
                         } else {
-                                int curr = stackTop(stack);
+                                int curr = stackTopI(stackI);
                                 if(indent_cnt > curr) {
                                         //TODO
                                 }
@@ -890,7 +890,7 @@ void assignType(tToken* t) {
 }
 
 /* funkcia uloží value na koniec zásobníka */
-void stackPush(tStack* s, int value) {
+void stackPushI(tIndentStack* s, int value) {
         /* nájdi vhodné miesto na vloženie */
         int level = 1;
         while(s[level] != 0) {
@@ -900,7 +900,7 @@ void stackPush(tStack* s, int value) {
 }
 
 /* funkcia vymaže poslenú položku */
-void stackPop(tStack *s) {
+void stackPopI(tIndentStack *s) {
         /* nájdi poslednú položku */
         int level = 1;
         while(s[level] != 0) {
@@ -910,7 +910,7 @@ void stackPop(tStack *s) {
 }
 
 /* funkcia vráti hodnotu poslednej položky */
-int stackTop(tStack *s) {
+int stackTopI(tIndentStack *s) {
         /* nájdi poslednú položku */
         int level = 1;
         while(s[level] != 0) {
@@ -919,7 +919,7 @@ int stackTop(tStack *s) {
         return s[level];
 }
 
-bool stackEmpty(tStack* s) {
+bool stackEmptyI(tIndentStack* s) {
         return (s[1] == 0) ? (true) : (false);
 }
 

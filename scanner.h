@@ -22,7 +22,7 @@
 #define MAX_DENT 100
 
 /* jednoducé pole pre počítanie indentov používané ako LIFO zásobník */
-typedef int tStack;
+typedef int tIndentStack;
 
 /* štrukturovaný dátový typ tToken */
 typedef struct structToken {
@@ -125,9 +125,9 @@ tToken* init_token(void);
 void assignType(tToken*);
 
 /* funkcie pre prácu so stackom */
-void stackPush(tStack*, int);
-void stackPop(tStack*);
-int stackTop(tStack*);
-bool stackEmpty(tStack*);
+void stackPushI(tIndentStack*, int);
+void stackPopI(tIndentStack*);
+int stackTopI(tIndentStack*);
+bool stackEmptyI(tIndentStack*);
 
 #endif  //_SCANNER_H_
