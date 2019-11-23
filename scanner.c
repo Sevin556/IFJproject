@@ -14,16 +14,18 @@
 #include "err_code.h"
 #include "string.h"
 
+/* definícia premenných */
+int line_cnt = 1;
+bool FirstToken = true;
+
 tToken* get_token(void) {
         tState state;
-        bool FirstToken = true;
         char c;
         static tStack stack[MAX_DENT];
         stack[0] = 0;      /* zarážka */
         tToken *token = init_token();
 
         int indent_cnt = 0;
-        static int line_cnt = 0;
 
         state = sStart;       /* počiatocný stav */
 
@@ -35,20 +37,22 @@ tToken* get_token(void) {
                         /****************počiatocný stav********************/
                         /* check Dedent */
                         if(FirstToken && c != ' ') {
-                                ungetc(c, stdin);
                                 if(stackEmpty(stack)) {
                                         /* no indentation */
                                         FirstToken = false;
                                 } else {
                                         /* dedent needed */
+                                        ungetc(c, stdin);
                                         stackPop(stack);
                                         state = sDedent;
+                                        break;
                                 }
                         }
 
                         /* End Of File */
                         if(c == EOF) {
                                 state = sEOF;
+                                break;
                         } else
 
                         /* End Of Line */
@@ -56,13 +60,15 @@ tToken* get_token(void) {
                                 if(FirstToken) {
                                         line_cnt++;
                                         state = sStart;
+                                        break;
                                 } else {
                                         FirstToken = true;
                                         line_cnt++;
 
-                                        stringAddChar(token->data, '\n');
+                                        stringAddChar(&(token->data), '\n');
                                         token->line = line_cnt;
                                         token->type = sEOL;
+                                        return token;
                                 }
                         } else
 
@@ -71,14 +77,17 @@ tToken* get_token(void) {
                                 if(FirstToken) {
                                         indent_cnt++;         /* zvýšenie počítadla indentu */
                                         state = sDentDecide;
+                                        break;
                                 } else {
                                         state = sStart;
+                                        break;
                                 }
                         } else
 
                         /* line comment */
                         if(c == '#') {
                                 state = sLineComment;
+                                break;
                         } else
 
                         /* block comment */
@@ -106,104 +115,120 @@ tToken* get_token(void) {
                                 token->line = line_cnt;
 
                                 state = sStringStart;
+                                break;
                         } else
 
                         /* id/key */
                         if(isalpha(c)) {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sIdentificatorOrKeyword;
+                                break;
                         } else
                         if(c == '_') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sIdentificator;
+                                break;
                         } else
 
                         /* number */
                         if(isdigit(c)) {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sIntegerOrDouble;
+                                break;
                         } else
 
                         /* colon */
                         if(c == ':') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sColon;
-                        }
+                                break;
+                        } else
 
                         /* operators */
                         if(c == '+') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sPlus;
+                                break;
                         } else
                         if(c == '-') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sMinus;
+                                break;
                         } else
                         if(c == '*') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sMultiplication;
+                                break;
                         } else
                         if(c == '/') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDivideFloat;
+                                break;
                         } else
                         if(c == '>') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sMore;
+                                break;
                         } else
                         if(c == '<') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sLess;
+                                break;
                         } else
                         if(c == '!') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sInequal;
+                                break;
                         } else
                         if(c == '=') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sAssignment;
+                                break;
                         } else
                         if(c == '(') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sLeftBracket;
+                                break;
                         } else
                         if(c == ')') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sRightBracket;
+                                break;
                         } else
                         if(c == ',') {
                                 token->line = line_cnt;
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sComma;
+                                break;
                         }
 
                         break;
@@ -211,7 +236,7 @@ tToken* get_token(void) {
 
                 /************** sEOF Start ****************/
                 case sEOF:
-                        stringAddString(token->data, "EOF");
+                        stringAddString(&(token->data), "EOF");
                         token->line = line_cnt;
                         token->type = sEOF;
 
@@ -305,7 +330,7 @@ tToken* get_token(void) {
 
                         if(c == '\'') {
                                 /* prázdny string */
-                                stringAddString(token->data, "");
+                                stringAddString(&(token->data), "");
                                 token->type = sString;
                         } else
                         if(c == '\\') {
@@ -314,7 +339,7 @@ tToken* get_token(void) {
                         } else
                         if(c > 31) {
                                 /* literál */
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sStringRead;
                         } else {
                                 /* error */
@@ -329,27 +354,27 @@ tToken* get_token(void) {
 
                         switch(c) {
                         case 'n':
-                                stringAddChar(token->data, '\n');
+                                stringAddChar(&(token->data), '\n');
                                 state = sStringRead;
                                 break;
 
                         case 't':
-                                stringAddChar(token->data, '\t');
+                                stringAddChar(&(token->data), '\t');
                                 state = sStringRead;
                                 break;
 
                         case '\'':
-                                stringAddChar(token->data, '\'');
+                                stringAddChar(&(token->data), '\'');
                                 state = sStringRead;
                                 break;
 
                         case '\"':
-                                stringAddChar(token->data, '\"');
+                                stringAddChar(&(token->data), '\"');
                                 state = sStringRead;
                                 break;
 
                         case '\\':
-                                stringAddChar(token->data, '\\');
+                                stringAddChar(&(token->data), '\\');
                                 state = sStringRead;
                                 break;
 
@@ -358,8 +383,8 @@ tToken* get_token(void) {
                                 break;
 
                         default:
-                                stringAddChar(token->data, '\\');
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), '\\');
+                                stringAddChar(&(token->data), c);
                                 state = sStringRead;
                         }
 
@@ -376,22 +401,22 @@ tToken* get_token(void) {
 
                                 if((isdigit(c)) || ((c >= 65) && (c <= 70)) || ((c >= 97) && (c <= 102))) {
                                         /* escape success - return xx */
-                                        stringAddChar(token->data, temp);
-                                        stringAddChar(token->data, c);
+                                        stringAddChar(&(token->data), temp);
+                                        stringAddChar(&(token->data), c);
                                         state = sStringRead;
                                 } else {
                                         /* escape failed - return \xx */
-                                        stringAddChar(token->data, '\\');
-                                        stringAddChar(token->data, temp);
-                                        stringAddChar(token->data, c);
+                                        stringAddChar(&(token->data), '\\');
+                                        stringAddChar(&(token->data), temp);
+                                        stringAddChar(&(token->data), c);
                                         state = sStringRead;
                                 }
 
                         } else {
                                 /* escape failde return \x */
-                                stringAddChar(token->data, '\\');
-                                stringAddChar(token->data, 'x');
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), '\\');
+                                stringAddChar(&(token->data), 'x');
+                                stringAddChar(&(token->data), c);
                                 state = sStringRead;
                         }
 
@@ -412,7 +437,7 @@ tToken* get_token(void) {
                         } else
                         if(c > 31) {
                                 /* literál */
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sStringRead;
                         } else {
                                 /* error */
@@ -428,11 +453,11 @@ tToken* get_token(void) {
                 /************** sIdentificatorOrKeyword Start ****************/
                 case sIdentificatorOrKeyword:
                         if(isalpha(c)) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sIdentificatorOrKeyword;
                         } else
                         if(isdigit(c) || c == '_') {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sIdentificator;
                         } else {
                                 /* koniec id/key - return */
@@ -448,7 +473,7 @@ tToken* get_token(void) {
                 /************** sIdentificator Start ****************/
                 case sIdentificator:
                         if(isalnum(c) || c == '_') {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sIdentificator;
                         } else {
                                 /* koniec id - return */
@@ -466,17 +491,17 @@ tToken* get_token(void) {
                 /************** sIntegerOrDouble Start ****************/
                 case sIntegerOrDouble:
                         if(isdigit(c)) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sIntegerOrDouble;
                         } else
                         if(c == '.') {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoublePoint;
                         } else
                         if((c == 'E') || (c == 'e')) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoubleExponent;
                         } else {
@@ -493,7 +518,7 @@ tToken* get_token(void) {
                 /************** sDoublePoint Start ****************/
                 case sDoublePoint:
                         if(isdigit(c)) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoublePointNumber;
                         } else {
@@ -505,12 +530,12 @@ tToken* get_token(void) {
                 /************** sDoubleExponent Start ****************/
                 case sDoubleExponent:
                         if(isdigit(c)) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoubleExponentNumber;
                         } else
                         if((c == '+') || (c == '-')) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoubleExponentOperator;
                         }
@@ -520,7 +545,7 @@ tToken* get_token(void) {
                 /************** sDoubleExponentOperator Start ****************/
                 case sDoubleExponentOperator:
                         if(isdigit(c)) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoubleExponentNumber;
                         } else {
@@ -532,7 +557,7 @@ tToken* get_token(void) {
                 /************** sDoubleExponentNumber Start ****************/
                 case sDoubleExponentNumber:
                         if(isdigit(c)) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoubleExponentNumber;
                         } else {
@@ -549,12 +574,12 @@ tToken* get_token(void) {
                 /************** sDoublePointNumber Start ****************/
                 case sDoublePointNumber:
                         if(isdigit(c)) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoublePointNumber;
                         } else
                         if((c == 'E') || (c == 'e')) {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 state = sDoubleExponent;
                         } else {
@@ -584,7 +609,7 @@ tToken* get_token(void) {
                 /************** sMore Start ****************/
                 case sMore:
                         if(c == '=') {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sMoreEqual;
                         } else {
                                 ungetc(c, stdin);
@@ -609,7 +634,7 @@ tToken* get_token(void) {
                 /************** sLess Start ****************/
                 case sLess:
                         if(c == '=') {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sLessEqual;
                         } else {
                                 ungetc(c, stdin);
@@ -634,7 +659,7 @@ tToken* get_token(void) {
                 /************** sInequal Start ****************/
                 case sInequal:
                         if(c == '=') {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
 
                                 token->type = sOperand;
                                 token->subtype = sInequal;
@@ -648,7 +673,7 @@ tToken* get_token(void) {
                 /************** sAssignment Start ****************/
                 case sAssignment:
                         if(c == '=') {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sEqual;
                         } else {
                                 ungetc(c, stdin);
@@ -673,7 +698,7 @@ tToken* get_token(void) {
                 /************** sDivideFloat Start ****************/
                 case sDivideFloat:
                         if(c == '/') {
-                                stringAddChar(token->data, c);
+                                stringAddChar(&(token->data), c);
                                 state = sDivideInteger;
                         } else {
                                 ungetc(c, stdin);
@@ -774,11 +799,11 @@ tToken* get_token(void) {
                 case sLen:
                 case sSubstr:
                 case sOrd:
-                case sChr:                    
+                case sChr:
                 case sOperand: break;
 
                 case sLexError:
-                        stringAddString(token->data, "Lexikálne chyba\n");
+                        stringAddString(&(token->data), "Lexikálne chyba\n");
                         token->type = sLexError;
                         token->line = line_cnt;
                         break;
@@ -806,57 +831,57 @@ tToken* init_token(void) {
 
 /* vrátenie tokenu na vstup */
 void unget_token(tToken* t) {
-        for(int i = 0; i < t->data->length; i++) {
-                ungetc(t->data->value[i], stdin);
+        for(int i = 0; i < t->data.length; i++) {
+                ungetc(t->data.value[i], stdin);
         }
 }
 
 
 /* funkcia zistí typ tokenu podľa obsahu data */
 void assignType(tToken* t) {
-        if(strcmp(t->data->value, "def") == 0) {
+        if(strcmp(t->data.value, "def") == 0) {
                 t->type = sDef;
         } else
-        if(strcmp(t->data->value, "else") == 0) {
+        if(strcmp(t->data.value, "else") == 0) {
                 t->type = sElse;
         } else
-        if(strcmp(t->data->value, "if") == 0) {
+        if(strcmp(t->data.value, "if") == 0) {
                 t->type = sIf;
         } else
-        if(strcmp(t->data->value, "None") == 0) {
+        if(strcmp(t->data.value, "None") == 0) {
                 t->type = sNone;
         } else
-        if(strcmp(t->data->value, "pass") == 0) {
+        if(strcmp(t->data.value, "pass") == 0) {
                 t->type = sPass;
         } else
-        if(strcmp(t->data->value, "return") == 0) {
+        if(strcmp(t->data.value, "return") == 0) {
                 t->type = sReturn;
         } else
-        if(strcmp(t->data->value, "while") == 0) {
+        if(strcmp(t->data.value, "while") == 0) {
                 t->type = sWhile;
         } else
-        if(strcmp(t->data->value, "inputs") == 0) {
+        if(strcmp(t->data.value, "inputs") == 0) {
                 t->type = sInputS;
         } else
-        if(strcmp(t->data->value, "inputi") == 0) {
+        if(strcmp(t->data.value, "inputi") == 0) {
                 t->type = sInputI;
         } else
-        if(strcmp(t->data->value, "inputf") == 0) {
+        if(strcmp(t->data.value, "inputf") == 0) {
                 t->type = sInputF;
         } else
-        if(strcmp(t->data->value, "print") == 0) {
+        if(strcmp(t->data.value, "print") == 0) {
                 t->type = sPrint;
         } else
-        if(strcmp(t->data->value, "len") == 0) {
+        if(strcmp(t->data.value, "len") == 0) {
                 t->type = sLen;
         } else
-        if(strcmp(t->data->value, "substr") == 0) {
+        if(strcmp(t->data.value, "substr") == 0) {
                 t->type = sSubstr;
         } else
-        if(strcmp(t->data->value, "ord") == 0) {
+        if(strcmp(t->data.value, "ord") == 0) {
                 t->type = sOrd;
         } else
-        if(strcmp(t->data->value, "chr") == 0) {
+        if(strcmp(t->data.value, "chr") == 0) {
                 t->type = sChr;
         } else {
                 /* nieje keyword */
@@ -897,3 +922,5 @@ int stackTop(tStack *s) {
 bool stackEmpty(tStack* s) {
         return (s[1] == 0) ? (true) : (false);
 }
+
+/* correct call - stringAddChar(&(token->data), 'o');*/
