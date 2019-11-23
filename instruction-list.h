@@ -20,21 +20,22 @@ void DLSucc (tDLListInst *);
 void DLPred (tDLListInst *);
 int DLActive (tDLListInst *);
 
-void instructionGenerator(tDLListInst *, int, void *, void *, void *);
+void instructionGenerator(tDLListInst *, int, char*, char*, char*);
+void instructionPrinter(tDLListInst *);
 
-tOperand initOperand(tOperand , char*, char*, char*); //operand, hodnota, typ, frame
+tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); //operand, hodnota, typ, subtyp, frame
 
 void instruction0op(tDLListInst *, int);
-void instruction1op(tDLListInst *, int, tOperand);
-void isntruction2op(tDLListInst *, int, tOperand, tOperand);
-void instruction3op(tDLListInst *, int, tOperand, tOperand, tOperand);
+void instruction1op(tDLListInst *, int, char*);
+void isntruction2op(tDLListInst *, int, char*, char*);
+void instruction3op(tDLListInst *, int, char*, char*, char*);
 
 
 typedef struct {
     int Type;
-    void * a1;
-    void * a2;
-    void * a3;
+    char* o1;
+    char* o2;
+    char* o3;
 } tInstr;
 
 typedef struct tDLElem {
@@ -50,9 +51,12 @@ typedef struct {
 } tDLListInst;
 
 typedef struct operand{
-    string value;
-    int type;
-    string frame;
+    char* value; // a, 9, 1s5615c, Hello world
+	bool tmp;
+	bool Label;
+    int type;  //sIdentifikator,SNumber,sString
+	int subtype; //sDouble,sInteger
+    char* frame; //GF,LF,TF
 }tOperand;
 
 typedef enum{
