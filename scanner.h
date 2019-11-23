@@ -32,6 +32,9 @@ typedef struct structToken {
         string data;          /* obsah lexému */
 } tToken;
 
+/* deklarácia globálnych premenných */
+extern int line_cnt;
+extern bool FirstToken;
 
 typedef enum {
         sStart,                     /* počiatočný stav */
