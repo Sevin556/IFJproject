@@ -14,12 +14,16 @@
 #define IFJ_EXPRPARSER_H
 
 #include <stdio.h>
-#include "scanner.h"
-#include <stdbool.h>
-#include "lifo.h"
-#include "string.h"
-#include "stdlib.h"
 
+#include <stdbool.h>
+#include <stdlib.h>
+//#include "parser.h"
+#include "symtable.h"
+#include "exprParser.h"
+//#include "scanner.h"
+//#include "stack.h"
+#include "string.h"
+#include "lifo.h"
 typedef struct
 {  
     int TokenType;

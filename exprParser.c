@@ -9,14 +9,8 @@
 *            xsevci64, Adam Ševčík
 *            xzakji02, Jiří Žák
 */
-
-#include "parser.h"
-#include "symtable.h"
 #include "exprParser.h"
-#include "scanner.h"
-#include "stack.h"
-#include "string.h"
-#include "lifo.h"
+
 ERR_VAL ApplyRule(tStack*);
 ERR_VAL shiftToStack (tStack*,tToken*);
 tRedukToken* createNewToken(tToken*);
@@ -52,10 +46,10 @@ exprTable Table[15][15] =
 /**
  * @brief vrati index zadaneho operatora v tabulke
  */
-int tableSelect(tRedukToken* token){
+int tableIndexSelect(tRedukToken* token){
 
-    if (token->type == NULL)
-    return 13;
+    //if (token->TokenType == NULL)
+    //return 13;
 
     if (token->TokenType == sIdentificator || token->TokenType == sNumber || token->TokenType == sString)
         return 14;
@@ -73,6 +67,7 @@ int tableSelect(tRedukToken* token){
                 
                 return i;
          }   
+    return ERROR;
 }
 
 
@@ -83,13 +78,13 @@ ERR_VAL *exprParing(tToken *dostanyToken)
 {
     tStack exprStack;
     tStack Rstack;
-    SInit (&exprStack);
-    SInit (&Rstack);
+    StackInit (&exprStack);
+    StackInit (&Rstack);
     tRedukToken* firstToken;
     firstToken = (tRedukToken*) malloc(sizeof(int)*32);
     firstToken->TokenType = sDollar;
     firstToken->type = sDollar;
-    stringAddString((&firstToken->tokenData),"Dollar");
+    stringAddString(firstToken->tokenData,"Dollar");
     shiftToStack(&exprStack,firstToken);
     IndexTerminalu = 0;
     tToken *actToken;
@@ -130,6 +125,8 @@ ERR_VAL *exprParing(tToken *dostanyToken)
                 return ERR_SYN;
         case EXITPARSE:
             return OK;
+        default:
+            return ERR_SYN;
         }
     }
 
@@ -149,16 +146,16 @@ tRedukToken* createNewToken(tToken *token)
     temp->tokenData=token->data;
     temp->TokenType=token->type;
     temp->subtype= token->subtype;
-    return &(temp);
+    return temp;
 }
 /**
  * @brief pushne token na stack a skontroluje pri ID ci existuje
  */
 ERR_VAL shiftToStack (tStack *stack,tToken* token)
 {
-    if (!stackEmpty(&stack))
+    if (!stackEmpty(stack))
     {
-        stackTop(&stack)->Redukuj= true;
+        stackTop(stack)->Redukuj= true;
             
         tRedukToken* new_token = createNewToken(&token);
 
@@ -207,9 +204,9 @@ ERR_VAL shiftToStack (tStack *stack,tToken* token)
         }
 
         stackPush (&stack,new_token);
-        IndexTerminalu = IndexOfTop(&stack);
-        return OK;
+        IndexTerminalu = IndexOfTop(&stack); 
     }
+    return OK;
 }
 /**
  * @brief pouzije pravidlo
@@ -218,92 +215,102 @@ ERR_VAL shiftToStack (tStack *stack,tToken* token)
 ERR_VAL ApplyRule(tStack* stack)
 {
     ERR_VAL ret = OK;
-    if(!stackEmpty(&stack))
+    if(!stackEmpty(stack))
     {
-            tRedukToken* temp =stackIndex(&stack,IndexTerminalu);
+            tRedukToken* temp =stackIndex(stack,IndexTerminalu);
 
         switch(temp->TokenType)
         {   //situacia pre operandy
             case sIdentificator:   
                                 temp->terminal = false;
                                 temp->Redukuj = false;
-                                tRedukToken* temp2 =stackTopPop(&stack);
-                                stackTop(&stack)->Redukuj = false;
-                                stackPush(&stack,temp2);
+                                tRedukToken* temp2 =stackTopPop(stack);
+                                stackTop(stack)->Redukuj = false;
+                                stackPush(stack,temp2);
                                 /*generuj KOD pre tlacenie*/
                                 break;
             case sOperand:
                             switch(temp->subtype)
                                 {
                                     case sPlus:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                           ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
-
                                             /*JE TO ZLOZITEJSIE DOPLN KOD 
                                             vygeneruj kod */
                                             break;
                                     case sMultiplication:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sDivideFloat:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sDivideInteger:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sMinus:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sEqual:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sInequal:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sMore:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sMoreEqual:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sLess:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     case sLessEqual:
-                                            if (ret = checkOperator(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
-
                                             /*vygeneruj kod */
                                             break;
                                     case sRightBracket:
-                                            if (ret = doBracket(&stack,temp->subtype) != OK)
+                                            ret=checkOperator(stack,temp->subtype);
+                                            if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
@@ -313,11 +320,12 @@ ERR_VAL ApplyRule(tStack* stack)
                                 }
                             break;
         }
-        stackPop(&stack);
-        stackPop(&stack);
+        stackPop(stack);
+        stackPop(stack);
     }
     else 
-    return ERR_SYN;
+        return ERR_SYN;
+    return OK;
 }  
 
 
@@ -327,17 +335,17 @@ ERR_VAL ApplyRule(tStack* stack)
  */
 ERR_VAL  checkOperator(tStack* stack,int znamienko)
 {
-    if (!stackEmpty(&stack))
+    if (!stackEmpty(stack))
     {
-        tRedukToken* RightOperand= stackTop(&stack);
+        tRedukToken* RightOperand= stackTop(stack);
         if (RightOperand->TableIndex != 14)
         return ERR_SYN;
 
-        stackPop(&stack);
+        stackPop(stack);
 
-        tRedukToken* operator = stackTop(&stack);
-        stackPop(&stack);
-        tRedukToken* LeftOperand = stackTop(&stack);
+        tRedukToken* operator = stackTop(stack);
+        stackPop(stack);
+        tRedukToken* LeftOperand = stackTop(stack);
         if (LeftOperand->TableIndex != 14 || LeftOperand->terminal !=false ||
             operator->terminal != true || operator->TokenType != sOperand || 
             RightOperand->terminal !=false || RightOperand->TableIndex !=14)
@@ -350,9 +358,9 @@ ERR_VAL  checkOperator(tStack* stack,int znamienko)
             return ERR_RUN;
         }
         
-        stackPush(&stack,LeftOperand);
-        stackPush(&stack,operator);
-        stackPush(&stack,RightOperand);
+        stackPush(stack,LeftOperand);
+        stackPush(stack,operator);
+        stackPush(stack,RightOperand);
         return OK;
     }
     else
@@ -367,25 +375,25 @@ ERR_VAL checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int op
     switch (operation)
     {
         case sPlus: 
-                if (LeftOperand->type ==sInteger && RightOperand == sInteger)
+                if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
                 {
                     return OK;
                 }
-                else if (LeftOperand->type == sDoublePoint && RightOperand == sInteger)
+                else if (LeftOperand->type == sDoublePoint && RightOperand->type == sInteger)
                 {
                     RightOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sInteger && RightOperand ==  sDoublePoint)
+                else if (LeftOperand->type ==sInteger && RightOperand->type ==  sDoublePoint)
                 {
                     LeftOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sDoublePoint && RightOperand ==  sDoublePoint)
+                else if (LeftOperand->type ==sDoublePoint && RightOperand->type ==  sDoublePoint)
                 {
                     return OK;
                 }
-                else if (LeftOperand->type ==sString && RightOperand ==  sString)
+                else if (LeftOperand->type ==sString && RightOperand->type ==  sString)
                 {
                     return OK;
                 }
@@ -394,23 +402,23 @@ ERR_VAL checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int op
                 break;
 
         case sDivideFloat:
-                if (LeftOperand->type ==sInteger && RightOperand == sInteger)
+                if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
                 {   
                     LeftOperand->type = sDoublePoint;
                     RightOperand->type = sDoublePoint;
                    /*PRETYPUJ OBA*/
                 }
-                else if (LeftOperand->type == sDoublePoint && RightOperand == sInteger)
+                else if (LeftOperand->type == sDoublePoint && RightOperand->type == sInteger)
                 {
                     RightOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sInteger && RightOperand ==  sDoublePoint)
+                else if (LeftOperand->type ==sInteger && RightOperand->type ==  sDoublePoint)
                 {
                     LeftOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sDoublePoint && RightOperand ==  sDoublePoint)
+                else if (LeftOperand->type ==sDoublePoint && RightOperand->type ==  sDoublePoint)
                 {
                     return OK;
                 }
@@ -420,7 +428,7 @@ ERR_VAL checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int op
                 }
                 break;
          case sDivideInteger:
-                if (LeftOperand->type ==sInteger && RightOperand == sInteger)
+                if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
                 {
                    return OK;
                 }
@@ -430,21 +438,21 @@ ERR_VAL checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int op
                 }
         case sMultiplication:
         case sMinus:
-                if (LeftOperand->type ==sInteger && RightOperand == sInteger)
+                if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
                 {
                     return OK;
                 }
-                else if (LeftOperand->type == sDoublePoint && RightOperand == sInteger)
+                else if (LeftOperand->type == sDoublePoint && RightOperand->type == sInteger)
                 {
                     RightOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sInteger && RightOperand ==  sDoublePoint)
+                else if (LeftOperand->type ==sInteger && RightOperand->type ==  sDoublePoint)
                 {
                     LeftOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sDoublePoint && RightOperand ==  sDoublePoint)
+                else if (LeftOperand->type ==sDoublePoint && RightOperand->type ==  sDoublePoint)
                 {
                     return OK;
                 }
@@ -460,32 +468,36 @@ ERR_VAL checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int op
         case sMore:
         case sInequal:
                 break;
+
+        default: 
+            return ERR_SYN;
     }
+    return OK;
 }
 
 ERR_VAL reduceBrackets(tStack *stack)
 {
     if (!stackEmpty(&stack))
     {
-        tRedukToken* temp1 = stackTopPop(&stack);
-        tRedukToken* temp2 = stackTopPop(&stack);
-        tRedukToken* temp3 = stackTopPop(&stack);
+        tRedukToken* temp1 =stackTopPop(stack);
+        tRedukToken* temp2 = stackTopPop(stack);
+        tRedukToken* temp3 =  stackTopPop(stack);
 
         if (temp2->Redukuj == false && temp3->subtype == sLeftBracket)
         {
             
-            if (stackTop(&stack)->terminal == true)
+            if (stackTop(stack)->terminal == true)
             {
                 IndexTerminalu = IndexOfTop(&stack);
-                stackIndex(&stack,IndexTerminalu)->handle = false;
+                stackIndex(stack,IndexTerminalu)->handle = false;
             }
-            stackPush(&stack,temp2);
+            stackPush(stack,temp2);
         }
         else 
         {
-            stackPush(&stack,temp3);
-            stackPush(&stack,temp2);
-            stackPush(&stack,temp1);
+            stackPush(stack,temp3);
+            stackPush(stack,temp2);
+            stackPush(stack,temp1);
             return ERR_SYN;
         }
     }

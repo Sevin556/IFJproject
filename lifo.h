@@ -1,7 +1,7 @@
 #ifndef _LIFO_H_
 #define _LIFO_H_
 
-#include "scanner.h"
+//#include "scanner.h"
 #include <stdio.h>
 #include "exprParser.h"
 #include <stdbool.h>
