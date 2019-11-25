@@ -10,18 +10,18 @@ void stackInit ( tStack* s ) {
 
 	s->top = -1;
 	s->arr = (tRedukToken*) malloc(STACK_SIZE * sizeof(tRedukToken));
-    if (s->arr = NULL)
+    if (s->arr == NULL)
     {
-        printf(stderr,"Nepodarilo sa alokovať pamäť");
+        fprintf(stderr,"Nepodarilo sa alokovať pamäť");
         exit(ERR_INTERN);
     }
 	s->size = STACK_SIZE;
 }
 
 void stackRealloc ( tStack* s ){
-	tRedukToken *new = (tRedukToken*)Realloc(s->arr, (s->size + STACK_SIZE)*sizeof(tRedukToken));
+	tRedukToken *new = (tRedukToken*)realloc(s->arr, (s->size + STACK_SIZE)*sizeof(tRedukToken));
 	{
-        printf(stderr,"Nepodarilo sa alokovať viac pamäte");
+        fprintf(stderr,"Nepodarilo sa alokovať viac pamäte");
         exit(ERR_INTERN);
     }
 	s->arr = new;
@@ -66,10 +66,10 @@ tRedukToken *stackTopPop ( tStack* s) {
 	stackPop(s);
 	return temp;
 }
-void stackPush ( tStack* s, tRedukToken token ) {
+void stackPush ( tStack* s, tRedukToken *token ) {
 	if(stackFull(s))
     {
-		stackIncrement(s);
+		stackRealloc(s);
     }
-    s->arr[++(s->top)] = token;
+    s->arr[++(s->top)] = *token;
 }

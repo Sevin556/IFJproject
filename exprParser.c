@@ -11,17 +11,11 @@
 */
 #include "exprParser.h"
 
-ERR_VAL ApplyRule(tStack*);
-ERR_VAL shiftToStack (tStack*,tToken*);
-tRedukToken* createNewToken(tToken*);
-ERR_VAL checkOperator(tStack* ,int);
-ERR_VAL checkSemantic(tRedukToken* ,tRedukToken* , int );
-ERR_VAL reduceBrackets(tStack*);
 
 extern tSymtable glSymTable;            //GL tabulka symbolů
 extern tSymtable LokalTable;                 //Lokální tabulka
 extern bool inFunctionBody;             //Indikátor, že se kontroluje tělo funkce
-ERR_VAL ret;                            //return value
+int ret;                            //return value
 int IndexTerminalu = -1;                     //index terminalu v stacku 
 
 
@@ -46,12 +40,12 @@ exprTable Table[15][15] =
 /**
  * @brief vrati index zadaneho operatora v tabulke
  */
-int tableIndexSelect(tRedukToken* token){
+int tableIndexSelect(int type, int subtype){
 
     //if (token->TokenType == NULL)
     //return 13;
 
-    if (token->TokenType == sIdentificator || token->TokenType == sNumber || token->TokenType == sString)
+    if (type == sIdentificator || type == sNumber || type == sString)
         return 14;
     
     int arr[15] = {sPlus,sMinus,sMultiplication,sDivideInteger,sDivideFloat,sEqual,sLess,sMore,sMoreEqual,sLessEqual,
@@ -59,13 +53,15 @@ int tableIndexSelect(tRedukToken* token){
 
         for (int i = 0; i < 15 ; i++ )
          {
-             if (token->TokenType == arr[i])
+             if (subtype == arr[i]) {
                 if (i==14)
                 {
                     i =13;
                 }
                 
                 return i;
+             }
+                
          }   
     return ERROR;
 }
@@ -74,18 +70,19 @@ int tableIndexSelect(tRedukToken* token){
 /**
  * @brief volana parserom na skontrolovanie vyrazu
  */
-ERR_VAL *exprParing(tToken *dostanyToken)
+int exprParing(tToken *dostanyToken)
 {
     tStack exprStack;
     tStack Rstack;
-    StackInit (&exprStack);
-    StackInit (&Rstack);
+    stackInit (&exprStack);
+    stackInit (&Rstack);
     tRedukToken* firstToken;
     firstToken = (tRedukToken*) malloc(sizeof(int)*32);
     firstToken->TokenType = sDollar;
     firstToken->type = sDollar;
-    stringAddString(firstToken->tokenData,"Dollar");
-    shiftToStack(&exprStack,firstToken);
+    firstToken->subtype = sDollar;
+    //stringAddString(firstToken->tokenData,"Dollar");
+    stackPush(&exprStack,firstToken);
     IndexTerminalu = 0;
     tToken *actToken;
 
@@ -98,10 +95,10 @@ ERR_VAL *exprParing(tToken *dostanyToken)
         actToken = dostanyToken;
     }
 
-    int indexInTable = tableIndexSelect(stackTop(&exprStack));
+    int indexInTable = tableIndexSelect(stackTop(&exprStack)->TokenType,stackTop(&exprStack)->subtype);
     while (1)
     {
-       switch (Table[indexInTable][selectIndexTable(actToken)])
+       switch (Table[indexInTable][tableIndexSelect(actToken->type,actToken->subtype)])
         {
         case H:
             ret = shiftToStack(&exprStack,actToken);
@@ -116,11 +113,16 @@ ERR_VAL *exprParing(tToken *dostanyToken)
             break;
         case EQ://len pri redukovani zatvoriek
             shiftToStack(&exprStack,actToken);
-
-             if ((ret = reduceBrackets(&exprStack)) != OK) {
+            ret = reduceBrackets(&exprStack);
+             if (ret != OK) {
                     return ret;
                 }
             actToken = get_token();
+            if (actToken == NULL)
+            {
+                return ERR_SYN;
+            }
+            break;
         case ERROR: 
                 return ERR_SYN;
         case EXITPARSE:
@@ -142,7 +144,7 @@ tRedukToken* createNewToken(tToken *token)
     if (temp == NULL)
     temp->Redukuj=false;
     temp->terminal = true;
-    temp->TableIndex=selectIndexTable(token);
+    temp->TableIndex=tableIndexSelect(token->type,token->subtype);
     temp->tokenData=token->data;
     temp->TokenType=token->type;
     temp->subtype= token->subtype;
@@ -151,23 +153,23 @@ tRedukToken* createNewToken(tToken *token)
 /**
  * @brief pushne token na stack a skontroluje pri ID ci existuje
  */
-ERR_VAL shiftToStack (tStack *stack,tToken* token)
+int shiftToStack (tStack *stack,tToken* token)
 {
     if (!stackEmpty(stack))
     {
         stackTop(stack)->Redukuj= true;
             
-        tRedukToken* new_token = createNewToken(&token);
+        tRedukToken* new_token = createNewToken(token);
 
         if (new_token->TokenType  == sIdentificator)
         {
-                tBSTNodePtr ID_uzlu = symTableSearch(&glSymTable,(*new_token->tokenData));
+                tBSTNodePtr ID_uzlu = symTableSearch(&glSymTable,new_token->tokenData);
 
             if ( ID_uzlu != NULL)
             {
                 if(inFunctionBody)
                 {
-                    ID_uzlu = symTableSearch(&LokalTable,(*new_token->tokenData));
+                    ID_uzlu = symTableSearch(&LokalTable,new_token->tokenData);
                     if ( ID_uzlu == NULL)
                     {
                         return ERR_SEM_VAR;
@@ -185,7 +187,7 @@ ERR_VAL shiftToStack (tStack *stack,tToken* token)
             {
                 if(inFunctionBody)
                 {
-                    ID_uzlu = symTableSearch(&LokalTable,(*new_token->tokenData));
+                    ID_uzlu = symTableSearch(&LokalTable,new_token->tokenData);
                     if ( ID_uzlu == NULL)
                     {
                         return ERR_SEM_VAR;
@@ -203,8 +205,8 @@ ERR_VAL shiftToStack (tStack *stack,tToken* token)
 
         }
 
-        stackPush (&stack,new_token);
-        IndexTerminalu = IndexOfTop(&stack); 
+        stackPush (stack,new_token);
+        IndexTerminalu = IndexOfTop(stack); 
     }
     return OK;
 }
@@ -212,9 +214,9 @@ ERR_VAL shiftToStack (tStack *stack,tToken* token)
  * @brief pouzije pravidlo
  */
 
-ERR_VAL ApplyRule(tStack* stack)
+int ApplyRule(tStack* stack)
 {
-    ERR_VAL ret = OK;
+    int ret = OK;
     if(!stackEmpty(stack))
     {
             tRedukToken* temp =stackIndex(stack,IndexTerminalu);
@@ -333,7 +335,7 @@ ERR_VAL ApplyRule(tStack* stack)
 /**
  * @brief skontroluje platnost operacie
  */
-ERR_VAL  checkOperator(tStack* stack,int znamienko)
+int  checkOperator(tStack* stack,int znamienko)
 {
     if (!stackEmpty(stack))
     {
@@ -370,10 +372,16 @@ ERR_VAL  checkOperator(tStack* stack,int znamienko)
 /**
  * @brief skontroluje ci su typy rovnake alebo ich pretypuje
  */
-ERR_VAL checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operation)
+int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operation)
 {
     switch (operation)
-    {
+    {   
+        case sEqual:    
+        case sLessEqual:
+        case sMoreEqual:
+        case sLess:
+        case sMore:
+        case sInequal:
         case sPlus: 
                 if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
                 {
@@ -461,13 +469,7 @@ ERR_VAL checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int op
                     return ERR_RUN;
                 }
                 break;
-        case sEqual:
-        case sLessEqual:
-        case sMoreEqual:
-        case sLess:
-        case sMore:
-        case sInequal:
-                break;
+
 
         default: 
             return ERR_SYN;
@@ -475,9 +477,9 @@ ERR_VAL checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int op
     return OK;
 }
 
-ERR_VAL reduceBrackets(tStack *stack)
+int reduceBrackets(tStack *stack)
 {
-    if (!stackEmpty(&stack))
+    if (!stackEmpty(stack))
     {
         tRedukToken* temp1 =stackTopPop(stack);
         tRedukToken* temp2 = stackTopPop(stack);
@@ -488,8 +490,8 @@ ERR_VAL reduceBrackets(tStack *stack)
             
             if (stackTop(stack)->terminal == true)
             {
-                IndexTerminalu = IndexOfTop(&stack);
-                stackIndex(stack,IndexTerminalu)->handle = false;
+                IndexTerminalu = IndexOfTop(stack);
+                stackIndex(stack,IndexTerminalu)->Redukuj = false;
             }
             stackPush(stack,temp2);
         }

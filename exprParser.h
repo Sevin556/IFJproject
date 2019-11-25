@@ -19,22 +19,11 @@
 #include <stdlib.h>
 //#include "parser.h"
 #include "symtable.h"
-#include "exprParser.h"
-//#include "scanner.h"
+#include "scanner.h"
 //#include "stack.h"
 #include "string.h"
 #include "lifo.h"
-typedef struct
-{  
-    int TokenType;
-	int type;
-    int subtype;
-	int TableIndex;
-	bool Redukuj;
-	bool terminal;
-    string *tokenData;
-	
-}tRedukToken;
+
 
 typedef enum
 {
@@ -47,4 +36,10 @@ typedef enum
 }exprTable;
 
 
+int ApplyRule(tStack*);
+int shiftToStack (tStack*,tToken*);
+tRedukToken* createNewToken(tToken*);
+int checkOperator(tStack* ,int);
+int checkSemantic(tRedukToken* ,tRedukToken* , int );
+int reduceBrackets(tStack*);
 #endif //IFJ_EXPRPARSER_H

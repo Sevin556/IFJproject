@@ -1,16 +1,27 @@
 #ifndef _LIFO_H_
 #define _LIFO_H_
 
-//#include "scanner.h"
+#include "scanner.h"
 #include <stdio.h>
-#include "exprParser.h"
 #include <stdbool.h>
 extern unsigned STACK_SIZE;
+
+typedef struct
+{  
+    int TokenType;
+	int type;
+    int subtype;
+	int TableIndex;
+	bool Redukuj;
+	bool terminal;
+    string tokenData;
+	
+}tRedukToken;
 
 /* ADT zásobník implementovaný ve statickém poli */
 typedef struct {
 	unsigned size;
-	tRedukToken *arr; /* pole pro uložení hodnot */
+	tRedukToken* arr; /* pole pro uložení hodnot */
 	int top; /* index prvku na vrcholu zásobníku */
 } tStack;
 
@@ -51,7 +62,7 @@ tRedukToken *stackIndex ( tStack* s,int index);
 /**
  * @brief Pushne prvok na top stacku
  */
-void stackPush(tStack* s, tRedukToken token);
+void stackPush(tStack* s, tRedukToken* token);
 
 /**
  * @brief Vrati index topu
