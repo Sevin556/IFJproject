@@ -12,12 +12,14 @@
 #include "instruction-list.h"
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 extern tDLListInst instList;
 tOperand operand1;
 tOperand operand2; 
 tOperand operand3;
 
+tInstr printinst;
 ///////////////////////////////////////////////Zoznam//////////////////////////////////////////////
 void DLInitList (tDLListInst *L) {
     L->First = NULL;
@@ -27,7 +29,7 @@ void DLInitList (tDLListInst *L) {
 }
 
 void DLDisposeList (tDLListInst *L) {
-    tDLElemPtr tDLElem = L->First;
+    tDLElemPtrInstruction tDLElem = L->First;
 	while (L->First != NULL)
 	{
 		L->First = L->First->rptr;
@@ -39,7 +41,7 @@ void DLDisposeList (tDLListInst *L) {
 	L->First = L->Last = L->Act = NULL;
 }
 
-void DLInsertFirst (tDLListInst *L, tInstr instruction) {
+int DLInsertFirst (tDLListInst *L, tInstr instruction) {
     // vytvoreni noveho prku a alokovanie pameti pre novy prvok
     tDLElemPtrInstruction newElem;
     if( (newElem = (struct tDLElem*)malloc(sizeof(struct tDLElem))) == NULL ) {
@@ -61,10 +63,10 @@ void DLInsertFirst (tDLListInst *L, tInstr instruction) {
         newElem->rptr = elemToJoin;
         elemToJoin->lptr = newElem;
     }
-    return 1;
+    return 0;
 }
 
-void DLInsertLast(tDLListInst *L, tInstr instruction) {
+int DLInsertLast(tDLListInst *L, tInstr instruction) {
     // vytvoreni noveho prku a alokovanie pameti pre novy prvok
     tDLElemPtrInstruction newElem;
     if( (newElem = (struct tDLElem*)malloc(sizeof(struct tDLElem))) == NULL ) {
@@ -86,7 +88,7 @@ void DLInsertLast(tDLListInst *L, tInstr instruction) {
         newElem->rptr = NULL;
         L->Last = newElem;
     }
-   
+   return 0;
 }
 
 void DLFirst (tDLListInst *L) {
@@ -177,7 +179,7 @@ void DLPreDelete (tDLListInst *L) {
     }
 }
 
-void DLPostInsert (tDLListInst *L, tInstr instruction) {
+int DLPostInsert (tDLListInst *L, tInstr instruction) {
     if (L->Act) {
         // vytvorenie a alokacia noveho prvku na vlozenie
         tDLElemPtrInstruction newElem;
@@ -201,10 +203,10 @@ void DLPostInsert (tDLListInst *L, tInstr instruction) {
             elemToJoin->lptr = newElem;
         }
     }
-   
+   return 0;
 }
 
-void DLPreInsert (tDLListInst *L, tInstr instruction) {
+int DLPreInsert (tDLListInst *L, tInstr instruction) {
     if (L->Act) {
         // vytvorenie a alokacia noveho prvku na vlozenie
         tDLElemPtrInstruction newElem;
@@ -228,17 +230,17 @@ void DLPreInsert (tDLListInst *L, tInstr instruction) {
             elemToJoin->rptr = newElem;
         }
     }
-   
+   return 0;
 }
 
-void DLCopy (tDLListInst *L, tInstr *instruction) {
+int DLCopy (tDLListInst *L, tInstr *instruction) {
     //kontrola ci je zoznam aktivny
     if (L->Act == NULL) {
         return 0;
     }
   //vrati data aktivneho prvku
     *instruction = L->Act->instruction;
-    
+    return 0;
 }
 
 void DLActualize (tDLListInst *L, tInstr instruction) {
@@ -268,27 +270,28 @@ int DLActive (tDLListInst *L) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void instructionGenerator(tDLListInst *L, int instType, char* a1, char* a2, char* a3) {
-    tInstr instr;
-    instruction.instType = instType;
-    instruction.a1 = a1;
-    instruction.a2 = a2;
-    instruction.a3 = a3;
+void instructionGenerator(tDLListInst *L, int instType, char* o1, char* o2, char* o3) {
+    tInstr instruction;
+    instruction.Type = instType;
+    instruction.o1 = o1;
+    instruction.o1 = o2;
+    instruction.o1 = o3;
     
-    DLInsertLast(L,instr);
+    DLInsertLast(L,instruction);
 }
+
 
 tOperand initOperand(tOperand operand, char* value, bool Label, bool tmp, int type, int subtype, char* frame){
     operand.value = value;
     operand.tmp = tmp;
-    operand.Label = Label
+    operand.Label = Label;
     operand.type = type;
     operand.subtype = subtype;
     operand.frame = frame;
     return operand;
 }
 //instrukcia bez operandov
-void instuction0op (tDLListInst *L, int Type){
+void instruction0op (tDLListInst *L, int Type){
     instructionGenerator(L , Type, NULL, NULL, NULL);
 }
 //instrukcia s 1 operandom/////////////////////////////////////////////////////////////
@@ -581,8 +584,74 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
     else if(operand3.subtype == sNil){
             strcat(_operand3,"nil@");
             strcat(_operand3,operand3.value);
+    }
     
 instructionGenerator(L , Type, _operand1, _operand2, _operand3);
 }
-
+//vypis instrukcii /////////////////////////////////////////////////////////////////////////////////////////////////////
+void instructionPrinter(tDLListInst *L){
+    DLFirst(L);
+    while (DLActive(L)){
+        DLCopy(L,&printinst);
+            switch (printinst.Type){
+            case MOVE:            printf("MOVE %s %s\n", printinst.o1, printinst.o2);        break;
+            case CREATEFRAME:     printf("CREATEFRAME\n");       break;
+            case PUSHFRAME:       printf("PUSHFRAME\n");         break;
+            case POPFRAME:        printf("POPFRAME\n");          break;
+            case DEFVAR:          printf("DEFVAR %s\n",printinst.o1);      break;
+            case CALL:            printf("CALL %s\n",printinst.o1);        break;
+            case RETURN:          printf("RETURN\n");                      break;
+            case PUSHS:           printf("PUSHS %s\n",printinst.o1);       break;
+            case POPS:            printf("POPS %s\n",printinst.o1);        break;
+            case CLEARS:          printf("CLEARS\n");                      break;
+            case ADD:             printf("ADD %s %s %s\n",printinst.o1, printinst.o2,printinst.o3);            break;
+            case SUB:             printf("SUB %s %s %s\n",printinst.o1,printinst.o2,printinst.o3);                                    break;
+            case MUL:             printf("MUL %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);        break;
+            case DIV:             printf("DIV %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);        break;
+            case IDIV:            printf("IDIV %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);       break;
+            case ADDS:            printf("ADDS\n");        break;
+            case SUBS:            printf("SUBS\n");        break;
+            case MULS:            printf("MULS\n");        break;
+            case DIVS:            printf("DIVS\n");        break;
+            case IDIVS:           printf("IDIVS\n");       break;
+            case LT:              printf("LT %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);         break;
+            case GT:              printf("GT %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);        break;
+            case EQ:              printf("EQ %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);        break;
+            case LTS:             printf("LTS\n");        break;
+            case GTS:             printf("GTS\n");        break;
+            case EQS:             printf("EQS\n");        break;
+            case AND:             printf("AND %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);        break;
+            case OR:              printf("OR %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);         break;
+            case NOT:             printf("NOT %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);        break;
+            case ANDS:            printf("ANDS\n");        break;
+            case ORS:             printf("ORS\n");         break;
+            case NOTS:            printf("NOTS \n"  );     break;
+            case INT2FLOAT:       printf("INT2FLOAT %s %s\n",printinst.o1,printinst.o2);                         break;
+            case FLOAT2INT:       printf("FLOAT2INT %s %s\n",printinst.o1, printinst.o2);                        break;
+            case INT2CHAR:        printf("INT2CHAR %s %s\n",printinst.o1, printinst.o2);                         break;
+            case STRI2INT:        printf("STRI2INT %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);        break;
+            case INT2FLOATS:      printf("INT2FLOATS\n");      break;
+            case FLOAT2INTS:      printf("FLOAT2INTS\n");      break;
+            case INT2CHARS:       printf("INT2CHARS\n");       break;
+            case STRI2INTS:       printf("STRI2INTS\n");       break;
+            case READ:            printf("READ %s %s\n",printinst.o1, printinst.o2);                          break;
+            case WRITE:           printf("WRITE %s\n",printinst.o1);                                          break;
+            case CONCAT:          printf("CONCAT %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);       break;
+            case STRLEN:          printf("STRLEN %s %s\n",printinst.o1, printinst.o2);                        break;
+            case GETCHAR:         printf("GETCHAR %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);      break;
+            case SETCHAR:         printf("SETCHAR %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);      break;
+            case TYPE:            printf("TYPE %s %s\n",printinst.o1, printinst.o2);                          break;
+            case LABEL:           printf("LABEL %s\n",printinst.o1);         break;
+            case JUMP:            printf("JUMP %s\n",printinst.o1);          break;
+            case JUMPIFEQ:        printf("JUMPIFEQ %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);       break;
+            case JUMPIFNEQ:       printf("JUMPIFNEQ %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);      break;
+            case JUMPIFEQS:       printf("JUMPIFEQS %s\n",printinst.o1);          break;
+            case JUMPIFNEQS:      printf("JUMPIFNEQS %s\n",printinst.o1);         break;
+            case EXIT:            printf("EXIT\n");                               break;
+            case BREAK:           printf("BREAK\n");                              break;
+            case DPRINT:          printf("DPRINT %s\n",printinst.o1);             break;
+        }   
+        DLSucc(L);
+    }
+}
 

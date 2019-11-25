@@ -1,37 +1,7 @@
 #include <stdbool.h>
+#include <stdio.h>
 
-void DLInitList (tDLListInst *);
-void DLDisposeList (tDLListInst *);
-void DLInsertFirst (tDLListInst *, tInstr);
-void DLInsertLast(tDLListInst *, tInstr);
-void DLFirst (tDLListInst *);
-void DLLast (tDLListInst *);
-void DLCopyFirst (tDLListInst *, tInstr *);
-void DLCopyLast (tDLListInst *, tInstr *);
-void DLDeleteFirst (tDLListInst *);
-void DLDeleteLast (tDLListInst *);
-void DLPostDelete (tDLListInst *);
-void DLPreDelete (tDLListInst *);
-void DLPostInsert (tDLListInst *, tInstr);
-void DLPreInsert (tDLListInst *, tInstr);
-void DLCopy (tDLListInst *, tInstr *);
-void DLActualize (tDLListInst *, tInstr);
-void DLSucc (tDLListInst *);
-void DLPred (tDLListInst *);
-int DLActive (tDLListInst *);
-
-void instructionGenerator(tDLListInst *, int, char*, char*, char*);
-void instructionPrinter(tDLListInst *);
-
-tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); //operand, hodnota, typ, subtyp, frame
-
-void instruction0op(tDLListInst *, int);
-void instruction1op(tDLListInst *, int, char*);
-void isntruction2op(tDLListInst *, int, char*, char*);
-void instruction3op(tDLListInst *, int, char*, char*, char*);
-
-
-typedef struct {
+typedef struct instruction{
     int Type;
     char* o1;
     char* o2;
@@ -59,6 +29,39 @@ typedef struct operand{
     char* frame; //GF,LF,TF
 }tOperand;
 
+
+void DLInitList (tDLListInst *);
+void DLDisposeList (tDLListInst *);
+int DLInsertFirst (tDLListInst *, tInstr);
+int DLInsertLast(tDLListInst *, tInstr);
+void DLFirst (tDLListInst *);
+void DLLast (tDLListInst *);
+void DLCopyFirst (tDLListInst *, tInstr *);
+void DLCopyLast (tDLListInst *, tInstr *);
+void DLDeleteFirst (tDLListInst *);
+void DLDeleteLast (tDLListInst *);
+void DLPostDelete (tDLListInst *);
+void DLPreDelete (tDLListInst *);
+int DLPostInsert (tDLListInst *, tInstr);
+int DLPreInsert (tDLListInst *, tInstr);
+int DLCopy (tDLListInst *, tInstr *);
+void DLActualize (tDLListInst *, tInstr);
+void DLSucc (tDLListInst *);
+void DLPred (tDLListInst *);
+int DLActive (tDLListInst *);
+
+void instructionGenerator(tDLListInst *, int, char*, char*, char*);
+void instructionPrinter(tDLListInst *);
+
+tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); //operand, hodnota, typ, subtyp, frame
+
+void instruction0op(tDLListInst *, int);
+void instruction1op(tDLListInst *, int, tOperand);
+void isntruction2op(tDLListInst *, int, tOperand, tOperand);
+void instruction3op(tDLListInst *, int, tOperand, tOperand, tOperand);
+
+
+
 typedef enum{
     MOVE,
 	CREATEFRAME,
@@ -74,10 +77,12 @@ typedef enum{
 	SUB,
 	MUL,
 	DIV,
+	IDIV,
 	ADDS,
 	SUBS,
 	MULS,
 	DIVS,
+	IDIVS,
 	LT,
 	GT,
 	EQ,
@@ -92,14 +97,10 @@ typedef enum{
 	NOTS,
 	INT2FLOAT,
 	FLOAT2INT,
-	FLOAT2R2EINT,
-	FLOAT2R20INT,
 	INT2CHAR,
 	STRI2INT,
 	INT2FLOATS,
 	FLOAT2INTS,
-	FLOAT2R2EINTS,
-	FLOAT2R20INTS,
 	INT2CHARS,
 	STRI2INTS,
 	READ,
@@ -115,6 +116,7 @@ typedef enum{
 	JUMPIFNEQ,
 	JUMPIFEQS,
 	JUMPIFNEQS,
+	EXIT,
 	BREAK,
 	DPRINT,
-} INSTRUCTION;
+} I_TYPE;
