@@ -17,21 +17,30 @@
 #include "scanner.h"
 #include "string.h"
 #include "err_code.h"
+#include "symtable.h"
 
-typedef enum {
-    sIf,
-    sElse,
-    sLoop,
-    sPrint,
-    sInput,
-    sReturn,
+ERR_VAL parse();
 
-    tInteger,
-    tDouble,
-    tString
-}keyword_type;
+ERR_VAL doParse();
 
-int parse();
-int prog();
+ERR_VAL line();
+
+ERR_VAL declaration();
+
+ERR_VAL declarationVariable();
+
+ERR_VAL declarationFunctionHead();
+
+ERR_VAL declarationFunctionBody();
+
+ERR_VAL checkFunction();
+
+ERR_VAL declarationKeyword();
+
+ERR_VAL typPromenne();
+
+ERR_VAL parametr();
+
+ERR_VAL nextParametr();
 
 #endif //IFJ_PARSER_H
