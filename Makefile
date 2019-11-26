@@ -2,8 +2,8 @@ CFLAGS=-std=gnu99 -Wall -Wextra -Werror -pedantic -g
 
 all: main
 
-main: main.o parser.o string.o stack.o symtable.o expression.o
-	gcc $(CFLAGS) -o main main.o parser.o string.o stack.o symtable.o expression.o
+main: main.o string.o stack.o symtable.o scanner.o parser.o lifo.o exprParser.o
+	gcc $(CFLAGS) -o main main.o string.o stack.o symtable.o scanner.o parser.o lifo.o exprParser.o
 
 main.o: main.c
 	gcc $(CFLAGS) -c main.c -o main.o
@@ -20,8 +20,17 @@ stack.o: stack.c
 symtable.o: symtable.c
 	gcc $(CFLAGS) -c symtable.c -o symtable.o
 
-expression.o: expression.c
-	gcc $(CFLAGS) -c expression.c -o expression.o
+scanner.o: scanner.c
+	gcc $(CFLAGS) -c scanner.c -o scanner.o
+
+lifo.o: lifo.c
+	gcc $(CFLAGS) -c lifo.c -o lifo.o
+
+exprParser.o: exprParser.c
+	gcc $(CFLAGS) -c exprParser.c -o exprParser.o
+
+#instruction-list.o: instruction-list.c
+#	gcc $(CFLAGS) -c instruction-list.c -o instruction-list.o
 
 clear:
 	rm main *.o
