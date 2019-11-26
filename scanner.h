@@ -54,7 +54,6 @@ typedef enum {
         sLess,                      /* návratový podtyp */
         sLessEqual,                 /* návratový podtyp */
         sInequal,                   /* návratový podtyp */
-        //sInequalMid,  -redundant
         sEqual,                     /* návratový podtyp */
         sDivideFloat,               /* návratový podtyp */
         sDivideInteger,             /* návratový podtyp */
@@ -68,6 +67,7 @@ typedef enum {
         sComma,                     /* návratový typ */
         sAssignment,                /* návratový typ */
         sColon,                     /* návratový typ */
+        sDolar,                     /* návratový typ */
 
         /* id */
         sIdentificatorOrKeyword,
