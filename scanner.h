@@ -67,7 +67,7 @@ typedef enum {
         sComma,                     /* návratový typ */
         sAssignment,                /* návratový typ */
         sColon,                     /* návratový typ */
-        sDolar,                     /* návratový typ */
+        sDollar,                    /* návratový typ */
 
         /* id */
         sIdentificatorOrKeyword,
