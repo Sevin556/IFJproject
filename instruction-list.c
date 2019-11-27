@@ -335,13 +335,14 @@ void instruction1op (tDLListInst *L, int Type, tOperand operand1){
             strcat(_operand1,operand1.value);
         }
     }
-    else if(operand1.subtype == sBool){
+    /*else if(operand1.subtype == sBool){
             strcat(_operand1,"bool@");
             strcat(_operand1,operand1.value);
     }
     else if(operand1.subtype == sNil){
             strcat(_operand1,"nil@");
             strcat(_operand1,operand1.value);
+            */
     }
     instructionGenerator(L , Type, _operand1, "", "");
 }
@@ -387,13 +388,14 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
             strcat(_operand1,operand1.value);
         }
     }
-    else if(operand1.subtype == sBool){
+   /* else if(operand1.subtype == sBool){
             strcat(_operand1,"bool@");
             strcat(_operand1,operand1.value);
     }
     else if(operand1.subtype == sNil){
             strcat(_operand1,"nil@");
             strcat(_operand1,operand1.value);
+            */
     }
 //operand 2
 
@@ -434,13 +436,14 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
             strcat(_operand2,operand1.value);
         }
     }
-    else if(operand2.subtype == sBool){
+    /*else if(operand2.subtype == sBool){
             strcat(_operand2,"bool@");
             strcat(_operand2,operand2.value);
     }
     else if(operand2.subtype == sNil){
             strcat(_operand2,"nil@");
             strcat(_operand2,operand2.value);
+            */
     }
 instructionGenerator(L , Type, _operand1, _operand2, "");
 }
@@ -484,13 +487,14 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
             strcat(_operand1,operand1.value);
         }
     }
-    else if(operand1.subtype == sBool){
+  /*  else if(operand1.subtype == sBool){
             strcat(_operand1,"bool@");
             strcat(_operand1,operand1.value);
     }
     else if(operand1.subtype == sNil){
             strcat(_operand1,"nil@");
             strcat(_operand1,operand1.value);
+            */
     }
 //operand 2
 
@@ -531,13 +535,14 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
             strcat(_operand2,operand1.value);
         }
     }
-    else if(operand2.subtype == sBool){
+   /* else if(operand2.subtype == sBool){
             strcat(_operand2,"bool@");
             strcat(_operand2,operand2.value);
     }
     else if(operand2.subtype == sNil){
             strcat(_operand2,"nil@");
             strcat(_operand2,operand2.value);
+            */
     }
 
 //operand 3
@@ -578,13 +583,14 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
             strcat(_operand3,operand3.value);
         }
     }
-    else if(operand3.subtype == sBool){
+   /* else if(operand3.subtype == sBool){
             strcat(_operand3,"bool@");
             strcat(_operand3,operand3.value);
     }
     else if(operand3.subtype == sNil){
             strcat(_operand3,"nil@");
             strcat(_operand3,operand3.value);
+            */
     }
     
 instructionGenerator(L , Type, _operand1, _operand2, _operand3);
