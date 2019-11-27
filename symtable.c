@@ -20,21 +20,31 @@ tBSTNodePtr BSTSearch(tBSTNodePtr root, char *K) {
 }
 
 void BSTInsert(tBSTNodePtr *root, char *K, void *data, tNodeDataType nodeType) {
-    if (*root == NULL) {
-        tBSTNodePtr new = malloc(sizeof(struct tBSTNode));
-        if (new == NULL)
+    if ( root != NULL && (*root) != NULL) {
+        if ( strcmp(K, (*root)->Key) != 0 ) {
+            if ( strcmp(K, ((*root)->Key)) < 0 ) {
+                BSTInsert( &((*root)->LPtr), K, data, nodeType);
+            } else if ( strcmp(K, (*root)->Key) > 0 ) {
+                BSTInsert( &((*root)->RPtr), K, data, nodeType);
+            }
+        }
+        else {
+            (*root)->Data = data;
+        }
+    }
+    else {
+        // alokace pameti pro novy uzel
+        struct tBSTNode *newitem;
+        if ( (newitem = (struct tBSTNode*)malloc(sizeof(struct tBSTNode))) == NULL ) {
             return;
-        new->RPtr = NULL;
-        new->LPtr = NULL;
-        new->Data = data;
-        new->Key = K;
-        new->nodeDataType = nodeType;
-    } else if ((*root)->Key == K) {
-        (*root)->Data = data;
-    } else if ((*root)->Key < K) {
-        BSTInsert(&(*root)->RPtr, K, data, nodeType);
-    } else {
-        BSTInsert(&(*root)->LPtr, K, data, nodeType);
+        }
+
+        newitem->Key = K;
+        newitem->Data = data;
+        newitem->nodeDataType = nodeType;
+        newitem->LPtr = newitem->RPtr = NULL;
+
+        (*root) = newitem;
     }
 }
 
@@ -111,7 +121,7 @@ void symTableInsertFunction(tSymtable *Tab, string str) {
     stringInit(&parametrs);
     data->retType = -1;
     data->declared = data->defined = NULL;
-   // data->param = parametrs;
+    data->param = parametrs;
     BSTInsert(&(Tab->root), str.value, data, ndtFunction);
 }
 
@@ -127,7 +137,7 @@ void symTableDispose(tSymtable *Tab) {
     BSTDispose(&(Tab->root));
 }
 
-/*void symTableInsertVesFunction(tSymtable *Tab){
+void symTableInsertVesFunction(tSymtable *Tab){
     tBSTNodePtr node;
     tFunction *fun;
 
@@ -142,7 +152,7 @@ void symTableDispose(tSymtable *Tab) {
     stringAddChar(&(fun->param), 's');
     stringInit(&(fun->paramName[0]));
     stringAddChar(&(fun->paramName[0]), 's');
-    //fun->retType = sInteger;
+    fun->retType = sInteger;
 
     //substr
     string substr;
@@ -159,14 +169,14 @@ void symTableDispose(tSymtable *Tab) {
     stringAddChar(&(fun->paramName[1]), 'i');
     stringInit(&(fun->paramName[2]));
     stringAddChar(&(fun->paramName[2]), 'n');
-    //fun->retType = sString;
+    fun->retType = sString;
 
     //ord
-    string ord;
+    /*string ord;
     stringInit(&ord);
     stringAddString(&ord, "ord");
     symTableInsertFunction(Tab, ord);
     node = symTableSearch(Tab, ord);
-    fun = (tFunction *)(node->Data);
+    fun = (tFunction *)(node->Data);*/
 
-}*/
+}

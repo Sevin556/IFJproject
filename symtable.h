@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include "string.h"
+#include "scanner.h"
 
 typedef enum {
     ndtVariable,     /* nodeDataTypeVariable */
@@ -16,7 +17,7 @@ typedef enum {
 typedef struct tBSTNode {
     char *Key;                                         /* klic */
     tNodeDataType nodeDataType;                      /* typ dat, ktera uzel uchovava (funkce, promenna) */
-    void *Data;                                      /* typ hodnoty uzlu */
+    void *Data;                                      /* uzitecny obsah uzlu */
     struct tBSTNode *LPtr;                          /* ukazatel na levy podstrom */
     struct tBSTNode *RPtr;                          /* ukazatel na pravy podstrom */
 } *tBSTNodePtr;
@@ -29,7 +30,7 @@ typedef struct function {
     int retType;
     bool defined;
     bool declared;
-    //string param;
+    string param;
     string paramName[10];
 } tFunction;
 
@@ -61,6 +62,6 @@ void symTableDelete(tSymtable *, string);
 
 void symTableDispose(tSymtable *);
 
-//void symTableInsertVesFunction(tSymtable *);
+void symTableInsertVesFunction(tSymtable *);
 
 #endif //IFJ_SYMTABLE_H
