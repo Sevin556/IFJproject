@@ -29,13 +29,15 @@ int paramIndex = 0;             // pomocna promenna na parametr ve funkci
 ERR_VAL parse() {
 
     ERR_VAL rett;
-    aktToken = init_token();
-    prevToken = init_token();
     stringInit(&paramName);
     stringInit(&functionName);
 
-    if ((rett = doParse()) != OK) {
-        return ERR_LEX;
+    while (1) {
+        if ((rett = doParse()) != OK) {
+            return ERR_LEX;
+        }
+        if(aktToken->type == sEOF)
+            break;
     }
 
     stringFree(&functionName);
