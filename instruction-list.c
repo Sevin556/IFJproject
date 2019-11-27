@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "scanner.c"
 
 extern tDLListInst instList;
 tOperand operand1;
@@ -299,7 +300,7 @@ void instruction0op (tDLListInst *L, int Type){
 void instruction1op (tDLListInst *L, int Type, tOperand operand1){
     char* _operand1 = "";
 //premenna identifikator
-    if(operand1.type == sIdentifikator){
+    if(operand1.type == sIdentificator){
         if(strcmp(operand1.frame,"GF") == 0){
             strcat(_operand1,"GF@");
             strcat(_operand1,operand1.value);
@@ -351,7 +352,7 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 //operand 1
     char* _operand1 = "";
 //premenna identifikator
-    if(operand1.type == sIdentifikator){
+    if(operand1.type == sIdentificator){
         if(strcmp(operand1.frame,"GF") == 0){
             strcat(_operand1,"GF@");
             strcat(_operand1,operand1.value);
@@ -398,7 +399,7 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 
         char* _operand2 = "";
 //premenna identifikator
-     if(operand2.type == sIdentifikator){
+     if(operand2.type == sIdentificator){
         if(strcmp(operand2.frame,"GF") == 0){
             strcat(_operand2,"GF@");
             strcat(_operand2,operand2.value);
@@ -448,7 +449,7 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 //operand 1
     char* _operand1 = "";
 //premenna identifikator
-    if(operand1.type == sIdentifikator){
+    if(operand1.type == sIdentificator){
         if(strcmp(operand1.frame,"GF") == 0){
             strcat(_operand1,"GF@");
             strcat(_operand1,operand1.value);
@@ -495,7 +496,7 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 
         char* _operand2 = "";
 //premenna identifikator
-     if(operand2.type == sIdentifikator){
+     if(operand2.type == sIdentificator){
         if(strcmp(operand2.frame,"GF") == 0){
             strcat(_operand2,"GF@");
             strcat(_operand2,operand2.value);
@@ -542,7 +543,7 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 //operand 3
     char* _operand3 = "";
 //premenna identifikator
-    if(operand3.type == sIdentifikator){
+    if(operand3.type == sIdentificator){
         if(strcmp(operand3.frame,"GF") == 0){
             strcat(_operand3,"GF@");
             strcat(_operand3,operand3.value);
@@ -590,6 +591,7 @@ instructionGenerator(L , Type, _operand1, _operand2, _operand3);
 }
 //vypis instrukcii /////////////////////////////////////////////////////////////////////////////////////////////////////
 void instructionPrinter(tDLListInst *L){
+    printf(".IFJcode19");
     DLFirst(L);
     while (DLActive(L)){
         DLCopy(L,&printinst);
