@@ -12,12 +12,13 @@
 
 #include "parser.h"
 
-tSymtable gTable;               // globalna tabulka
-tSymtable lTable;               // lokalna tabulka
+extern tSymtable gTable;               // globalna tabulka
+extern tSymtable lTable;               // lokalna tabulka
 tToken *aktToken;               // aktualne cteny token
 tToken *prevToken;              // predchazejici token
-bool inMain = true;             // TRUE kdyz jsme v mainu
+bool inMain = true;             // TRUE kdyz jsme v mainu, false ve funkci
 bool argumentBool = false;      // FALSE kdyz nezpracovavam argumenty
+bool printBool = false;         // FALSE kdyz nejsem v printu
 tBSTNodePtr node;               // node na pridavani promenych nebo funkci
 tBSTNodePtr gNode;              // node na hledani v globalni tabulce
 string functionName;            // pomocna promenna pro zapamatovani nazvu funkce
@@ -26,7 +27,6 @@ int paramIndex = 0;             // pomocna promenna na parametr ve funkci
 
 //zavolas len raz niekde v maine
 ERR_VAL parse() {
-    symTableInit(&gTable);
 
     ERR_VAL rett;
     aktToken = init_token();
@@ -44,7 +44,6 @@ ERR_VAL parse() {
     free(aktToken);
     stringFree(&prevToken->data);
     free(prevToken);
-    symTableDispose(&gTable);
 
     return rett;
 }
@@ -67,16 +66,55 @@ ERR_VAL line() {
 ERR_VAL doParse() {      //toto budes rekurzivne volat
     ERR_VAL rett;
     aktToken = get_token();
+    if (aktToken->type == sLexError)
+        return ERR_LEX;
+    switch (aktToken->type) {
+        case sPrint:
+        case sIf:
+        case sWhile:
+        case sReturn:
+            rett = keyWords();
+            return OK;
+        case sIdentificator:
+            if ((rett = declaration()) != OK) {
+                return ERR_SYN;
+            }
+            return OK;
+        case sEOL:
+            rett = line();
+            if (rett != OK)
+                return rett;
+            return OK;
+        case sDef:
+            if ((rett = declarationFunctionHead()) != OK)
+                return ERR_SYN;
+            return OK;
+    }
+    return OK;
+}
+
+// fce na rozdeleni keywordu
+ERR_VAL keyWords() {
+    //ERR_VAL rett;
     switch (aktToken->type) {
         case sPrint:
             if (doParse() != OK)
                 return ERR_LEX;
-            if (aktToken->type != sLeftBracket)
+            if (aktToken->subtype != sLeftBracket)
                 return ERR_SYN;
             if (doParse() != OK)
                 return ERR_LEX;
-            if (aktToken->type != "")
-                return ERR_SYN;
+            switch (aktToken->type) {
+                case sString:
+                case sComma:
+                case sIdentificator:
+                    printBool = true;
+
+                    printBool = false;
+                    break;
+                case sRightBracket:
+                    return OK;
+            }
 
             // call gen instruction
             return OK;
@@ -87,23 +125,10 @@ ERR_VAL doParse() {      //toto budes rekurzivne volat
             //call expression
             return OK;
         case sReturn:
-            if (inMain == false)
+            if (inMain)
                 return ERR_SEM_FCE;
             // call instruction gen return with parametr
             return OK;
-        case sIdentificator:
-            if ((rett = declaration()) != OK) {
-                return ERR_SYN;
-            }
-            break;
-        case sEOL:
-            rett = line();
-            if (rett != OK)
-                return rett;
-            break;
-        case sDef:
-            if ((rett = declarationFunctionHead()) != OK)
-                return ERR_SYN;
     }
     return OK;
 }
@@ -111,14 +136,20 @@ ERR_VAL doParse() {      //toto budes rekurzivne volat
 // zjištění jeslti se jedná o proměnnou nebo o funkci nebo argument
 ERR_VAL declaration() {
     ERR_VAL rett;
-
-    if(argumentBool == true) { // kdyz zpracovavam argumenty tak se uz muzu vratit
+    if (argumentBool == true) { // kdyz zpracovavam argumenty tak se uz muzu vratit
         prevToken = aktToken;
         rett = declarationVariable();
         return OK;
+    } else if (printBool == true) { // kdyz jsem v printu
+        rett = checkVariable();
+        if (rett != OK)
+            return ERR_SEM_FCE;
     }
+
     prevToken = aktToken;
     aktToken = get_token();
+    printf("Hodnota tokenu: %s, Typ tokenu: %d\n", prevToken->data.value, prevToken->type);
+    printf("Hodnota tokenu: %s, Typ tokenu: %d\n", aktToken->data.value, aktToken->type);
     switch (aktToken->type) {
         case sAssignment:
             rett = declarationVariable();
@@ -145,7 +176,10 @@ ERR_VAL declarationVariable() {
         node = symTableSearch(&gTable, prevToken->data);
     }
 
-    if(argumentBool == true)  // kdyz zpracovavam argumenty tak se uz muzu vratit
+    //rett = exprParing();
+    printf("%s\n", node->Key);
+
+    if (argumentBool == true)  // kdyz zpracovavam argumenty tak se uz muzu vratit
         return OK;
 
     if (doParse() != OK)
@@ -173,8 +207,25 @@ ERR_VAL declarationVariable() {
             ((tVariable *) node->Data)->retType = sDoublePointNumber;
             break;
     }
-    // vypis
+    printf("Konec variable\n");
+
     return OK;
+}
+
+ERR_VAL checkVariable() {
+    if (aktToken->type == sIdentificator) {
+        if (inMain == true) {
+            node = symTableSearch(&gTable, aktToken->data);
+            if (node == NULL)
+                return ERR_SEM_FCE;
+        } else {
+            node = symTableSearch(&lTable, aktToken->data);
+            if (node == NULL)
+                return ERR_SEM_FCE;
+        }
+        return OK;
+    }
+    return ERR_SYN;
 }
 
 // typ promenne
@@ -198,13 +249,13 @@ ERR_VAL checkFunction() {
     } else {
         node = symTableSearch(&gTable, prevToken->data);
     }
-    if(doParse() != OK)
+    if (doParse() != OK)
         return ERR_LEX;
-    while() {
+    /*while () {
         if (aktToken->type != sIdentificator)
             return ERR_SEM_FCE;
         // dodelat kontroli jestli to bylo uz definovane nebo jeslti se to ma pridat a pak smazat
-    }
+    }*/
 
     return OK;
 }
@@ -212,7 +263,7 @@ ERR_VAL checkFunction() {
 // deklarace funkce
 ERR_VAL declarationFunctionHead() {
     ERR_VAL rett;
-    if (doParse() != OK)
+    if ((aktToken = get_token()) != OK)
         return ERR_LEX;
     if (aktToken->type != sIdentificator)
         return ERR_SEM_VAR;
@@ -224,19 +275,19 @@ ERR_VAL declarationFunctionHead() {
         symTableInsertFunction(&gTable, aktToken->data);
         node = symTableSearch(&gTable, aktToken->data);
     }
-    if(doParse() != OK)
+    if (doParse() != OK)
         return ERR_LEX;
-    if(aktToken->type != sLeftBracket)
+    if (aktToken->type != sLeftBracket)
         return ERR_SEM_VAR;
     rett = nextParametr();
 
     rett = declarationFunctionBody();
-    return OK;
+    return rett;
 }
 
 ERR_VAL declarationFunctionBody() {
     inMain = false;
-    ERR_VAL rett;
+    //ERR_VAL rett;
 
     symTableInit(&lTable);
     gNode = symTableSearch(&gTable, functionName);
@@ -272,10 +323,10 @@ ERR_VAL parametr() {
         case sIdentificator:
             paramName = aktToken->data;
             for (int i = 0; i < paramIndex; i++) {
-                if(stringCompare(&((tFunction *)node->Data)->paramName[i], &paramName) == true)
+                if (stringCompare(&((tFunction *) node->Data)->paramName[i], &paramName) == true)
                     return ERR_SEM_FCE;
             }
-            if(symTableSearch(&gTable, &paramName) != NULL)
+            if (symTableSearch(&gTable, paramName) != NULL)
                 return ERR_SEM_FCE;
             ((tFunction *) node->Data)->paramName[paramIndex] = paramName;
 
@@ -283,7 +334,7 @@ ERR_VAL parametr() {
             if (doParse() != OK)
                 return ERR_LEX;
             rett = nextParametr();
-            if(rett != OK)
+            if (rett != OK)
                 return rett;
             return OK;
         case sRightBracket:

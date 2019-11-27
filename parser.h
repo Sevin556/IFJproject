@@ -25,9 +25,13 @@ ERR_VAL doParse();
 
 ERR_VAL line();
 
+ERR_VAL keyWords();
+
 ERR_VAL declaration();
 
 ERR_VAL declarationVariable();
+
+ERR_VAL checkVariable();
 
 ERR_VAL declarationFunctionHead();
 
