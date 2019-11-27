@@ -17,12 +17,17 @@
 /* definícia premenných */
 int line_cnt = 1;
 bool FirstToken = true;
+bool FirstInit = true;
+tIndentStack stackI[MAX_DENT];
 
 tToken* get_token(void) {
         tState state;
         char c;
-        static tIndentStack stackI[MAX_DENT];
-        stackI[0] = 0;      /* zarážka */
+        if(FirstInit) {
+                stackInitI(stackI);
+                FirstInit = false;
+        }
+        
         tToken *token = init_token();
 
         int indent_cnt = 0;
@@ -35,19 +40,20 @@ tToken* get_token(void) {
                 switch(state) {
                 case sStart:
                         /****************počiatocný stav********************/
-                        /* check Dedent 
+                        /* check Dedent */
                         if(FirstToken && c != ' ') {
                                 if(stackEmptyI(stackI)) {
-                                        /* no indentation 
+                                        /* no indentation */
                                         FirstToken = false;
                                 } else {
-                                        /* dedent needed 
+                                        /* dedent all needed */
                                         ungetc(c, stdin);
                                         stackPopI(stackI);
                                         state = sDedent;
+                                        
                                         break;
                                 }
-                        }*/
+                        }
 
                         /* End Of File */
                         if(c == EOF) {
@@ -75,15 +81,15 @@ tToken* get_token(void) {
 
                         /* space */
                         if(isspace(c)) {
-                                /*if(FirstToken) {
+                                if(FirstToken) {
                                         indent_cnt++;         /* zvýšenie počítadla indentu */
-                                        /*state = sDentDecide;
-                                        break;TODO
-                                } else {*/
+                                        state = sDentDecide;
+                                        break;
+                                } else {
                                         state = sStart;
                                         break;
                                 }
-                        /*} else*/
+                        } else
 
                         /* line comment */
                         if(c == '#') {
@@ -262,17 +268,37 @@ tToken* get_token(void) {
                 /********* Dent Start**************************************/
                 /************** sDentDecide Start ****************/
                 case sDentDecide:
-                        break;//TODO
                         if(isspace(c)) {
                                 indent_cnt++;
                                 state = sDentDecide;
+                                break;
                         } else
                         if(c == '\n') {
                                 state = sStart;
+                                break;
                         } else {
+                                ungetc(c, stdin);
+                                FirstToken = false;
+
                                 int curr = stackTopI(stackI);
                                 if(indent_cnt > curr) {
-                                        //TODO
+                                        stackPushI(stackI, indent_cnt);
+                                        state = sIndent;
+                                        break;
+                                } else 
+                                if(indent_cnt < curr) {
+                                        stackPopI(stackI);
+                                        curr = stackTopI(stackI);
+                                        if(indent_cnt == curr) {
+                                                /* správny dedent */
+                                                state = sDedent;
+                                        } else {
+                                                /* nesprávny dedent */
+                                                state = sLexError;
+                                        }
+                                } else {
+                                        /* indent_cnt == curr => netreba indent */
+                                        state = sStart;
                                 }
                         }
                         break;
@@ -280,14 +306,20 @@ tToken* get_token(void) {
 
                 /************** sIndent Start ****************/
                 case sIndent:
+                        ungetc(c, stdin);
+                        stringAddString(&(token->data), "INDENT"); //DEBUG
                         token->type = sIndent;
+                        token->line = line_cnt;
                         return token;
                         break;
                 /************** sIndent End ****************/
 
                 /************** sDedent Start ****************/
                 case sDedent:
+                        ungetc(c, stdin);
+                        stringAddString(&(token->data), "DEDENT");      //DEBUG
                         token->type = sDedent;
+                        token->line = line_cnt; 
                         return token;
                         break;
                 /************** sDedent End ****************/
@@ -686,8 +718,7 @@ tToken* get_token(void) {
                         } else {
                                 ungetc(c, stdin);
 
-                                token->type = sOperand;
-                                token->subtype = sAssignment;
+                                token->type = sAssignment;
                                 return token;
                         }
                         break;
@@ -789,7 +820,7 @@ tToken* get_token(void) {
                 /********* Operators End *******************************/
 
                 case sLexError:
-                        stringAddString(&(token->data), "Lexikálna chyba");
+                        //stringAddString(&(token->data), "Lexikálna chyba");
                         token->type = sLexError;
                         token->line = line_cnt;
                         return token;
@@ -902,7 +933,7 @@ void assignType(tToken* t) {
 void stackPushI(tIndentStack* s, int value) {
         /* nájdi vhodné miesto na vloženie */
         int level = 1;
-        while(s[level] != 0) {
+        while(s[level] != -1) {
                 level++;
         }
         s[level] = value;
@@ -912,24 +943,33 @@ void stackPushI(tIndentStack* s, int value) {
 void stackPopI(tIndentStack *s) {
         /* nájdi poslednú položku */
         int level = 1;
-        while(s[level] != 0) {
+        while(s[level] != -1) {
                 level++;
         }
-        s[level] = 0;
+        s[level - 1] = -1;
 }
 
 /* funkcia vráti hodnotu poslednej položky */
 int stackTopI(tIndentStack *s) {
         /* nájdi poslednú položku */
         int level = 1;
-        while(s[level] != 0) {
+        while(s[level] != -1) {
                 level++;
         }
-        return s[level];
+        return s[level - 1];
 }
 
+/* funkcia zistí či je stack prázdy */
 bool stackEmptyI(tIndentStack* s) {
-        return (s[1] == 0) ? (true) : (false);
+        return (s[1] == -1) ? (true) : (false);
+}
+
+/* inicializácia stacku */
+void stackInitI(tIndentStack* s) {
+        s[0] = 0;
+        for(int i = 1; i < MAX_DENT; i++) {
+                s[i] = -1;
+        }
 }
 
 /* correct call - stringAddChar(&(token->data), 'o');*/

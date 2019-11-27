@@ -19,7 +19,7 @@
 #include "string.h"
 
 
-#define MAX_DENT 100
+#define MAX_DENT 50
 
 /* jednoducé pole pre počítanie indentov používané ako LIFO zásobník */
 typedef int tIndentStack;
@@ -35,6 +35,8 @@ typedef struct structToken {
 /* deklarácia globálnych premenných */
 extern int line_cnt;
 extern bool FirstToken;
+extern bool FirstInit;
+extern tIndentStack stackI[MAX_DENT];
 
 typedef enum {
         sStart,                     /* počiatočný stav */
@@ -129,5 +131,6 @@ void stackPushI(tIndentStack*, int);
 void stackPopI(tIndentStack*);
 int stackTopI(tIndentStack*);
 bool stackEmptyI(tIndentStack*);
+void stackInitI(tIndentStack*);
 
 #endif  //_SCANNER_H_
