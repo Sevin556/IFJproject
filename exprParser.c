@@ -12,12 +12,11 @@
 #include "exprParser.h"
 
 
-extern tSymtable glSymTable;            //GL tabulka symbolů
-extern tSymtable LokalTable;                 //Lokální tabulka
-extern bool inFunctionBody;             //Indikátor, že se kontroluje tělo funkce
+extern tSymtable gTable;            //GL tabulka symbolů
+extern tSymtable lTable;                 //Lokální tabulka
+bool inFunctionBody;             //Indikátor, že se kontroluje tělo funkce
 int ret;                            //return value
 int IndexTerminalu = -1;                     //index terminalu v stacku 
-
 
 exprTable Table[15][15] =
 {		//+   	-    	*   	/   	//  	=     	<    	>   	<=   	>=   	<>   	(    	)   	EOL/:   VAR
@@ -32,11 +31,12 @@ exprTable Table[15][15] =
 /*"<="*/{L,		L,		L,		L,		L,		H,		H,		H,		H,		H,		H,		L,		H,		H,		L},
 /*">="*/{L,		L,		L,		L,		L,		H,		H,		H,		H,		H,		H,		L,		H,		H,		L},
 /*"<>"*/{L,		L,		L,		L,		L,		H,		L,		L,		L,		L,		H,		L,		H,		H,		L},
-/*"("*/	{L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		EQ,		ERROR,	L},
-/*")"*/	{H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		ERROR,	H,		H,		ERROR},
-/*"$  "*/{L,	L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		ERROR,	EXITPARSE,	L},
+/*"("*/	{L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		EQ,		H,	    L},
+/*")"*/	{H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		ERROR,	H,		H,	ERROR},
+/*"$  "*/{L,	L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		ERROR,	EXITPARSE,	    L},
 /*"VAR"*/{H,	H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		ERROR,	H,		H,		ERROR}
 };
+
 /**
  * @brief vrati index zadaneho operatora v tabulke
  */
@@ -44,21 +44,30 @@ int tableIndexSelect(int type, int subtype){
 
     //if (token->TokenType == NULL)
     //return 13;
-
+    //printf("EXPR INDEX zacinam s %d a %d\n ",type,subtype);
+    if (type == sDollar)
+    {
+        return 13;
+    }
     if (type == sIdentificator || type == sNumber || type == sString)
+    {
+        printf("EXPR INDEXTABLE vybral som 14 \n");
         return 14;
+    }    
     
     int arr[15] = {sPlus,sMinus,sMultiplication,sDivideInteger,sDivideFloat,sEqual,sLess,sMore,sMoreEqual,sLessEqual,
 				sInequal,sLeftBracket,sRightBracket,sEOL,sColon};
-
+    //printf("EXPR INDEXTABLE nevybral som  14 \n");
         for (int i = 0; i < 15 ; i++ )
          {
-             if (subtype == arr[i]) {
+             //printf(" %d a je to porovbnanie %d a %d \n",i,subtype,arr[i]);
+             if (subtype == arr[i] || type == arr[i]) {
+                // printf("EXPR INDEXTABLE vybral som %d \n",i);
                 if (i==14)
                 {
                     i =13;
                 }
-                
+                //printf("EXPR INDEXTABLE vybral som %d \n",i);
                 return i;
              }
                 
@@ -70,7 +79,7 @@ int tableIndexSelect(int type, int subtype){
 /**
  * @brief volana parserom na skontrolovanie vyrazu
  */
-int exprParing(tToken *dostanyToken)
+int exprParsing(tToken *dostanyToken)
 {
     tStack exprStack;
     tStack Rstack;
@@ -81,6 +90,9 @@ int exprParing(tToken *dostanyToken)
     firstToken->TokenType = sDollar;
     firstToken->type = sDollar;
     firstToken->subtype = sDollar;
+    firstToken->TableIndex = 13;
+    firstToken->terminal = false;
+    firstToken->Redukuj = true;
     //stringAddString(firstToken->tokenData,"Dollar");
     stackPush(&exprStack,firstToken);
     IndexTerminalu = 0;
@@ -88,30 +100,43 @@ int exprParing(tToken *dostanyToken)
 
     if (dostanyToken == NULL)
     {
+        
        actToken = get_token();
+       printf("EXPR  nacitavam token %s \n",actToken->data.value);
     }
     else 
     {
         actToken = dostanyToken;
+        printf("EXPR  mam token %s \n",actToken->data.value);
     }
 
-    int indexInTable = tableIndexSelect(stackTop(&exprStack)->TokenType,stackTop(&exprStack)->subtype);
+    //printf("EXPR mam token %s \n",actToken->data.value);
+    shiftToStack(&exprStack,actToken);
+    actToken = get_token();
     while (1)
     {
+        if (actToken->type == sLexError )
+        return ERR_LEX;
+        
+       int indexInTable = tableIndexSelect(stackIndex(&exprStack,IndexTerminalu)->TokenType,stackIndex(&exprStack,IndexTerminalu)->subtype);
        switch (Table[indexInTable][tableIndexSelect(actToken->type,actToken->subtype)])
         {
-        case H:
+        case L:
+            printf("EXPR ROBIM H s %s \n",actToken->data.value);
             ret = shiftToStack(&exprStack,actToken);
             if (ret != OK)
             return ret;
             actToken = get_token();
+             printf("EXPR Koncim H s %s \n",actToken->data.value);
             break;
-        case L:
+        case H:
+            printf("EXPR ROBIM L s %s\n",actToken->data.value);
             ret = ApplyRule(&exprStack);
             if (ret != OK)
             return ret;
             break;
         case EQ://len pri redukovani zatvoriek
+            printf("ROBIM EQ \n");
             shiftToStack(&exprStack,actToken);
             ret = reduceBrackets(&exprStack);
              if (ret != OK) {
@@ -122,12 +147,16 @@ int exprParing(tToken *dostanyToken)
             {
                 return ERR_SYN;
             }
+            //actToken = get_token();
             break;
-        case ERROR: 
-                return ERR_SYN;
+        case ERROR:                
+            printf("ROBIM ERROR \n");
+            return ERR_SYN;
         case EXITPARSE:
+            printf("ROBIM EXIT \n");
             return OK;
         default:
+            printf("robim default");
             return ERR_SYN;
         }
     }
@@ -157,19 +186,19 @@ int shiftToStack (tStack *stack,tToken* token)
 {
     if (!stackEmpty(stack))
     {
-        stackTop(stack)->Redukuj= true;
+        stackIndex(stack,IndexTerminalu)->Redukuj= true;
             
         tRedukToken* new_token = createNewToken(token);
 
         if (new_token->TokenType  == sIdentificator)
         {
-                tBSTNodePtr ID_uzlu = symTableSearch(&glSymTable,new_token->tokenData);
+                tBSTNodePtr ID_uzlu = symTableSearch(&gTable,new_token->tokenData);
 
             if ( ID_uzlu != NULL)
             {
                 if(inFunctionBody)
                 {
-                    ID_uzlu = symTableSearch(&LokalTable,new_token->tokenData);
+                    ID_uzlu = symTableSearch(&lTable,new_token->tokenData);
                     if ( ID_uzlu == NULL)
                     {
                         return ERR_SEM_VAR;
@@ -187,7 +216,7 @@ int shiftToStack (tStack *stack,tToken* token)
             {
                 if(inFunctionBody)
                 {
-                    ID_uzlu = symTableSearch(&LokalTable,new_token->tokenData);
+                    ID_uzlu = symTableSearch(&lTable,new_token->tokenData);
                     if ( ID_uzlu == NULL)
                     {
                         return ERR_SEM_VAR;
@@ -204,7 +233,7 @@ int shiftToStack (tStack *stack,tToken* token)
 
 
         }
-
+        printf("EXPR pushujem %s \n",new_token->tokenData.value);
         stackPush (stack,new_token);
         IndexTerminalu = IndexOfTop(stack); 
     }
@@ -219,19 +248,26 @@ int ApplyRule(tStack* stack)
     int ret = OK;
     if(!stackEmpty(stack))
     {
-            tRedukToken* temp =stackIndex(stack,IndexTerminalu);
-
+        tRedukToken* temp =stackIndex(stack,IndexTerminalu);
+        printf("EXPR aplikujem pravidlo pre %s \n",temp->tokenData.value);
         switch(temp->TokenType)
         {   //situacia pre operandy
-            case sIdentificator:   
+            case sDollar: return OK;
+            case sIdentificator:
+            case sNumber:
+            case sString:
+                                 printf("EXPR aplikujem pravidlo sIDEN pre %s \n",temp->tokenData.value);   
                                 temp->terminal = false;
                                 temp->Redukuj = false;
                                 tRedukToken* temp2 =stackTopPop(stack);
                                 stackTop(stack)->Redukuj = false;
+                                IndexTerminalu = IndexOfTop(stack);
                                 stackPush(stack,temp2);
                                 /*generuj KOD pre tlacenie*/
+                                return OK;
                                 break;
             case sOperand:
+                             printf("EXPR aplikujem pravidlo sOPERATOR pre %s \n",temp->tokenData.value);
                             switch(temp->subtype)
                                 {
                                     case sPlus:
@@ -249,6 +285,7 @@ int ApplyRule(tStack* stack)
                                             /*vygeneruj kod */
                                             break;
                                     case sDivideFloat:
+                                            printf("EXPR robim sDivideFloat");
                                             ret=checkOperator(stack,temp->subtype);
                                             if (ret!= OK)
                                             return ret;
@@ -311,19 +348,23 @@ int ApplyRule(tStack* stack)
                                             /*vygeneruj kod */
                                             break;
                                     case sRightBracket:
-                                            ret=checkOperator(stack,temp->subtype);
+                                            ret=reduceBrackets(stack);
                                             if (ret!= OK)
                                             return ret;
 
                                             /*vygeneruj kod */
                                             break;
                                     default :
+                                    printf("NEMAM PRAVIDLO");
                                     return ERR_SYN;
                                 }
                             break;
         }
         stackPop(stack);
         stackPop(stack);
+        IndexTerminalu = IndexOfTop(stack)-1;
+        stackIndex(stack,IndexTerminalu)->Redukuj = false;
+
     }
     else 
         return ERR_SYN;
@@ -337,17 +378,23 @@ int ApplyRule(tStack* stack)
  */
 int  checkOperator(tStack* stack,int znamienko)
 {
+    printf("EXPR zacinam CheckOperator s %d \n",znamienko);
     if (!stackEmpty(stack))
     {
-        tRedukToken* RightOperand= stackTop(stack);
+        tRedukToken* RightOperand= stackTopPop(stack);
+        printf("EXPR pravy operator je  %s \n",RightOperand->tokenData.value);
         if (RightOperand->TableIndex != 14)
         return ERR_SYN;
 
-        stackPop(stack);
+        tRedukToken* operator = stackTopPop(stack);
+        printf("EXPR  operator je  %s \n",operator->tokenData.value);
+        tRedukToken* LeftOperand = stackTopPop(stack);
+        if (LeftOperand->TableIndex != 14)
+        return ERR_SYN;
 
-        tRedukToken* operator = stackTop(stack);
-        stackPop(stack);
-        tRedukToken* LeftOperand = stackTop(stack);
+        printf("EXPR lavy operator %s \n",LeftOperand->tokenData.value);
+        
+        
         if (LeftOperand->TableIndex != 14 || LeftOperand->terminal !=false ||
             operator->terminal != true || operator->TokenType != sOperand || 
             RightOperand->terminal !=false || RightOperand->TableIndex !=14)
@@ -374,6 +421,7 @@ int  checkOperator(tStack* stack,int znamienko)
  */
 int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operation)
 {
+    printf("EXPR zacinam semantiku s %s a %s",RightOperand->tokenData.value,LeftOperand->tokenData.value);
     switch (operation)
     {   
         case sEqual:    
@@ -383,25 +431,27 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
         case sMore:
         case sInequal:
         case sPlus: 
-                if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
+                if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {
                     return OK;
                 }
-                else if (LeftOperand->type == sDoublePoint && RightOperand->type == sInteger)
+                else if (LeftOperand->subtype == sDoublePoint && RightOperand->subtype == sInteger)
                 {
                     RightOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
+                    return OK;
                 }
-                else if (LeftOperand->type ==sInteger && RightOperand->type ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePoint)
                 {
                     LeftOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
+                    return OK;
                 }
-                else if (LeftOperand->type ==sDoublePoint && RightOperand->type ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sDoublePoint && RightOperand->subtype ==  sDoublePoint)
                 {
                     return OK;
                 }
-                else if (LeftOperand->type ==sString && RightOperand->type ==  sString)
+                else if (LeftOperand->TokenType ==sString && RightOperand->TokenType ==  sString)
                 {
                     return OK;
                 }
@@ -410,23 +460,23 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 break;
 
         case sDivideFloat:
-                if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
+                if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {   
                     LeftOperand->type = sDoublePoint;
                     RightOperand->type = sDoublePoint;
                    /*PRETYPUJ OBA*/
                 }
-                else if (LeftOperand->type == sDoublePoint && RightOperand->type == sInteger)
+                else if (LeftOperand->subtype == sDoublePoint && RightOperand->subtype == sInteger)
                 {
                     RightOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sInteger && RightOperand->type ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePoint)
                 {
                     LeftOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sDoublePoint && RightOperand->type ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sDoublePoint && RightOperand->subtype ==  sDoublePoint)
                 {
                     return OK;
                 }
@@ -434,9 +484,10 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 {
                     return ERR_RUN;
                 }
+                return OK;
                 break;
          case sDivideInteger:
-                if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
+                if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {
                    return OK;
                 }
@@ -446,21 +497,21 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 }
         case sMultiplication:
         case sMinus:
-                if (LeftOperand->type ==sInteger && RightOperand->type == sInteger)
+                if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {
                     return OK;
                 }
-                else if (LeftOperand->type == sDoublePoint && RightOperand->type == sInteger)
+                else if (LeftOperand->subtype == sDoublePoint && RightOperand->subtype == sInteger)
                 {
                     RightOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sInteger && RightOperand->type ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePoint)
                 {
                     LeftOperand->type = sDoublePoint;
                     /*PRETYPUJ*/
                 }
-                else if (LeftOperand->type ==sDoublePoint && RightOperand->type ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sDoublePoint && RightOperand->subtype ==  sDoublePoint)
                 {
                     return OK;
                 }

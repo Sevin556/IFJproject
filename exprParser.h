@@ -35,7 +35,7 @@ typedef enum
 	EXITPARSE
 }exprTable;
 
-
+int exprParsing(tToken*);
 int ApplyRule(tStack*);
 int shiftToStack (tStack*,tToken*);
 tRedukToken* createNewToken(tToken*);

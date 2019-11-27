@@ -61,6 +61,12 @@ tRedukToken *stackIndex ( tStack* s,int index) {
 		return (&(s->arr[index]));
 }
 
+void stackPop(tStack* s)
+{
+	s->top--;
+}
+
+
 tRedukToken *stackTopPop ( tStack* s) {
 	tRedukToken *temp = stackTop(s);
 	stackPop(s);
