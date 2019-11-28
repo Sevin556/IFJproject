@@ -634,9 +634,9 @@ void instructionPrinter(tDLListInst *L){
             case ANDS:            printf("ANDS\n");        break;
             case ORS:             printf("ORS\n");         break;
             case NOTS:            printf("NOTS \n"  );     break;
-            case INT2FLOAT:       printf("INT2FLOAT %s %s\n",printinst.o1,printinst.o2);                         break;
-            case FLOAT2INT:       printf("FLOAT2INT %s %s\n",printinst.o1, printinst.o2);                        break;
-            case INT2CHAR:        printf("INT2CHAR %s %s\n",printinst.o1, printinst.o2);                         break;
+            case INT2FLOAT:       printf("INT2FLOAT %s %s\n",printinst.o1,printinst.o1);                         break;
+            case FLOAT2INT:       printf("FLOAT2INT %s %s\n",printinst.o1, printinst.o1);                        break;
+            case INT2CHAR:        printf("INT2CHAR %s %s\n",printinst.o1, printinst.o1);                         break;
             case STRI2INT:        printf("STRI2INT %s %s %s\n",printinst.o1, printinst.o2, printinst.o3);        break;
             case INT2FLOATS:      printf("INT2FLOATS\n");      break;
             case FLOAT2INTS:      printf("FLOAT2INTS\n");      break;
