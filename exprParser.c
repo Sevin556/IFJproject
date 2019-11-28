@@ -161,7 +161,7 @@ int exprParsing(tToken *dostanyToken)
         case EXITPARSE:
             printf(" \n EXPR top stack je %s \n",stackTop(&exprStack)->tokenData.value);
             printf("ROBIM EXIT \n");
-            (*node)->nodeDataType = stackTop(&exprStack)->type;
+            //(*node)->nodeDataType = stackTop(&exprStack)->type;
             return OK;
         default:
             printf("robim default");
@@ -299,6 +299,7 @@ int ApplyRule(tStack* stack)
                                             return ret;
                                             /*JE TO ZLOZITEJSIE DOPLN KOD 
                                             vygeneruj kod */
+                                            instruction0op(&instList,ADDS);
                                             break;
                                     case sMultiplication:
                                             ret=checkOperator(stack,temp->subtype);
