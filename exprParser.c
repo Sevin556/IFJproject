@@ -15,7 +15,8 @@
  tSymtable gTable;            //GL tabulka symbolů
  tSymtable lTable;            //Lokální tabulka
 extern bool inMain;         //Indikátor, že se kontroluje tělo funkce
-extern tDLListInst instList;              
+extern tDLListInst instList; 
+extern tBSTNodePtr *node;             
 //bool inFunctionBody;             
 int ret;                            //return value
 int IndexTerminalu = -1;                     //index terminalu v stacku 
@@ -160,6 +161,7 @@ int exprParsing(tToken *dostanyToken)
         case EXITPARSE:
             printf(" \n EXPR top stack je %s \n",stackTop(&exprStack)->tokenData.value);
             printf("ROBIM EXIT \n");
+            (*node)->nodeDataType = stackTop(&exprStack)->type;
             return OK;
         default:
             printf("robim default");
@@ -214,7 +216,7 @@ int shiftToStack (tStack *stack,tToken* token)
                     else 
                     {
                         /*ULOZ JEJ TYP*/
-                       new_token->type = ((tDataFunction *) node->Data)->declared = true;
+                     //  new_token->type = ((tDataFunction *) node->Data)->declared = true;
                     }
                 }
                 else 
@@ -232,7 +234,7 @@ int shiftToStack (tStack *stack,tToken* token)
                     else 
                     {
                         /*ULOZ JEJ TYP*/
-                       new_token->type = ((tDataFunction *) node->Data)->declared = true;
+                      // new_token->type = ((tDataFunction *) node->Data)->declared = true;
                     }
                 }
                 else 
