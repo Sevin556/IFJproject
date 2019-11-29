@@ -477,7 +477,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 }
                 else if (LeftOperand->subtype == sDoublePointNumber && RightOperand->subtype == sInteger)
                 {
-                    RightOperand->subtype = sDoublePointNumber;
+                    
                     /*PRETYPUJ*/
                    if(inMain)
                     {
@@ -492,6 +492,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     
                     instruction1op(&instList,POPS,operand1);
                     instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    RightOperand->subtype = sDoublePointNumber;
                     instruction1op(&instList,PUSHS,operand1);
 
 
@@ -499,7 +500,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 }
                 else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePointNumber)
                 {
-                    LeftOperand->subtype = sDoublePointNumber;
+                    
                     
                     if(inMain)
                     {
@@ -519,6 +520,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     instruction1op(&instList,POPS,operand2);
                     instruction1op(&instList,POPS,operand1);
                     instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    LeftOperand->subtype = sDoublePointNumber;
                     instruction1op(&instList,PUSHS,operand1);
                     instruction1op(&instList,PUSHS,operand2);
 
@@ -539,8 +541,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
         case sDivideFloat:
                 if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {   
-                    LeftOperand->subtype = sDoublePointNumber;
-                    RightOperand->subtype = sDoublePointNumber;
+                    
                    /*PRETYPUJ OBA*/
                    if(inMain)
                     {
@@ -561,6 +562,8 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     instruction2op(&instList,INT2FLOAT,operand1,operand1);
                     instruction1op(&instList,POPS,operand2);
                     instruction2op(&instList,INT2FLOAT,operand2,operand2);
+                    LeftOperand->subtype = sDoublePointNumber;
+                    RightOperand->subtype = sDoublePointNumber;
                     instruction1op(&instList,PUSHS,operand2);
                     instruction1op(&instList,PUSHS,operand1);
                     printf("EXPR pretypujem oba ");
@@ -569,7 +572,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 }
                 else if (LeftOperand->subtype == sDoublePointNumber && RightOperand->subtype == sInteger)
                 {
-                    RightOperand->subtype = sDoublePointNumber;
+                    
 
                     /*PRETYPUJ*/
                     if(inMain)
@@ -585,12 +588,13 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     
                     instruction1op(&instList,POPS,operand1);
                     instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    RightOperand->subtype = sDoublePointNumber;
                     instruction1op(&instList,PUSHS,operand1);
                     return OK;
                 }
                 else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePointNumber)
                 {
-                    LeftOperand->subtype = sDoublePointNumber;
+                    
 
                     /*PRETYPUJ*/
                      if(inMain)
@@ -611,6 +615,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     instruction1op(&instList,POPS,operand2);
                     instruction1op(&instList,POPS,operand1);
                     instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    LeftOperand->subtype = sDoublePointNumber;
                     instruction1op(&instList,PUSHS,operand1);
                     instruction1op(&instList,PUSHS,operand2);
                     return OK;
@@ -642,7 +647,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 }
                 else if (LeftOperand->subtype == sDoublePointNumber && RightOperand->subtype == sInteger)
                 {
-                    RightOperand->subtype = sDoublePointNumber;
+                   
                     /*PRETYPUJ*/
                     if(inMain)
                     {
@@ -657,12 +662,13 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     
                     instruction1op(&instList,POPS,operand1);
                     instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                     RightOperand->subtype = sDoublePointNumber;
                     instruction1op(&instList,PUSHS,operand1);
                     return OK;
                 }
                 else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePointNumber)
                 {
-                    LeftOperand->subtype = sDoublePointNumber;
+                    
                     /*PRETYPUJ*/
                    if(inMain)
                     {
@@ -682,6 +688,7 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     instruction1op(&instList,POPS,operand2);
                     instruction1op(&instList,POPS,operand1);
                     instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    LeftOperand->subtype = sDoublePointNumber;
                     instruction1op(&instList,PUSHS,operand1);
                     instruction1op(&instList,PUSHS,operand2);
                     return OK;
