@@ -376,14 +376,27 @@ tToken* get_token(void) {
                         if(c == '\\') {
                                 /* escape sequence */
                                 state = sStringEscape;
-                        } else
-                        if(c > 31) {
+                                break;
+                        }
+                        else if ((c <= 32) || (c == 35) || (c == 92))
+                        {
+                                /* biele znaky a # a / */
+                                char temp[6];
+                                sprintf(temp, "\\0%d", c);
+                                stringAddString(&(token->data), temp);
+                                state = sStringRead;
+                                break;
+                        }
+                        else if (c > 32)
+                        {
                                 /* literál */
                                 stringAddChar(&(token->data), c);
                                 state = sStringRead;
+                                break;
                         } else {
                                 /* error */
                                 state = sLexError;
+                                break;
                         }
 
                         break;
@@ -414,7 +427,7 @@ tToken* get_token(void) {
                                 break;
 
                         case '\\':
-                                stringAddChar(&(token->data), '\\');
+                                stringAddString(&(token->data), "\092");
                                 state = sStringRead;
                                 break;
 
@@ -423,9 +436,19 @@ tToken* get_token(void) {
                                 break;
 
                         default:
-                                stringAddChar(&(token->data), '\\');
-                                stringAddChar(&(token->data), c);
-                                state = sStringRead;
+                                stringAddString(&(token->data), "\092");
+                                if ((c <= 32) || (c == 35) || (c == 92))
+                                {
+                                        /* biele znaky a # a / */
+                                        char temp[6];
+                                        sprintf(temp, "\\0%d", c);
+                                        stringAddString(&(token->data), temp);
+                                        state = sStringRead;
+                                        break;
+                                } else {
+                                        stringAddChar(&(token->data), c);
+                                        state = sStringRead;
+                                }
                         }
 
                         break;
@@ -474,14 +497,25 @@ tToken* get_token(void) {
                         if(c == '\\') {
                                 /* escape sequence */
                                 state = sStringEscape;
+                                break;
                         } else
-                        if(c > 31) {
+                        if((c <= 32) || (c == 35) || (c == 92)) {
+                                /* biele znaky a # a / */
+                                char temp[6];
+                                sprintf(temp, "\\0%d", c);
+                                stringAddString(&(token->data), temp);
+                                state = sStringRead;
+                                break;
+                        } else
+                        if(c > 32) {
                                 /* literál */
                                 stringAddChar(&(token->data), c);
                                 state = sStringRead;
+                                break;
                         } else {
                                 /* error */
                                 state = sLexError;
+                                break;
                         }
 
                         break;
