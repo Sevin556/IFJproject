@@ -10,10 +10,7 @@
 *            xzakji02, Jiří Žák
 */
 #include "instruction-list.h"
-#include <stdbool.h>
-#include <string.h>
-#include <stdlib.h>
-#include "scanner.c"
+
 
 extern tDLListInst instList;
 tOperand operand1;
@@ -270,13 +267,16 @@ int DLActive (tDLListInst *L) {
     return(L->Act != NULL);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void instructionGenerator(tDLListInst *L, int instType, char* o1, char* o2, char* o3) {
     tInstr instruction;
     instruction.Type = instType;
     instruction.o1 = o1;
-    instruction.o1 = o2;
-    instruction.o1 = o3;
+    instruction.o2 = o2;
+    instruction.o3 = o3;
     
     DLInsertLast(L,instruction);
 }
@@ -298,7 +298,7 @@ void instruction0op (tDLListInst *L, int Type){
 //instrukcia s 1 operandom/////////////////////////////////////////////////////////////
 
 void instruction1op (tDLListInst *L, int Type, tOperand operand1){
-    char* _operand1 = "";
+    char* _operand1 = malloc(sizeof(char)*100);
 //premenna identifikator
     if(operand1.type == sIdentificator){
         if(strcmp(operand1.frame,"GF") == 0){
@@ -342,8 +342,8 @@ void instruction1op (tDLListInst *L, int Type, tOperand operand1){
     else if(operand1.subtype == sNil){
             strcat(_operand1,"nil@");
             strcat(_operand1,operand1.value);
-            */
-    }
+            
+    }*/
     instructionGenerator(L , Type, _operand1, "", "");
 }
 
@@ -351,7 +351,7 @@ void instruction1op (tDLListInst *L, int Type, tOperand operand1){
 
 void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand operand2){
 //operand 1
-    char* _operand1 = "";
+     char* _operand1 = malloc(sizeof(char)*100);
 //premenna identifikator
     if(operand1.type == sIdentificator){
         if(strcmp(operand1.frame,"GF") == 0){
@@ -395,11 +395,11 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
     else if(operand1.subtype == sNil){
             strcat(_operand1,"nil@");
             strcat(_operand1,operand1.value);
-            */
-    }
+            
+    }*/
 //operand 2
 
-        char* _operand2 = "";
+         char* _operand2 = malloc(sizeof(char)*100);
 //premenna identifikator
      if(operand2.type == sIdentificator){
         if(strcmp(operand2.frame,"GF") == 0){
@@ -443,14 +443,14 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
     else if(operand2.subtype == sNil){
             strcat(_operand2,"nil@");
             strcat(_operand2,operand2.value);
-            */
-    }
+           
+    } */
 instructionGenerator(L , Type, _operand1, _operand2, "");
 }
 //instrukcia s 3 operandmi ///////////////////////////////////////////////////////////////
 void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand operand2, tOperand operand3){
 //operand 1
-    char* _operand1 = "";
+     char* _operand1 = malloc(sizeof(char)*100);
 //premenna identifikator
     if(operand1.type == sIdentificator){
         if(strcmp(operand1.frame,"GF") == 0){
@@ -494,11 +494,11 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
     else if(operand1.subtype == sNil){
             strcat(_operand1,"nil@");
             strcat(_operand1,operand1.value);
-            */
-    }
+            
+    }*/
 //operand 2
 
-        char* _operand2 = "";
+         char* _operand2 = malloc(sizeof(char)*100);
 //premenna identifikator
      if(operand2.type == sIdentificator){
         if(strcmp(operand2.frame,"GF") == 0){
@@ -542,11 +542,11 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
     else if(operand2.subtype == sNil){
             strcat(_operand2,"nil@");
             strcat(_operand2,operand2.value);
-            */
-    }
+           
+    } */
 
 //operand 3
-    char* _operand3 = "";
+     char* _operand3 = malloc(sizeof(char)*100);
 //premenna identifikator
     if(operand3.type == sIdentificator){
         if(strcmp(operand3.frame,"GF") == 0){
@@ -590,14 +590,14 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
     else if(operand3.subtype == sNil){
             strcat(_operand3,"nil@");
             strcat(_operand3,operand3.value);
-            */
-    }
+           
+    } */
     
 instructionGenerator(L , Type, _operand1, _operand2, _operand3);
 }
 //vypis instrukcii /////////////////////////////////////////////////////////////////////////////////////////////////////
 void instructionPrinter(tDLListInst *L){
-    printf(".IFJcode19");
+    printf(".IFJcode19\n");
     DLFirst(L);
     while (DLActive(L)){
         DLCopy(L,&printinst);

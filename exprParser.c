@@ -12,9 +12,12 @@
 #include "exprParser.h"
 
 
-extern tSymtable gTable;            //GL tabulka symbolů
-extern tSymtable lTable;                 //Lokální tabulka
-bool inFunctionBody;             //Indikátor, že se kontroluje tělo funkce
+ tSymtable gTable;            //GL tabulka symbolů
+ tSymtable lTable;            //Lokální tabulka
+extern bool inMain;         //Indikátor, že se kontroluje tělo funkce
+extern tDLListInst instList; 
+extern tBSTNodePtr *node;             
+//bool inFunctionBody;             
 int ret;                            //return value
 int IndexTerminalu = -1;                     //index terminalu v stacku 
 
@@ -31,7 +34,7 @@ exprTable Table[15][15] =
 /*"<="*/{L,		L,		L,		L,		L,		H,		H,		H,		H,		H,		H,		L,		H,		H,		L},
 /*">="*/{L,		L,		L,		L,		L,		H,		H,		H,		H,		H,		H,		L,		H,		H,		L},
 /*"<>"*/{L,		L,		L,		L,		L,		H,		L,		L,		L,		L,		H,		L,		H,		H,		L},
-/*"("*/	{L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		EQ,		H,	    L},
+/*"("*/	{L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		EQUAL,		H,	    L},
 /*")"*/	{H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		ERROR,	H,		H,	ERROR},
 /*"$  "*/{L,	L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		L,		ERROR,	EXITPARSE,	    L},
 /*"VAR"*/{H,	H,		H,		H,		H,		H,		H,		H,		H,		H,		H,		ERROR,	H,		H,		ERROR}
@@ -93,6 +96,9 @@ int exprParsing(tToken *dostanyToken)
     firstToken->TableIndex = 13;
     firstToken->terminal = false;
     firstToken->Redukuj = true;
+    tOperand operand1 = initOperand(operand1,firstToken->tokenData.value,false,false,firstToken->TokenType,firstToken->subtype,"GF" );
+    instruction1op(&instList,PUSHS,operand1);
+    
     //stringAddString(firstToken->tokenData,"Dollar");
     stackPush(&exprStack,firstToken);
     IndexTerminalu = 0;
@@ -135,7 +141,7 @@ int exprParsing(tToken *dostanyToken)
             if (ret != OK)
             return ret;
             break;
-        case EQ://len pri redukovani zatvoriek
+        case EQUAL://len pri redukovani zatvoriek
             printf("ROBIM EQ \n");
             shiftToStack(&exprStack,actToken);
             ret = reduceBrackets(&exprStack);
@@ -147,19 +153,23 @@ int exprParsing(tToken *dostanyToken)
             {
                 return ERR_SYN;
             }
-            //actToken = get_token();
+            
             break;
         case ERROR:                
             printf("ROBIM ERROR \n");
             return ERR_SYN;
         case EXITPARSE:
+            printf(" \n EXPR top stack je %s \n",stackTop(&exprStack)->tokenData.value);
             printf("ROBIM EXIT \n");
+            //(*node)->nodeDataType = stackTop(&exprStack)->type;
             return OK;
         default:
             printf("robim default");
             return ERR_SYN;
         }
     }
+
+
 
 }
 
@@ -196,7 +206,7 @@ int shiftToStack (tStack *stack,tToken* token)
 
             if ( ID_uzlu != NULL)
             {
-                if(inFunctionBody)
+                if(!inMain)
                 {
                     ID_uzlu = symTableSearch(&lTable,new_token->tokenData);
                     if ( ID_uzlu == NULL)
@@ -206,7 +216,7 @@ int shiftToStack (tStack *stack,tToken* token)
                     else 
                     {
                         /*ULOZ JEJ TYP*/
-                       // new_token->type = ((tDataFunction *) node->Data)->declared = true;
+                     //  new_token->type = ((tDataFunction *) node->Data)->declared = true;
                     }
                 }
                 else 
@@ -214,7 +224,7 @@ int shiftToStack (tStack *stack,tToken* token)
             }
             else  //ak sme ju nasli v globalnej a musi byt aj v lokalnej
             {
-                if(inFunctionBody)
+                if(!inMain)
                 {
                     ID_uzlu = symTableSearch(&lTable,new_token->tokenData);
                     if ( ID_uzlu == NULL)
@@ -224,7 +234,7 @@ int shiftToStack (tStack *stack,tToken* token)
                     else 
                     {
                         /*ULOZ JEJ TYP*/
-                       // new_token->type = ((tDataFunction *) node->Data)->declared = true;
+                      // new_token->type = ((tDataFunction *) node->Data)->declared = true;
                     }
                 }
                 else 
@@ -263,7 +273,20 @@ int ApplyRule(tStack* stack)
                                 stackTop(stack)->Redukuj = false;
                                 IndexTerminalu = IndexOfTop(stack);
                                 stackPush(stack,temp2);
-                                /*generuj KOD pre tlacenie*/
+                                tOperand operand1;
+                                //generuj KOD pre tlacenie
+                                if (inMain)
+                                 { 
+                                     operand1 = initOperand(operand1, stackTop(stack)->tokenData.value,
+                                           false, false,stackTop(stack)->TokenType,stackTop(stack)->subtype,"GF" );
+                                          
+                                 }
+                                else
+                                {
+                                    operand1 = initOperand(operand1, stackTop(stack)->tokenData.value,
+                                           false, false,stackTop(stack)->TokenType,stackTop(stack)->subtype,"LF" );
+                                } 
+                                instruction1op(&instList, PUSHS, operand1);
                                 return OK;
                                 break;
             case sOperand:
@@ -276,11 +299,13 @@ int ApplyRule(tStack* stack)
                                             return ret;
                                             /*JE TO ZLOZITEJSIE DOPLN KOD 
                                             vygeneruj kod */
+                                            instruction0op(&instList,ADDS);
                                             break;
                                     case sMultiplication:
                                             ret=checkOperator(stack,temp->subtype);
                                             if (ret!= OK)
                                             return ret;
+                                            instruction0op(&instList,MULS);
 
                                             /*vygeneruj kod */
                                             break;
@@ -290,12 +315,14 @@ int ApplyRule(tStack* stack)
                                             if (ret!= OK)
                                             return ret;
 
+                                            instruction0op(&instList,DIVS);
                                             /*vygeneruj kod */
                                             break;
                                     case sDivideInteger:
                                             ret=checkOperator(stack,temp->subtype);
                                             if (ret!= OK)
                                             return ret;
+                                            instruction0op(&instList,IDIVS);
 
                                             /*vygeneruj kod */
                                             break;
@@ -305,6 +332,7 @@ int ApplyRule(tStack* stack)
                                             return ret;
 
                                             /*vygeneruj kod */
+                                            instruction0op(&instList,SUBS);
                                             break;
                                     case sEqual:
                                             ret=checkOperator(stack,temp->subtype);
@@ -312,6 +340,7 @@ int ApplyRule(tStack* stack)
                                             return ret;
 
                                             /*vygeneruj kod */
+                                            instruction0op(&instList,EQS);
                                             break;
                                     case sInequal:
                                             ret=checkOperator(stack,temp->subtype);
@@ -319,6 +348,9 @@ int ApplyRule(tStack* stack)
                                             return ret;
 
                                             /*vygeneruj kod */
+                                            
+                                            instruction0op(&instList,EQS);
+                                            instruction0op(&instList,NOTS);
                                             break;
                                     case sMore:
                                             ret=checkOperator(stack,temp->subtype);
@@ -326,6 +358,7 @@ int ApplyRule(tStack* stack)
                                             return ret;
 
                                             /*vygeneruj kod */
+                                            instruction0op(&instList,GTS);
                                             break;
                                     case sMoreEqual:
                                             ret=checkOperator(stack,temp->subtype);
@@ -333,6 +366,8 @@ int ApplyRule(tStack* stack)
                                             return ret;
 
                                             /*vygeneruj kod */
+                                           instruction0op(&instList,GTS);
+                                            instruction0op(&instList,NOTS);
                                             break;
                                     case sLess:
                                             ret=checkOperator(stack,temp->subtype);
@@ -340,12 +375,15 @@ int ApplyRule(tStack* stack)
                                             return ret;
 
                                             /*vygeneruj kod */
+                                           instruction0op(&instList,LTS);
                                             break;
                                     case sLessEqual:
                                             ret=checkOperator(stack,temp->subtype);
                                             if (ret!= OK)
                                             return ret;
                                             /*vygeneruj kod */
+                                           instruction0op(&instList,LTS);
+                                           instruction0op(&instList,NOTS);
                                             break;
                                     case sRightBracket:
                                             ret=reduceBrackets(stack);
@@ -421,6 +459,8 @@ int  checkOperator(tStack* stack,int znamienko)
  */
 int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operation)
 {
+    tOperand operand1;
+   tOperand operand2;
     printf("EXPR zacinam semantiku s %s a %s",RightOperand->tokenData.value,LeftOperand->tokenData.value);
     switch (operation)
     {   
@@ -435,19 +475,58 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 {
                     return OK;
                 }
-                else if (LeftOperand->subtype == sDoublePoint && RightOperand->subtype == sInteger)
+                else if (LeftOperand->subtype == sDoublePointNumber && RightOperand->subtype == sInteger)
                 {
-                    RightOperand->type = sDoublePoint;
+                    
                     /*PRETYPUJ*/
+                   if(inMain)
+                    {
+                         operand1 = initOperand(operand1, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    else
+                    {
+                        operand1 = initOperand(operand1, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"LF" );
+                    }
+                    
+                    instruction1op(&instList,POPS,operand1);
+                    instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    RightOperand->subtype = sDoublePointNumber;
+                    instruction1op(&instList,PUSHS,operand1);
+
+
                     return OK;
                 }
-                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePointNumber)
                 {
-                    LeftOperand->type = sDoublePoint;
-                    /*PRETYPUJ*/
+                    
+                    
+                    if(inMain)
+                    {
+                         operand1 = initOperand(operand1, LeftOperand->tokenData.value,
+                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"GF" );
+                         operand2 = initOperand(operand2, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    else
+                    {
+                        operand1 = initOperand(operand1, LeftOperand->tokenData.value,
+                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"LF" );
+                        operand2 = initOperand(operand2, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    
+                    instruction1op(&instList,POPS,operand2);
+                    instruction1op(&instList,POPS,operand1);
+                    instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    LeftOperand->subtype = sDoublePointNumber;
+                    instruction1op(&instList,PUSHS,operand1);
+                    instruction1op(&instList,PUSHS,operand2);
+
                     return OK;
                 }
-                else if (LeftOperand->subtype ==sDoublePoint && RightOperand->subtype ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sDoublePointNumber && RightOperand->subtype ==  sDoublePointNumber)
                 {
                     return OK;
                 }
@@ -462,21 +541,86 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
         case sDivideFloat:
                 if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {   
-                    LeftOperand->type = sDoublePoint;
-                    RightOperand->type = sDoublePoint;
+                    
                    /*PRETYPUJ OBA*/
+                   if(inMain)
+                    {
+                         operand1 = initOperand(operand1, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                         operand2 = initOperand(operand2, LeftOperand->tokenData.value,
+                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"GF" );
+                    }
+                    else
+                    {
+                        operand1 = initOperand(operand1, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"LF" );
+                        operand2 = initOperand(operand2, LeftOperand->tokenData.value,
+                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"LF" );
+                    }
+                    
+                    instruction1op(&instList,POPS,operand1);
+                    instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    instruction1op(&instList,POPS,operand2);
+                    instruction2op(&instList,INT2FLOAT,operand2,operand2);
+                    LeftOperand->subtype = sDoublePointNumber;
+                    RightOperand->subtype = sDoublePointNumber;
+                    instruction1op(&instList,PUSHS,operand2);
+                    instruction1op(&instList,PUSHS,operand1);
+                    printf("EXPR pretypujem oba ");
+
+                    return OK;
                 }
-                else if (LeftOperand->subtype == sDoublePoint && RightOperand->subtype == sInteger)
+                else if (LeftOperand->subtype == sDoublePointNumber && RightOperand->subtype == sInteger)
                 {
-                    RightOperand->type = sDoublePoint;
+                    
+
                     /*PRETYPUJ*/
+                    if(inMain)
+                    {
+                         operand1 = initOperand(operand1, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    else
+                    {
+                        operand1 = initOperand(operand1, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"LF" );
+                    }
+                    
+                    instruction1op(&instList,POPS,operand1);
+                    instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    RightOperand->subtype = sDoublePointNumber;
+                    instruction1op(&instList,PUSHS,operand1);
+                    return OK;
                 }
-                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePointNumber)
                 {
-                    LeftOperand->type = sDoublePoint;
+                    
+
                     /*PRETYPUJ*/
+                     if(inMain)
+                    {
+                         operand1 = initOperand(operand1, LeftOperand->tokenData.value,
+                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"GF" );
+                         operand2 = initOperand(operand2, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    else
+                    {
+                        operand1 = initOperand(operand1, LeftOperand->tokenData.value,
+                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"LF" );
+                        operand2 = initOperand(operand2, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    
+                    instruction1op(&instList,POPS,operand2);
+                    instruction1op(&instList,POPS,operand1);
+                    instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    LeftOperand->subtype = sDoublePointNumber;
+                    instruction1op(&instList,PUSHS,operand1);
+                    instruction1op(&instList,PUSHS,operand2);
+                    return OK;
                 }
-                else if (LeftOperand->subtype ==sDoublePoint && RightOperand->subtype ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sDoublePointNumber && RightOperand->subtype ==  sDoublePointNumber)
                 {
                     return OK;
                 }
@@ -501,17 +645,55 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 {
                     return OK;
                 }
-                else if (LeftOperand->subtype == sDoublePoint && RightOperand->subtype == sInteger)
+                else if (LeftOperand->subtype == sDoublePointNumber && RightOperand->subtype == sInteger)
                 {
-                    RightOperand->type = sDoublePoint;
+                   
                     /*PRETYPUJ*/
+                    if(inMain)
+                    {
+                         operand1 = initOperand(operand1, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    else
+                    {
+                        operand1 = initOperand(operand1, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"LF" );
+                    }
+                    
+                    instruction1op(&instList,POPS,operand1);
+                    instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                     RightOperand->subtype = sDoublePointNumber;
+                    instruction1op(&instList,PUSHS,operand1);
+                    return OK;
                 }
-                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sInteger && RightOperand->subtype ==  sDoublePointNumber)
                 {
-                    LeftOperand->type = sDoublePoint;
+                    
                     /*PRETYPUJ*/
+                   if(inMain)
+                    {
+                         operand1 = initOperand(operand1, LeftOperand->tokenData.value,
+                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"GF" );
+                         operand2 = initOperand(operand2, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    else
+                    {
+                        operand1 = initOperand(operand1, LeftOperand->tokenData.value,
+                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"LF" );
+                        operand2 = initOperand(operand2, RightOperand->tokenData.value,
+                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                    }
+                    
+                    instruction1op(&instList,POPS,operand2);
+                    instruction1op(&instList,POPS,operand1);
+                    instruction2op(&instList,INT2FLOAT,operand1,operand1);
+                    LeftOperand->subtype = sDoublePointNumber;
+                    instruction1op(&instList,PUSHS,operand1);
+                    instruction1op(&instList,PUSHS,operand2);
+                    return OK;
                 }
-                else if (LeftOperand->subtype ==sDoublePoint && RightOperand->subtype ==  sDoublePoint)
+                else if (LeftOperand->subtype ==sDoublePointNumber && RightOperand->subtype ==  sDoublePointNumber)
                 {
                     return OK;
                 }

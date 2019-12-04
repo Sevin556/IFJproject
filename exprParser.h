@@ -20,16 +20,16 @@
 //#include "parser.h"
 #include "symtable.h"
 #include "scanner.h"
-//#include "stack.h"
 #include "string.h"
 #include "lifo.h"
+#include "instruction-list.h"
 
 
 typedef enum
 {
 	H,
 	L,
-	EQ,
+	EQUAL,
 	ERROR,
 	NONE,
 	EXITPARSE
