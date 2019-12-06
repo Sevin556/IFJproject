@@ -506,14 +506,14 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     {
                          operand1 = initOperand(operand1, "tmp",
                                            false, true,sIdentificator,-1,"GF" );
-                         operand2 = initOperand(operand1, "tmp2",
+                         operand2 = initOperand(operand2, "tmp2",
                                            false, true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
                                            false, true,sIdentificator,-1,"LF" );
-                        operand2 = initOperand(operand1, "tmp2",
+                        operand2 = initOperand(operand2, "tmp2",
                                            false, true,sIdentificator,-1,"LF" );
                     }
                     
@@ -547,14 +547,14 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     {
                          operand1 = initOperand(operand1, "tmp",
                                            false, true,sIdentificator,-1,"GF" );
-                         operand2 = initOperand(operand1, "tmp2",
+                         operand2 = initOperand(operand2, "tmp2",
                                            false, true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
                                            false, true,sIdentificator,-1,"LF" );
-                        operand2 = initOperand(operand1, "tmp2",
+                        operand2 = initOperand(operand2, "tmp2",
                                            false, true,sIdentificator,-1,"LF" );
                     }
                     
@@ -601,14 +601,14 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     {
                          operand1 = initOperand(operand1, "tmp",
                                            false, true,sIdentificator,-1,"GF" );
-                         operand2 = initOperand(operand1, "tmp2",
+                         operand2 = initOperand(operand2, "tmp2",
                                            false, true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
                                            false, true,sIdentificator,-1,"LF" );
-                        operand2 = initOperand(operand1, "tmp2",
+                        operand2 = initOperand(operand2, "tmp2",
                                            false, true,sIdentificator,-1,"LF" );
                     }
                     
@@ -674,14 +674,14 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     {
                          operand1 =initOperand(operand1, "tmp",
                                            false, true,sIdentificator,-1,"GF" );
-                         operand2 = initOperand(operand1, "tmp2",
+                         operand2 = initOperand(operand2, "tmp2",
                                            false, true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
                                            false, true,sIdentificator,-1,"LF" );
-                        operand2 = initOperand(operand1, "tmp2",
+                        operand2 = initOperand(operand2, "tmp2",
                                            false, true,sIdentificator,-1,"LF" );
                     }
                     
