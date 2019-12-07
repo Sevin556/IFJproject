@@ -33,13 +33,13 @@ tOperand operand2;
 //zavolas len raz niekde v maine
 int parse() {
 
-    int rett;
+    int rett = OK;
     stringInit(&paramName);
     stringInit(&functionName);
 
     while (1) {
         if ((rett = doParse()) != OK) {
-            return ERR_LEX;
+            return rett;
         }
         if(aktToken->type == sEOF){
             //printf("END\n");
@@ -59,11 +59,12 @@ int parse() {
 
 // fce na eol
 int line() {
-    int rett;
+    int rett= OK;
     switch (aktToken->type) {
         case sEOL:
-            if (doParse() != OK)
-                return ERR_LEX;
+            rett =doParse();
+            if (rett != OK)
+                return rett;
             rett = line();
             return rett;
         default:
@@ -73,7 +74,7 @@ int line() {
 }
 
 int doParse() {      //toto budes rekurzivne volat
-    int rett;
+    int rett= OK;
     aktToken = get_token();
     if (aktToken->type == sLexError)
         return ERR_LEX;
@@ -88,7 +89,7 @@ int doParse() {      //toto budes rekurzivne volat
         case sIdentificator:
             firstTokenOfTheLine = false;
             if ((rett = declaration()) != OK) {
-                return ERR_SYN;
+                return rett;
             }
             return OK;
         case sEOL:
@@ -100,31 +101,32 @@ int doParse() {      //toto budes rekurzivne volat
         case sDef:
             firstTokenOfTheLine = false;
             if ((rett = declarationFunctionHead()) != OK)
-                return ERR_SYN;
+                return rett;
             return OK;
     }
     if(firstTokenOfTheLine)
-        return ERR_LEX;
+        return ERR_SYN;
     return OK;
 }
 
 // fce na rozdeleni keywordu
 int keyWords() {
-    int rett;
+    int rett= OK;
     switch (aktToken->type) {
         case sPrint:
             aktToken = get_token();
             if(aktToken->type == sLexError)
-                return ERR_SYN;
+                return ERR_LEX;
             if (aktToken->subtype != sLeftBracket)
                 return ERR_SYN;
+           /* ??????????????????????????????????????????
             operand1 = initOperand(operand1, "", sIdentificator, true, false, false, "GF");
-            instruction1op(&instList, WRITE, operand1);
+            instruction1op(&instList, WRITE, operand1);*/
             prevToken = aktToken;
             //printf("\npriiiint\n");
             while((aktToken = get_token())) {
                 if (aktToken->type == sLexError)
-                    return ERR_SYN;
+                    return ERR_LEX;
                 switch (aktToken->type) {
                     case sString:
                         operand1 = initOperand(operand1,aktToken->data.value,false,false,aktToken->type,aktToken->subtype,"GF");
@@ -136,10 +138,10 @@ int keyWords() {
                         break;
                     case sIdentificator:
                         if(prevToken->type != sComma)
-                            return ERR_LEX;
+                            return ERR_SYN;
                         rett = checkVariable();
                         if(rett != OK)
-                            return ERR_SYN;
+                            return rett;
                         operand1 = initOperand(operand1,aktToken->data.value,false,false,aktToken->type,aktToken->subtype,"GF");
                         instruction1op(&instList, WRITE, operand1);
                         break;
@@ -167,10 +169,12 @@ int keyWords() {
 
 // zjištění jeslti se jedná o proměnnou nebo o funkci nebo argument
 int declaration() {
-    int rett;
+    int rett= OK;
     if (argumentBool == true) { // kdyz zpracovavam argumenty tak se uz muzu vratit
         prevToken = aktToken;
+        /*??????????????????????
         rett = declarationVariable();
+        return rett;*/
         return OK;
     }
 
@@ -193,21 +197,52 @@ int declaration() {
 
 // deklarace proměnné
 int declarationVariable() {
-    int rett;
+    int rett= OK;
+   /* ???????????????
+    ved ty hadzes chybu ked ides zmenit premennu 
+    a = 8
+    a= 4 a hodi to chybu
+
+
     if (inMain) { // v mainu
         if ((symTableSearch(&gTable, prevToken->data)) != NULL)
             return ERR_SEM_VAR;
         symTableInsertVariable(&gTable, prevToken->data);
         node = symTableSearch(&gTable, prevToken->data);
-    } else { // ve funkci
+    }
+    else { // ve funkci
         if ((symTableSearch(&lTable, prevToken->data)) != NULL)
             return ERR_SEM_VAR;
         symTableInsertVariable(&lTable, prevToken->data);
         node = symTableSearch(&gTable, prevToken->data);
     }
-
-    if (argumentBool == true)  // kdyz zpracovavam argumenty tak se uz muzu vratit
+    
+    
+    
+     ?????????? preco by si sa sem dostal vo funkcii, to robi semantika
+   if (argumentBool == true)  // kdyz zpracovavam argumenty tak se uz muzu vratit
         return OK;
+*/
+
+
+    if (inMain) { // v mainu
+        if ((symTableSearch(&gTable, prevToken->data)) != NULL)
+            return ERR_SEM_VAR;
+        symTableInsertVariable(&gTable, prevToken->data);
+        node = symTableSearch(&gTable, prevToken->data);
+    }
+    else { // ve funkci
+        if ((symTableSearch(&lTable, prevToken->data)) == NULL)
+        {   
+            symTableInsertVariable(&lTable, prevToken->data);
+            operand1 = initOperand(operand1,prevToken->data.value,false,false,sIdentificator,prevToken->subtype,"LF");
+            instruction1op(&instList,DEFVAR,operand1);
+        }
+        
+        node = symTableSearch(&gTable, prevToken->data);
+
+    }
+
 
 
     aktToken=get_token();
@@ -223,7 +258,9 @@ int declarationVariable() {
             if (temp->type == sLeftBracket)
                 /* SKONTROLUJ PARAMETRE FUNKCIE*/
             {
-               rett =checkFunctionParams(aktToken);
+               
+                
+               rett =checkFunctionParams(aktToken,strlen(((tFunction *) node->Data)->param.value));
             }
             else 
             unget_token(temp);
@@ -236,7 +273,7 @@ int declarationVariable() {
     {
         rett = exprParsing(aktToken);
         if(rett != OK)
-        return rett;
+            return rett;
     }
     
     //printf("%d\n", rett);
@@ -310,13 +347,15 @@ int typPromenne(int type) {
 
 // kontrola, jeslti bylla uz funkce definovana
 int checkFunction() {
+    int rett= OK;
     if (symTableSearch(&gTable, prevToken->data) == NULL) {
         symTableInsertFunction(&gTable, prevToken->data);
     } else {
         node = symTableSearch(&gTable, prevToken->data);
     }
-    if (doParse() != OK)
-        return ERR_LEX;
+    rett =doParse();
+            if (rett != OK)
+                return rett;
     /*while () {
         if (aktToken->type != sIdentificator)
             return ERR_SEM_FCE;
@@ -328,7 +367,7 @@ int checkFunction() {
 
 // deklarace funkce
 int declarationFunctionHead() {
-    ERR_VAL rett;
+    int rett= OK;
     if ((aktToken = get_token()) != OK)
         return ERR_LEX;
     if (aktToken->type != sIdentificator)
@@ -341,8 +380,9 @@ int declarationFunctionHead() {
         symTableInsertFunction(&gTable, aktToken->data);
         node = symTableSearch(&gTable, aktToken->data);
     }
-    if (doParse() != OK)
-        return ERR_LEX;
+    rett =doParse();
+    if (rett != OK)
+       return rett;
     if (aktToken->type != sLeftBracket)
         return ERR_SEM_VAR;
     rett = nextParametr();
@@ -365,13 +405,14 @@ int declarationFunctionBody() {
 
 // pokud carka tak nacita dalsi parametr
 int nextParametr() {
-    int rett;
+    int rett= OK;
     argumentBool = true;
     switch (aktToken->type) {
         case sLeftBracket:
         case sComma:
-            if (doParse() != OK)
-                return ERR_LEX;
+            rett =doParse();
+            if (rett != OK)
+                return rett;
             rett = parametr();
             if (rett != OK)
                 return rett;
@@ -384,7 +425,7 @@ int nextParametr() {
 }
 
 int parametr() {
-    int rett;
+    int rett= OK;
     switch (aktToken->type) {
         case sIdentificator:
             paramName = aktToken->data;
@@ -397,8 +438,9 @@ int parametr() {
             ((tFunction *) node->Data)->paramName[paramIndex] = paramName;
 
             paramIndex++;
-            if (doParse() != OK)
-                return ERR_LEX;
+            rett =doParse();
+            if (rett != OK)
+                return rett;
             rett = nextParametr();
             if (rett != OK)
                 return rett;
