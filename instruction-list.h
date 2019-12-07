@@ -1,9 +1,23 @@
+/*
+* Predmet  :   IFJ / IAL
+* Súbor    :   instruction-list.h
+* Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
+* Tým č    :   127
+* Varianta :   I
+* Autoři   : xhalom00, Ivan Halomi
+*            xhiner00, Martin Hiner
+*            xsevci64, Adam Ševčík
+*            xzakji02, Jiří Žák
+*/
+#ifndef IFJ_INSTRUCTION_LIST_H
+#define IFJ_INSTRUCTION_LIST_H
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include "scanner.c"
+#include "scanner.h"
 
 typedef struct instruction{
     int Type;
@@ -56,15 +70,13 @@ int DLActive (tDLListInst *);
 
 void instructionGenerator(tDLListInst *, int, char*, char*, char*);
 void instructionPrinter(tDLListInst *);
-
-tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); //operand, hodnota, typ, subtyp, frame
+//operand, label, temp hodnota, typ, subtyp, frame
+tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); 
 
 void instruction0op(tDLListInst *, int);
 void instruction1op(tDLListInst *, int, tOperand);
-void isntruction2op(tDLListInst *, int, tOperand, tOperand);
+void instruction2op(tDLListInst *, int, tOperand, tOperand);
 void instruction3op(tDLListInst *, int, tOperand, tOperand, tOperand);
-
-
 
 typedef enum{
     MOVE,
@@ -124,3 +136,5 @@ typedef enum{
 	BREAK,
 	DPRINT,
 } I_TYPE;
+
+#endif //IFJ_INSTRUCTION_LIST_H

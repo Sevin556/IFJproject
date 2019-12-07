@@ -18,7 +18,7 @@ extern bool inMain;         //Indikátor, že se kontroluje tělo funkce
 extern tDLListInst instList; 
 extern tBSTNodePtr *node;             
 //bool inFunctionBody;             
-int ret;                            //return value
+int ret = OK;                            //return value
 int IndexTerminalu = -1;                     //index terminalu v stacku 
 
 exprTable Table[15][15] =
@@ -108,6 +108,8 @@ int exprParsing(tToken *dostanyToken)
     {
         
        actToken = get_token();
+       if (actToken->type == sLexError )
+        return ERR_LEX;
        //printf("EXPR  nacitavam token %s \n",actToken->data.value);
     }
     else 
@@ -119,10 +121,12 @@ int exprParsing(tToken *dostanyToken)
     //printf("EXPR mam token %s \n",actToken->data.value);
     shiftToStack(&exprStack,actToken);
     actToken = get_token();
+    if (actToken->type == sLexError )
+        return ERR_LEX;
     while (1)
     {
         if (actToken->type == sLexError )
-        return ERR_LEX;
+            return ERR_LEX;
         
        int indexInTable = tableIndexSelect(stackIndex(&exprStack,IndexTerminalu)->TokenType,stackIndex(&exprStack,IndexTerminalu)->subtype);
        switch (Table[indexInTable][tableIndexSelect(actToken->type,actToken->subtype)])
@@ -131,8 +135,10 @@ int exprParsing(tToken *dostanyToken)
             //printf("EXPR ROBIM H s %s \n",actToken->data.value);
             ret = shiftToStack(&exprStack,actToken);
             if (ret != OK)
-            return ret;
+                return ret;
             actToken = get_token();
+            if (actToken->type == sLexError )
+                return ERR_LEX;
              //printf("EXPR Koncim H s %s \n",actToken->data.value);
             break;
         case H:
@@ -149,6 +155,8 @@ int exprParsing(tToken *dostanyToken)
                     return ret;
                 }
             actToken = get_token();
+            if (actToken->type == sLexError )
+                return ERR_LEX;
             if (actToken == NULL)
             {
                 return ERR_SYN;
@@ -482,12 +490,12 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                    if(inMain)
                     {
                          operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand1);
@@ -505,16 +513,16 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     if(inMain)
                     {
                          operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                          operand2 = initOperand(operand2, "tmp2",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                         operand2 = initOperand(operand2, "tmp2",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand2);
@@ -546,16 +554,16 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                    if(inMain)
                     {
                          operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                          operand2 = initOperand(operand2, "tmp2",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                         operand2 = initOperand(operand2, "tmp2",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand1);
@@ -578,12 +586,12 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     if(inMain)
                     {
                          operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand1);
@@ -600,16 +608,16 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                      if(inMain)
                     {
                          operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                          operand2 = initOperand(operand2, "tmp2",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                         operand2 = initOperand(operand2, "tmp2",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand2);
@@ -652,12 +660,12 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     if(inMain)
                     {
                          operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand1);
@@ -673,16 +681,16 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                    if(inMain)
                     {
                          operand1 =initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                          operand2 = initOperand(operand2, "tmp2",
-                                           false, true,sIdentificator,-1,"GF" );
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
                         operand1 = initOperand(operand1, "tmp",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                         operand2 = initOperand(operand2, "tmp2",
-                                           false, true,sIdentificator,-1,"LF" );
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand2);

@@ -49,4 +49,7 @@ int parametr();
 
 int nextParametr();
 
+//nacita parametre funkcie
+int loadParams();
+
 #endif //IFJ_PARSER_H

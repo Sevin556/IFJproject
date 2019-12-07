@@ -24,4 +24,6 @@
 #include "instruction-list.h"
 
 
+
+int checkFunctionParams(tToken*,int);
 #endif //IFJ_FUNCPARSER_H

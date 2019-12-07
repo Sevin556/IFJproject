@@ -58,6 +58,7 @@ int parse() {
 }
 
 // fce na eol
+//????????????????????? toto tiez ale ze vobec nechapem co robi
 int line() {
     int rett= OK;
     switch (aktToken->type) {
@@ -83,26 +84,53 @@ int doParse() {      //toto budes rekurzivne volat
         case sIf:
         case sWhile:
         case sReturn:
-            firstTokenOfTheLine = false;
+            //ak neni prvy na riadku tak je to chyba 
+             if (firstTokenOfTheLine)
+            {
+                firstTokenOfTheLine = false;
+            }
+            else 
+                return ERR_SYN;
+
             rett = keyWords();
             return OK;
         case sIdentificator:
-            firstTokenOfTheLine = false;
+        //ak neni prvy na riadku tak je to chyba 
+            if (firstTokenOfTheLine)
+            {
+                firstTokenOfTheLine = false;
+            }
+            else 
+                return ERR_SYN;
+
             if ((rett = declaration()) != OK) {
                 return rett;
             }
             return OK;
         case sEOL:
+            /*?????????? toto tiez neviem, sak proste zavolam znova doparse len
             rett = line();
             if (rett != OK)
                 return rett;
             firstTokenOfTheLine = true;
-            return OK;
+            return OK;*/
+            rett = doParse();
+            return rett;
         case sDef:
+            //ak neni prvy na riadku tak je to chyba 
+            if (firstTokenOfTheLine)
+            {
+                firstTokenOfTheLine = false;
+            }
+            else 
+                return ERR_SYN;
+
             firstTokenOfTheLine = false;
             if ((rett = declarationFunctionHead()) != OK)
                 return rett;
             return OK;
+        default: 
+            return ERR_SYN;
     }
     if(firstTokenOfTheLine)
         return ERR_SYN;
@@ -162,6 +190,7 @@ int keyWords() {
             if (inMain)
                 return ERR_SEM_FCE;
             // call instruction gen return with parametr
+            instruction0op(&instList,RETURN);
             return OK;
     }
     return OK;
@@ -226,9 +255,13 @@ int declarationVariable() {
 
 
     if (inMain) { // v mainu
-        if ((symTableSearch(&gTable, prevToken->data)) != NULL)
-            return ERR_SEM_VAR;
-        symTableInsertVariable(&gTable, prevToken->data);
+       if ((symTableSearch(&lTable, prevToken->data)) == NULL)
+        {   
+            symTableInsertVariable(&lTable, prevToken->data);
+            operand1 = initOperand(operand1,prevToken->data.value,false,false,sIdentificator,prevToken->subtype,"GF");
+            instruction1op(&instList,DEFVAR,operand1);
+        }
+        
         node = symTableSearch(&gTable, prevToken->data);
     }
     else { // ve funkci
@@ -239,7 +272,7 @@ int declarationVariable() {
             instruction1op(&instList,DEFVAR,operand1);
         }
         
-        node = symTableSearch(&gTable, prevToken->data);
+        node = symTableSearch(&lTable, prevToken->data);
 
     }
 
@@ -321,7 +354,8 @@ int checkVariable() {
             node = symTableSearch(&gTable, aktToken->data);
             if (node == NULL)
                 return ERR_SEM_FCE;
-        } else {
+        } 
+        else {
             node = symTableSearch(&lTable, aktToken->data);
             if (node == NULL)
                 return ERR_SEM_FCE;
@@ -371,21 +405,33 @@ int declarationFunctionHead() {
     if ((aktToken = get_token()) != OK)
         return ERR_LEX;
     if (aktToken->type != sIdentificator)
-        return ERR_SEM_VAR;
+        return ERR_SYN;
     functionName = aktToken->data;
     //kontrola, jestli už nebyla definovana
     if (symTableSearch(&gTable, aktToken->data) != NULL) {
-        return ERR_SEM_FCE;
+        return ERR_SEM_VAR;
     } else {
         symTableInsertFunction(&gTable, aktToken->data);
         node = symTableSearch(&gTable, aktToken->data);
+        operand1 = initOperand(operand1,aktToken->data.value,true,false,aktToken->type,aktToken->subtype,"GF");
+        instruction1op(&instList,LABEL,operand1);
     }
+    /*????? toto tu preco volas?
     rett =doParse();
     if (rett != OK)
        return rett;
+    */
+
+   prevToken = aktToken;
+   aktToken = get_token();
+   if(aktToken->type == sLexError)
+        return ERR_LEX;
+    
     if (aktToken->type != sLeftBracket)
-        return ERR_SEM_VAR;
-    rett = nextParametr();
+        return ERR_SYN;
+    rett = loadParams();
+   //??????? tej funkcii nechapem ale ze vobec naco tam je a jak funguje
+   // rett = nextParametr();
 
     rett = declarationFunctionBody();
     return rett;
@@ -394,13 +440,14 @@ int declarationFunctionHead() {
 int declarationFunctionBody() {
     inMain = false;
     //ERR_VAL rett;
-
+    
     symTableInit(&lTable);
     gNode = symTableSearch(&gTable, functionName);
-
+    int ret = OK;
+    ret = doParse();
 
     inMain = true;
-    return OK;
+    return ret;
 }
 
 // pokud carka tak nacita dalsi parametr
@@ -452,3 +499,66 @@ int parametr() {
     }
     return OK;
 }
+
+
+int loadParams()
+{
+    
+    bool ciarka = false;//ID musi mat ciarku pred sebou
+    bool isFirst = true;// ak je prvy nemusi mat ciarku pred sebou
+    
+   
+   while (1)
+   {
+       aktToken = get_token();
+        if(aktToken->type == sLexError)
+            return ERR_LEX;
+
+
+        if (aktToken->type == sIdentificator)
+        {
+            if (isFirst)
+            {
+                isFirst=false;
+                ciarka = false;
+                //zvys pocet parametrov do symtable
+            }
+            else 
+            {
+                if (ciarka)
+                {
+                       //zvys pocet parametrov
+                       ciarka = false;
+                }
+                else 
+                {
+                    return ERR_SYN;
+                }
+            }
+        }     
+        else if (aktToken->type == sComma)
+        {
+            if (ciarka)//dve ciarky po sebe
+            {
+                return ERR_SYN;
+            }
+            else 
+             ciarka = true;  
+        } 
+        else if (aktToken->subtype == sRightBracket)
+        {
+            if (ciarka)
+            {
+                return ERR_SYN;
+            }
+            else 
+                return OK;
+            
+        } 
+        else 
+            return ERR_SYN; 
+
+    
+    } 
+}
+    

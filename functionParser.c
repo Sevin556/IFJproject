@@ -8,9 +8,8 @@ extern tDLListInst instList;
 int checkIfExist(tToken*);
 
 
-int checkFunctionParams(tToken* ID)
+int checkFunctionParams(tToken* ID, int numberOfParam )
 {
-    int numberOfParam;
     tToken* aktToken;
     
     if (checkIfExist(ID) !=OK)
@@ -20,15 +19,20 @@ int checkFunctionParams(tToken* ID)
     {
         //Kontrola ci je pred dalsim parametrom ciarka
         aktToken = get_token();
+        if (aktToken->type == sLexError )
+            return ERR_LEX;
         if (aktToken->type != sComma)
             return ERR_SYN;
         
 
         aktToken=get_token();
+        if (aktToken->type == sLexError )
+            return ERR_LEX;
+
         if(aktToken->type == sIdentificator)
         {
             if (checkIfExist(aktToken) !=OK)
-                return ERR_SEM_FCE;
+                return ERR_SEM_VAR;
         }
         else if (aktToken->type == sNumber || aktToken->type == sString )
         {
@@ -44,12 +48,14 @@ int checkFunctionParams(tToken* ID)
         
 
     }
+    return OK;
 }
 
 int checkIfExist(tToken* token)
 {
     if (symTableSearch(&gTable, token->data) == NULL)
-        return ERR_SEM_FCE;
+        return ERR_SEM_VAR;
     if (symTableSearch(&lTable, token->data) == NULL)
-        return ERR_SEM_FCE;
+        return ERR_SEM_VAR;
+    return OK;
 }
