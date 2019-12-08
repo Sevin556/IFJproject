@@ -64,9 +64,11 @@ int line() {
     switch (aktToken->type) {
         case sEOL:
             rett =doParse();
-            if (rett != OK)
+            if (rett != OK) {
                 return rett;
+            }               
             rett = line();
+
             return rett;
         default:
             rett = OK;
@@ -77,35 +79,36 @@ int line() {
 int doParse() {      //toto budes rekurzivne volat
     int rett= OK;
     aktToken = get_token();
-    if (aktToken->type == sLexError)
+    if (aktToken->type == sLexError) {
         return ERR_LEX;
+    }
+        
     switch (aktToken->type) {
         case sPrint:
         case sIf:
         case sWhile:
         case sReturn:
             //ak neni prvy na riadku tak je to chyba 
-             if (firstTokenOfTheLine)
-            {
+             if (firstTokenOfTheLine) {
                 firstTokenOfTheLine = false;
-            }
-            else 
+            } else {
                 return ERR_SYN;
+            }   
 
             rett = keyWords();
-            return OK;
+            return rett;
         case sIdentificator:
         //ak neni prvy na riadku tak je to chyba 
-            if (firstTokenOfTheLine)
-            {
+            if (firstTokenOfTheLine) {
                 firstTokenOfTheLine = false;
-            }
-            else 
+            } else {
                 return ERR_SYN;
-
+            }
+                
             if ((rett = declaration()) != OK) {
                 return rett;
             }
+
             return OK;
         case sEOL:
             /*?????????? toto tiez neviem, sak proste zavolam znova doparse len
@@ -118,58 +121,78 @@ int doParse() {      //toto budes rekurzivne volat
             return rett;
         case sDef:
             //ak neni prvy na riadku tak je to chyba 
-            if (firstTokenOfTheLine)
-            {
+            if (firstTokenOfTheLine) {
                 firstTokenOfTheLine = false;
-            }
-            else 
+            } else {
                 return ERR_SYN;
+            }                
 
             firstTokenOfTheLine = false;
-            if ((rett = declarationFunctionHead()) != OK)
+            if ((rett = declarationFunctionHead()) != OK) {
                 return rett;
+            }
+                
             return OK;
+        case sDedent:
+            /* vracia špeciálnu hodnotu pre kontrolu potreby dedentu */
+            return sDedent;
         default: 
             return ERR_SYN;
     }
-    if(firstTokenOfTheLine)
+
+    if(firstTokenOfTheLine) {
         return ERR_SYN;
+    }
+        
     return OK;
 }
 
 // fce na rozdeleni keywordu
 int keyWords() {
     int rett= OK;
+
     switch (aktToken->type) {
         case sPrint:
             aktToken = get_token();
-            if(aktToken->type == sLexError)
+
+            if(aktToken->type == sLexError) {
                 return ERR_LEX;
-            if (aktToken->subtype != sLeftBracket)
+            }
+                
+            if (aktToken->subtype != sLeftBracket) {
                 return ERR_SYN;
+            }
+                
            /* ??????????????????????????????????????????
             operand1 = initOperand(operand1, "", sIdentificator, true, false, false, "GF");
             instruction1op(&instList, WRITE, operand1);*/
             prevToken = aktToken;
             //printf("\npriiiint\n");
             while((aktToken = get_token())) {
-                if (aktToken->type == sLexError)
+                if (aktToken->type == sLexError) {
                     return ERR_LEX;
+                }
+                    
                 switch (aktToken->type) {
                     case sString:
                         operand1 = initOperand(operand1,aktToken->data.value,false,false,aktToken->type,aktToken->subtype,"GF");
                         instruction1op(&instList, WRITE, operand1);
                         break;
+
                     case sComma:
-                        if(prevToken->subtype == sLeftBracket)
+                        if(prevToken->subtype == sLeftBracket) {
                             return ERR_SYN;
+                        }                           
                         break;
+
                     case sIdentificator:
-                        if(prevToken->type != sComma)
+                        if(prevToken->type != sComma) {
                             return ERR_SYN;
+                        }                           
                         rett = checkVariable();
-                        if(rett != OK)
+                        if(rett != OK) {
                             return rett;
+                        }                            
                         operand1 = initOperand(operand1,aktToken->data.value,false,false,aktToken->type,aktToken->subtype,"GF");
                         instruction1op(&instList, WRITE, operand1);
                         break;
@@ -181,14 +204,53 @@ int keyWords() {
             //printf("print je ok\n");
             return OK;
         case sIf:
-            //call expression
+            aktToken = get_token();
+            if(aktToken->type == sLexError) {
+                return ERR_LEX;
+            }
+
+            rett=exprParsing(aktToken);
+            if (rett != OK) {
+                return rett;
+            }
+            aktToken=get_token();
+            if(aktToken->type == sLexError) {
+                return ERR_LEX;
+            }
+
+            if(rett = doParse() != sDedent) {
+                return ERR_SYN;
+            }
+
+            /* ak nasleduje else */
+            aktToken = get_token();
+            if(aktToken->type == sLexError) {
+                return ERR_LEX;
+            }
+            if(aktToken == sElse) {
+                rett=exprParsing(aktToken);
+                if (rett != OK) {
+                    return rett;
+                }
+                aktToken=get_token();
+                if(aktToken->type == sLexError) {
+                    return ERR_LEX;
+                }
+
+                if(rett = doParse() != sDedent) {
+                    return ERR_SYN;
+                }
+            }
+
             return OK;
         case sWhile:
             //call expression
             return OK;
         case sReturn:
-            if (inMain)
+            if (inMain) {
                 return ERR_SEM_FCE;
+            }
+                
             // call instruction gen return with parametr
             instruction0op(&instList,RETURN);
             return OK;
@@ -209,8 +271,10 @@ int declaration() {
 
     prevToken = aktToken;
     aktToken = get_token();
-    if(aktToken->type == sLexError)
+    if(aktToken->type == sLexError) {
         return ERR_LEX;
+    }
+        
     //printf("Hodnota prev tokenu: %s, Typ tokenu: %d\n", prevToken->data.value, prevToken->type);
     //printf("Hodnota akt tokenu: %s, Typ tokenu: %d\n", aktToken->data.value, aktToken->type);
     switch (aktToken->type) {
@@ -255,18 +319,15 @@ int declarationVariable() {
 
 
     if (inMain) { // v mainu
-       if ((symTableSearch(&lTable, prevToken->data)) == NULL)
-        {   
+       if ((symTableSearch(&lTable, prevToken->data)) == NULL) {   
             symTableInsertVariable(&lTable, prevToken->data);
             operand1 = initOperand(operand1,prevToken->data.value,false,false,sIdentificator,prevToken->subtype,"GF");
             instruction1op(&instList,DEFVAR,operand1);
         }
         
         node = symTableSearch(&gTable, prevToken->data);
-    }
-    else { // ve funkci
-        if ((symTableSearch(&lTable, prevToken->data)) == NULL)
-        {   
+    } else { // ve funkci
+        if ((symTableSearch(&lTable, prevToken->data)) == NULL) {   
             symTableInsertVariable(&lTable, prevToken->data);
             operand1 = initOperand(operand1,prevToken->data.value,false,false,sIdentificator,prevToken->subtype,"LF");
             instruction1op(&instList,DEFVAR,operand1);
@@ -279,49 +340,47 @@ int declarationVariable() {
 
 
     aktToken=get_token();
-     if(aktToken->type == sLexError)
-        return ERR_LEX;
-
-    if (aktToken->type == sIdentificator)
-       {    
+     if(aktToken->type == sLexError) {
+         return ERR_LEX;
+     }
+        
+    if (aktToken->type == sIdentificator) {    
             tToken* temp;
             temp = get_token();
-            if(temp->type == sLexError)
+
+            if(temp->type == sLexError) {
                 return ERR_LEX;
-            if (temp->type == sLeftBracket)
-                /* SKONTROLUJ PARAMETRE FUNKCIE*/
-            {
-               
+            }
+                
+            if (temp->type == sLeftBracket) {
+               /* SKONTROLUJ PARAMETRE FUNKCIE*/
                 
                rett =checkFunctionParams(aktToken,strlen(((tFunction *) node->Data)->param.value));
-            }
-            else 
-            unget_token(temp);
+            } else {
+                unget_token(temp);
+            }            
 
             rett = exprParsing(aktToken);
             if(rett != OK)
                 return rett;
-       }
-    else 
-    {
+    } else {
         rett = exprParsing(aktToken);
-        if(rett != OK)
+        if(rett != OK) {
             return rett;
+        }           
     }
     
     //printf("%d\n", rett);
     //printf("%s\n", node->Key);
 
-    if(inMain)
-        {
+    if(inMain) {
             operand1 = initOperand(operand1,prevToken->data.value,false,false,prevToken->type,prevToken->subtype,"GF");
             operand2 = initOperand(operand2, "tmp",false, true,sIdentificator,-1,"GF" );
-        }
-    else
-        {
+    } else {
             operand1 = initOperand(operand1,prevToken->data.value,false,false,prevToken->type,prevToken->subtype,"LF");
             operand2 = initOperand(operand2, "tmp",false, true,sIdentificator,-1,"LF" );
-        }
+    }
+
     instruction1op(&instList, POPS, operand2);
     instruction2op(&instList,MOVE,operand1,operand2);
 
@@ -352,16 +411,18 @@ int checkVariable() {
     if (aktToken->type == sIdentificator) {
         if (inMain == true) {
             node = symTableSearch(&gTable, aktToken->data);
-            if (node == NULL)
+            if (node == NULL) {
                 return ERR_SEM_FCE;
-        } 
-        else {
+            }                
+        } else {
             node = symTableSearch(&lTable, aktToken->data);
-            if (node == NULL)
+            if (node == NULL) {
                 return ERR_SEM_FCE;
+            }                
         }
         return OK;
     }
+
     return ERR_SYN;
 }
 
@@ -536,29 +597,23 @@ int loadParams()
                 }
             }
         }     
-        else if (aktToken->type == sComma)
-        {
-            if (ciarka)//dve ciarky po sebe
-            {
+        else if (aktToken->type == sComma) {
+            if (ciarka) {//dve ciarky po sebe 
+                return ERR_SYN;
+            } else {
+                ciarka = true;
+            }               
+        } else {
+            if (aktToken->subtype == sRightBracket) {
+                if (ciarka) {
+                    return ERR_SYN;
+                } else {
+                    return OK;
+                }            
+            } else {
                 return ERR_SYN;
             }
-            else 
-             ciarka = true;  
-        } 
-        else if (aktToken->subtype == sRightBracket)
-        {
-            if (ciarka)
-            {
-                return ERR_SYN;
-            }
-            else 
-                return OK;
-            
-        } 
-        else 
-            return ERR_SYN; 
-
-    
+        }            
     } 
 }
     
