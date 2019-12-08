@@ -18,33 +18,38 @@
 #include "string.h"
 #include "err_code.h"
 #include "symtable.h"
+#include "exprParser.h"
+#include "functionParser.h"
 
-ERR_VAL parse();
+int parse();
 
-ERR_VAL doParse();
+int doParse();
 
-ERR_VAL line();
+int line();
 
-ERR_VAL keyWords();
+int keyWords();
 
-ERR_VAL declaration();
+int declaration();
 
-ERR_VAL declarationVariable();
+int declarationVariable();
 
-ERR_VAL checkVariable();
+int checkVariable();
 
-ERR_VAL declarationFunctionHead();
+int declarationFunctionHead();
 
-ERR_VAL declarationFunctionBody();
+int declarationFunctionBody();
 
-ERR_VAL checkFunction();
+int checkFunction();
 
-ERR_VAL declarationKeyword();
+int declarationKeyword();
 
-ERR_VAL typPromenne();
+int typPromenne();
 
-ERR_VAL parametr();
+int parametr();
 
-ERR_VAL nextParametr();
+int nextParametr();
+
+//nacita parametre funkcie
+int loadParams();
 
 #endif //IFJ_PARSER_H
