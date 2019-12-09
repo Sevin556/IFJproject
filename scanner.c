@@ -407,12 +407,12 @@ tToken* get_token(void) {
 
                         switch(c) {
                         case 'n':
-                                stringAddString(&(token->data), "\012");
+                                stringAddString(&(token->data), "\\012");
                                 state = sStringRead;
                                 break;
 
                         case 't':
-                                stringAddString(&(token->data), "\009");
+                                stringAddString(&(token->data), "\\009");
                                 state = sStringRead;
                                 break;
 
