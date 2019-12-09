@@ -600,6 +600,10 @@ tToken* get_token(void) {
                 /********* Number Start**************************************/
                 /************** sIntegerOrDouble Start ****************/
                 case sIntegerOrDouble:
+                        if((token->data.value[0] == '0') && (c == '0')) {
+                                state = sLexError;
+                                break;
+                        } else
                         if(isdigit(c)) {
                                 stringAddChar(&(token->data), c);
 
