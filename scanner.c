@@ -383,6 +383,12 @@ tToken* get_token(void) {
                 /************** sStringStart Start (lol)****************/
                 case sStringStart:
                         token->type = sString;
+                        if(c == EOF) {
+                                ungetc(c, stdin);
+
+                                state = sLexError;
+                                break;
+                        } else
                         if(c == '\'') {
                                 /* prázdny string */
                                 stringAddString(&(token->data), "");
@@ -421,6 +427,10 @@ tToken* get_token(void) {
                 case sStringEscape:
 
                         switch(c) {
+                        case EOF:
+                                ungetc(c, stdin);
+                                state = sLexError;
+                                break;
                         case 'n':
                                 stringAddString(&(token->data), "\\012");
                                 state = sStringRead;
@@ -472,6 +482,11 @@ tToken* get_token(void) {
                 /************** sStringEscapeHex Start ****************/
                 case sStringEscapeHex:
 
+                        if(c == EOF) {
+                                ungetc(c, stdin);
+                                state = sLexError;
+                                break;
+                        } else
                         if((isdigit(c)) || ((c >= 65) && (c <= 70)) || ((c >= 97) && (c <= 102))) {
                                 /*   0-9                   A-F                         a-f   */
                                 char temp = c;
@@ -503,8 +518,14 @@ tToken* get_token(void) {
 
                 /************** sStringRead Start ****************/
                 case sStringRead:
+                        if (c == EOF) {
+                                ungetc(c, stdin);
 
-                        if(c == '\'') {
+                                state = sLexError;
+                                break;
+                        }
+                        else if (c == '\'')
+                        {
                                 /* koniec stringu */
 
                                 return token;
