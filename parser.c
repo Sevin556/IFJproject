@@ -37,14 +37,13 @@ int parse() {
     stringInit(&paramName);
     stringInit(&functionName);
 
-    while (1) {
+
         if ((rett = doParse()) != OK) {
             return rett;
         }
-        if(aktToken->type == sEOF){
+        if(aktToken->type != sEOF){
             //printf("END\n");
-            break;
-        }
+        return ERR_SYN;
     }
 
     /*stringFree(&functionName);
@@ -57,24 +56,7 @@ int parse() {
     return rett;
 }
 
-// fce na eol
-//????????????????????? toto tiez ale ze vobec nechapem co robi
-int line() {
-    int rett= OK;
-    switch (aktToken->type) {
-        case sEOL:
-            rett =doParse();
-            if (rett != OK) {
-                return rett;
-            }               
-            rett = line();
 
-            return rett;
-        default:
-            rett = OK;
-            return rett;
-    }
-}
 
 int doParse() {      //toto budes rekurzivne volat
     int rett= OK;
@@ -82,8 +64,14 @@ int doParse() {      //toto budes rekurzivne volat
     if (aktToken->type == sLexError) {
         return ERR_LEX;
     }
+    while (1)
+    {
+        aktToken = get_token();
+        if (aktToken->type == sLexError) {
+            return ERR_LEX;
+        }
         
-    switch (aktToken->type) {
+       switch (aktToken->type) {
         case sPrint:
         case sIf:
         case sWhile:
@@ -96,7 +84,8 @@ int doParse() {      //toto budes rekurzivne volat
             }   
 
             rett = keyWords();
-            return rett;
+            if (rett != OK)
+            break;
         case sIdentificator:
         //ak neni prvy na riadku tak je to chyba 
             if (firstTokenOfTheLine) {
@@ -109,16 +98,10 @@ int doParse() {      //toto budes rekurzivne volat
                 return rett;
             }
 
-            return OK;
+            break;
         case sEOL:
-            /*?????????? toto tiez neviem, sak proste zavolam znova doparse len
-            rett = line();
-            if (rett != OK)
-                return rett;
-            firstTokenOfTheLine = true;
-            return OK;*/
-            rett = doParse();
-            return rett;
+            firstTokenOfTheLine=true;
+            break;
         case sDef:
             //ak neni prvy na riadku tak je to chyba 
             if (firstTokenOfTheLine) {
@@ -132,19 +115,20 @@ int doParse() {      //toto budes rekurzivne volat
                 return rett;
             }
                 
-            return OK;
+            break;
         case sDedent:
             /* vracia špeciálnu hodnotu pre kontrolu potreby dedentu */
             return sDedent;
+        case sEOF:
+            return OK;
         default: 
             return ERR_SYN;
     }
-
-    if(firstTokenOfTheLine) {
-        return ERR_SYN;
     }
-        
-    return OK;
+       
+    
+
+
 }
 
 // fce na rozdeleni keywordu
@@ -218,28 +202,49 @@ int keyWords() {
                 return ERR_LEX;
             }
 
+            if (aktToken->type != sEOL)
+                return ERR_SYN;
+            
+
+            aktToken=get_token();
+            if(aktToken->type == sLexError) {
+                return ERR_LEX;
+            }
+
+            if (aktToken->type != sIndent)
+                return ERR_SYN;
+            //****************zacina telo ifu************************
             if(rett = doParse() != sDedent) {
                 return ERR_SYN;
             }
 
-            /* ak nasleduje else */
+            /***********************nasleduje else************************ */
             aktToken = get_token();
             if(aktToken->type == sLexError) {
                 return ERR_LEX;
             }
-            if(aktToken == sElse) {
-                rett=exprParsing(aktToken);
-                if (rett != OK) {
-                    return rett;
-                }
-                aktToken=get_token();
-                if(aktToken->type == sLexError) {
-                    return ERR_LEX;
-                }
 
-                if(rett = doParse() != sDedent) {
-                    return ERR_SYN;
-                }
+            if (aktToken->type != sElse)
+                return ERR_SYN;
+            
+
+            aktToken=get_token();
+            if(aktToken->type == sLexError) {
+                return ERR_LEX;
+            }
+            if (aktToken->type != sEOL)
+                return ERR_SYN;
+
+            aktToken=get_token();
+            if(aktToken->type == sLexError) {
+                return ERR_LEX;
+            }
+            if (aktToken->type != sIndent)
+                return ERR_SYN;
+
+
+            if(rett = doParse() != sDedent) {
+                return ERR_SYN;
             }
 
             return OK;
@@ -295,8 +300,6 @@ int declarationVariable() {
     ved ty hadzes chybu ked ides zmenit premennu 
     a = 8
     a= 4 a hodi to chybu
-
-
     if (inMain) { // v mainu
         if ((symTableSearch(&gTable, prevToken->data)) != NULL)
             return ERR_SEM_VAR;
@@ -505,60 +508,26 @@ int declarationFunctionBody() {
     symTableInit(&lTable);
     gNode = symTableSearch(&gTable, functionName);
     int ret = OK;
+    aktToken = get_token();
+    if(aktToken->type == sLexError)
+        return ERR_LEX;
+
+    if (aktToken->type != sEOL)
+        return ERR_SYN;
+
+    aktToken = get_token();
+    if(aktToken->type == sLexError)
+        return ERR_LEX;
+
+    if (aktToken->type != sIndent)
+        return ERR_SYN;
+
     ret = doParse();
+    if (ret != sDedent)
+        return ret;
 
     inMain = true;
     return ret;
-}
-
-// pokud carka tak nacita dalsi parametr
-int nextParametr() {
-    int rett= OK;
-    argumentBool = true;
-    switch (aktToken->type) {
-        case sLeftBracket:
-        case sComma:
-            rett =doParse();
-            if (rett != OK)
-                return rett;
-            rett = parametr();
-            if (rett != OK)
-                return rett;
-            return nextParametr();
-        case sRightBracket:
-            argumentBool = false;
-            return OK;
-    }
-    return ERR_SYN;
-}
-
-int parametr() {
-    int rett= OK;
-    switch (aktToken->type) {
-        case sIdentificator:
-            paramName = aktToken->data;
-            for (int i = 0; i < paramIndex; i++) {
-                if (stringCompare(&((tFunction *) node->Data)->paramName[i], &paramName) == true)
-                    return ERR_SEM_FCE;
-            }
-            if (symTableSearch(&gTable, paramName) != NULL)
-                return ERR_SEM_FCE;
-            ((tFunction *) node->Data)->paramName[paramIndex] = paramName;
-
-            paramIndex++;
-            rett =doParse();
-            if (rett != OK)
-                return rett;
-            rett = nextParametr();
-            if (rett != OK)
-                return rett;
-            return OK;
-        case sRightBracket:
-            paramIndex = 0;
-            argumentBool = false;
-            return OK;
-    }
-    return OK;
 }
 
 
@@ -616,4 +585,3 @@ int loadParams()
         }            
     } 
 }
-    
