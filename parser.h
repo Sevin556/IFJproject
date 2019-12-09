@@ -16,9 +16,40 @@
 #include <stdio.h>
 #include "scanner.h"
 #include "string.h"
+#include "err_code.h"
+#include "symtable.h"
+#include "exprParser.h"
+#include "functionParser.h"
 
-void printTest();
+int parse();
 
-int tokenType(tToken);
+int doParse();
+
+int line();
+
+int keyWords();
+
+int declaration();
+
+int declarationVariable();
+
+int checkVariable();
+
+int declarationFunctionHead();
+
+int declarationFunctionBody();
+
+int checkFunction();
+
+int declarationKeyword();
+
+int typPromenne();
+
+int parametr();
+
+int nextParametr();
+
+//nacita parametre funkcie
+int loadParams();
 
 #endif //IFJ_PARSER_H
