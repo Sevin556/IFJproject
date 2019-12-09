@@ -57,23 +57,6 @@ int parse() {
     return rett;
 }
 
-// fce na eol
-//????????????????????? toto tiez ale ze vobec nechapem co robi
-int line() {
-    int rett = OK;
-    switch (aktToken->type) {
-        case sEOL:
-            rett = doParse();
-            if (rett != OK)
-                return rett;
-            rett = line();
-            return rett;
-        default:
-            rett = OK;
-            return rett;
-    }
-}
-
 int doParse() {      //toto budes rekurzivne volat
     int rett = OK;
     aktToken = get_token();
@@ -105,12 +88,6 @@ int doParse() {      //toto budes rekurzivne volat
             firstTokenOfTheLine = true;
             return OK;
         case sEOL:
-            /*?????????? toto tiez neviem, sak proste zavolam znova doparse len
-            rett = line();
-            if (rett != OK)
-                return rett;
-            firstTokenOfTheLine = true;
-            return OK;*/
             rett = doParse();
             return rett;
         case sDef:
@@ -125,7 +102,6 @@ int doParse() {      //toto budes rekurzivne volat
                 return rett;
             return OK;
         case sEOF:
-            printf("aaa\n");
             break;
         default:
             return ERR_SYN;
@@ -146,14 +122,18 @@ int keyWords() {
             if (aktToken->subtype != sLeftBracket)
                 return ERR_SYN;
             prevToken = aktToken;
-            //printf("\npriiiint\n");
             while ((aktToken = get_token())) {
                 if (aktToken->type == sLexError)
                     return ERR_LEX;
                 switch (aktToken->type) {
                     case sString:
+                        if(inMain){
                         operand1 = initOperand(operand1, aktToken->data.value, false, false, aktToken->type,
                                                aktToken->subtype, "GF");
+                        } else {
+                            operand1 = initOperand(operand1, aktToken->data.value, false, false, aktToken->type,
+                                                   aktToken->subtype, "LF");
+                        }
                         instruction1op(&instList, WRITE, operand1);
                         break;
                     case sComma:
@@ -166,8 +146,13 @@ int keyWords() {
                         rett = checkVariable();
                         if (rett != OK)
                             return rett;
+                        if(inMain){
                         operand1 = initOperand(operand1, aktToken->data.value, false, false, aktToken->type,
                                                aktToken->subtype, "GF");
+                        } else {
+                            operand1 = initOperand(operand1, aktToken->data.value, false, false, aktToken->type,
+                                                   aktToken->subtype, "LF");
+                        }
                         instruction1op(&instList, WRITE, operand1);
                         break;
                 }
@@ -175,7 +160,6 @@ int keyWords() {
                 if (aktToken->subtype == sRightBracket)
                     break;
             }
-            //printf("print je ok\n");
             return OK;
         case sIf:
             //call expression
@@ -185,21 +169,17 @@ int keyWords() {
                                    aktToken->subtype, "");
             instruction1op(&instList, LABEL, operand1);
 
-            rett = exprParsing(aktToken);
-            printf("%d\n", rett);
-            printf("Po expr: %s, Typ tokenu: %d\n", aktToken->data.value, aktToken->type);
+            /*rett = exprParsing(aktToken);
+            printf("%d\n", rett);*/
+
+            aktToken = get_token();
+            if (aktToken->type == sLexError)
+                return ERR_LEX;
+            if (aktToken->type != sIndent)
+                return ERR_SYN;
 
             while ((aktToken = get_token())) {
-                if (aktToken->type == sLexError)
-                    return ERR_LEX;
-
-                printf("Hodnota akt tokenu: %s, Typ tokenu: %d\n", aktToken->data.value, aktToken->type);
-                if (aktToken->type != sIndent || aktToken->type != sDedent) {
-                    return ERR_SYN;
-                } else {
-                    if (aktToken->type == sDedent)
-                        return OK;
-                }
+                printf("vvv wgili: %s, Typ tokenu: %d\n", aktToken->data.value, aktToken->type);
 
                 aktToken = get_token();
                 if (aktToken->type == sLexError)
@@ -207,6 +187,8 @@ int keyWords() {
 
                 switch (aktToken->type) {
                     case sIdentificator:
+                        prevToken = aktToken;
+                        printf("while ident: %s, Typ tokenu: %d\n", prevToken->data.value, prevToken->type);
                         rett = declarationVariable();
                         if (rett != OK)
                             return rett;
@@ -218,6 +200,8 @@ int keyWords() {
                             return ERR_SEM_FCE;
                         instruction0op(&instList, RETURN);
                         break;
+                    case sDedent:
+                        return OK;
                     default:
                         return ERR_SYN;
                 }
@@ -264,34 +248,10 @@ int declaration() {
 // deklarace proměnné
 int declarationVariable() {
     int rett = OK;
-    /* ???????????????
-     ved ty hadzes chybu ked ides zmenit premennu
-     a = 8
-     a= 4 a hodi to chybu
-     if (inMain) { // v mainu
-         if ((symTableSearch(&gTable, prevToken->data)) != NULL)
-             return ERR_SEM_VAR;
-         symTableInsertVariable(&gTable, prevToken->data);
-         node = symTableSearch(&gTable, prevToken->data);
-     }
-     else { // ve funkci
-         if ((symTableSearch(&lTable, prevToken->data)) != NULL)
-             return ERR_SEM_VAR;
-         symTableInsertVariable(&lTable, prevToken->data);
-         node = symTableSearch(&gTable, prevToken->data);
-     }
-
-
-
-      ?????????? preco by si sa sem dostal vo funkcii, to robi semantika
-    if (argumentBool == true)  // kdyz zpracovavam argumenty tak se uz muzu vratit
-         return OK;
- */
-
 
     if (inMain) { // v mainu
-        if ((symTableSearch(&lTable, prevToken->data)) == NULL) {
-            symTableInsertVariable(&lTable, prevToken->data);
+        if ((symTableSearch(&gTable, prevToken->data)) == NULL) {
+            symTableInsertVariable(&gTable, prevToken->data);
             operand1 = initOperand(operand1, prevToken->data.value, false, false, sIdentificator, prevToken->subtype,
                                    "GF");
             instruction1op(&instList, DEFVAR, operand1);
@@ -307,14 +267,13 @@ int declarationVariable() {
         }
 
         node = symTableSearch(&lTable, prevToken->data);
-
     }
 
 
     aktToken = get_token();
     if (aktToken->type == sLexError)
         return ERR_LEX;
-
+    printf("ccc\n");
     if (aktToken->type == sIdentificator) {
         tToken *temp;
         temp = get_token();
@@ -337,7 +296,7 @@ int declarationVariable() {
         if (rett != OK)
             return rett;
     }
-
+    printf("ccc\n\n");
     //printf("%d\n", rett);
     //printf("%s\n", node->Key);
 

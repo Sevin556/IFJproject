@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include "string.h"
+#include "scanner.h"
 
 typedef enum {
     ndtVariable,     /* nodeDataTypeVariable */
@@ -22,12 +23,11 @@ typedef struct tBSTNode {
 } *tBSTNodePtr;
 
 typedef struct variable {
-    int type;
+    int retType;
 } tVariable;
 
 typedef struct function {
-    int type;
-    int NumOfParams;
+    int retType;
     bool defined;
     bool declared;
     string param;
@@ -50,7 +50,6 @@ void BSTDelete(tBSTNodePtr *, char *);
 
 void BSTDispose(tBSTNodePtr *);
 
-
 void symTableInit(tSymtable *);
 
 void symTableInsertVariable(tSymtable *, string);
@@ -62,5 +61,7 @@ tBSTNodePtr symTableSearch(tSymtable *, string);
 void symTableDelete(tSymtable *, string);
 
 void symTableDispose(tSymtable *);
+
+void symTableInsertVesFunction(tSymtable *);
 
 #endif //IFJ_SYMTABLE_H

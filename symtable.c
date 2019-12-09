@@ -20,21 +20,31 @@ tBSTNodePtr BSTSearch(tBSTNodePtr root, char *K) {
 }
 
 void BSTInsert(tBSTNodePtr *root, char *K, void *data, tNodeDataType nodeType) {
-    if (*root == NULL) {
-        tBSTNodePtr new = malloc(sizeof(struct tBSTNode));
-        if (new == NULL)
+    if ( root != NULL && (*root) != NULL) {
+        if ( strcmp(K, (*root)->Key) != 0 ) {
+            if ( strcmp(K, ((*root)->Key)) < 0 ) {
+                BSTInsert( &((*root)->LPtr), K, data, nodeType);
+            } else if ( strcmp(K, (*root)->Key) > 0 ) {
+                BSTInsert( &((*root)->RPtr), K, data, nodeType);
+            }
+        }
+        else {
+            (*root)->Data = data;
+        }
+    }
+    else {
+        // alokace pameti pro novy uzel
+        struct tBSTNode *newitem;
+        if ( (newitem = (struct tBSTNode*)malloc(sizeof(struct tBSTNode))) == NULL ) {
             return;
-        new->RPtr = NULL;
-        new->LPtr = NULL;
-        new->Data = data;
-        new->Key = K;
-        new->nodeDataType = nodeType;
-    } else if ((*root)->Key == K) {
-        (*root)->Data = data;
-    } else if ((*root)->Key < K) {
-        BSTInsert(&(*root)->RPtr, K, data, nodeType);
-    } else {
-        BSTInsert(&(*root)->LPtr, K, data, nodeType);
+        }
+
+        newitem->Key = K;
+        newitem->Data = data;
+        newitem->nodeDataType = nodeType;
+        newitem->LPtr = newitem->RPtr = NULL;
+
+        (*root) = newitem;
     }
 }
 
@@ -99,7 +109,7 @@ void symTableInsertVariable(tSymtable *Tab, string str) {
     tVariable *data = malloc(sizeof(struct variable));
     if (data == NULL)
         return;
-    data->type = -1;
+    data->retType = -1;
     BSTInsert(&(Tab->root), str.value, data, ndtVariable);
 }
 
@@ -109,7 +119,7 @@ void symTableInsertFunction(tSymtable *Tab, string str) {
         return;
     string parametrs;
     stringInit(&parametrs);
-    data->type = -1;
+    data->retType = -1;
     data->declared = data->defined = NULL;
     data->param = parametrs;
     BSTInsert(&(Tab->root), str.value, data, ndtFunction);
@@ -125,4 +135,67 @@ void symTableDelete(tSymtable *Tab, string str) {
 
 void symTableDispose(tSymtable *Tab) {
     BSTDispose(&(Tab->root));
+}
+
+void symTableInsertVesFunction(tSymtable *Tab){
+    tBSTNodePtr node;
+    tFunction *fun;
+
+    //len
+    string len;
+    stringInit(&len);
+    stringAddString(&len, "len");
+    symTableInsertFunction(Tab, len);
+    node = symTableSearch(Tab, len);
+    fun = (tFunction *)(node->Data);
+    fun->declared = fun->defined = true;
+    stringAddChar(&(fun->param), 's');
+    stringInit(&(fun->paramName[0]));
+    stringAddChar(&(fun->paramName[0]), 's');
+    fun->retType = sInteger;
+
+    //substr
+    string substr;
+    stringInit(&substr);
+    stringAddString(&substr, "substr");
+    symTableInsertFunction(Tab, substr);
+    node = symTableSearch(Tab, substr);
+    fun = (tFunction *)(node->Data);
+    fun->defined = fun->declared = true;
+    stringAddString(&(fun->param), "sii");
+    stringInit(&(fun->paramName[0]));
+    stringAddChar(&(fun->paramName[0]), 's');
+    stringInit(&(fun->paramName[1]));
+    stringAddChar(&(fun->paramName[1]), 'i');
+    stringInit(&(fun->paramName[2]));
+    stringAddChar(&(fun->paramName[2]), 'n');
+    fun->retType = sString;
+
+    //ord
+    string ord;
+    stringInit(&ord);
+    stringAddString(&ord, "ord");
+    symTableInsertFunction(Tab, ord);
+    node = symTableSearch(Tab, ord);
+    fun = (tFunction *)(node->Data);
+    fun->declared = fun->defined = true;
+    stringAddString(&(fun->param), "si");
+    stringInit(&(fun->paramName[0]));
+    stringAddChar(&(fun->paramName[0]), 's');
+    stringInit(&(fun->paramName[1]));
+    stringAddChar(&(fun->paramName[1]), 'i');
+    fun->retType = sInteger;
+
+    //chr
+    string chr;
+    stringInit(&chr);
+    stringAddString(&ord, "chr");
+    symTableInsertFunction(Tab, chr);
+    node = symTableSearch(Tab, chr);
+    fun = (tFunction *)(node->Data);
+    fun->defined = fun->declared = true;
+    stringAddString(&(fun->param), "i");
+    stringInit(&(fun->paramName[0]));
+    stringAddChar(&(fun->paramName[0]), 'i');
+    fun->retType = sString;
 }
