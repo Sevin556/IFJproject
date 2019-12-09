@@ -30,7 +30,7 @@ typedef struct function {
     int retType;
     bool defined;
     bool declared;
-    string param;
+    int paramCounter;
     string paramName[10];
 } tFunction;
 

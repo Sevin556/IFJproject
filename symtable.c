@@ -117,11 +117,9 @@ void symTableInsertFunction(tSymtable *Tab, string str) {
     tFunction *data = malloc(sizeof(struct function));
     if (data == NULL)
         return;
-    string parametrs;
-    stringInit(&parametrs);
+    data->paramCounter = 0;
     data->retType = -1;
     data->declared = data->defined = NULL;
-    data->param = parametrs;
     BSTInsert(&(Tab->root), str.value, data, ndtFunction);
 }
 
@@ -149,7 +147,6 @@ void symTableInsertVesFunction(tSymtable *Tab){
     node = symTableSearch(Tab, len);
     fun = (tFunction *)(node->Data);
     fun->declared = fun->defined = true;
-    stringAddChar(&(fun->param), 's');
     stringInit(&(fun->paramName[0]));
     stringAddChar(&(fun->paramName[0]), 's');
     fun->retType = sInteger;
@@ -162,7 +159,6 @@ void symTableInsertVesFunction(tSymtable *Tab){
     node = symTableSearch(Tab, substr);
     fun = (tFunction *)(node->Data);
     fun->defined = fun->declared = true;
-    stringAddString(&(fun->param), "sii");
     stringInit(&(fun->paramName[0]));
     stringAddChar(&(fun->paramName[0]), 's');
     stringInit(&(fun->paramName[1]));

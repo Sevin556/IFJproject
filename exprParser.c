@@ -224,7 +224,8 @@ int shiftToStack (tStack *stack,tToken* token)
                     else 
                     {
                         /*ULOZ JEJ TYP*/
-                     //  new_token->type = ((tDataFunction *) node->Data)->declared = true;
+                       new_token->type = ((tVariable *) ID_uzlu->Data)->retType ;
+                        new_token->subtype = ((tVariable *) ID_uzlu->Data)->retType ;
                     }
                 }
                 else 
@@ -242,7 +243,8 @@ int shiftToStack (tStack *stack,tToken* token)
                     else 
                     {
                         /*ULOZ JEJ TYP*/
-                      // new_token->type = ((tDataFunction *) node->Data)->declared = true;
+                        new_token->type = ((tVariable *) ID_uzlu->Data)->retType ;
+                        new_token->subtype = ((tVariable *) ID_uzlu->Data)->retType ;
                     }
                 }
                 else 
@@ -436,7 +438,7 @@ int  checkOperator(tStack* stack,int znamienko)
         //printf("EXPR  operator je  %s \n",operator->tokenData.value);
         tRedukToken* LeftOperand = stackTopPop(stack);
         if (LeftOperand->TableIndex != 14)
-        return ERR_SYN;
+            return ERR_SYN;
 
         //printf("EXPR lavy operator %s \n",LeftOperand->tokenData.value);
         
@@ -447,10 +449,10 @@ int  checkOperator(tStack* stack,int znamienko)
         {
             return ERR_SYN;
         }
-
-        if (checkSemantic(LeftOperand,RightOperand,znamienko) !=OK )
+        ret = checkSemantic(LeftOperand,RightOperand,znamienko);
+        if (ret !=OK )
         {
-            return ERR_RUN;
+            return ret;
         }
         
         stackPush(stack,LeftOperand);
@@ -547,6 +549,9 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 break;
 
         case sDivideFloat:
+                if (strcmp(RightOperand->tokenData.value,"0") == 0){
+                    return ERR_ZERO;
+                }
                 if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {   
                     
@@ -639,6 +644,9 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 return OK;
                 break;
          case sDivideInteger:
+                if (strcmp(RightOperand->tokenData.value,"0") == 0){
+                    return ERR_ZERO;
+                }
                 if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {
                    return OK;
