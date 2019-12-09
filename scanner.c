@@ -1,6 +1,6 @@
 /*
  * Predmet  :   IFJ / IAL
- * Súbor    :   scanner.h - Hlavičkový súbor lexikálneho analyzátora
+ * Súbor    :   scanner.c - Zdrojový súbor lexikálneho analyzátora
  * Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
  * Tým č    :   127
  * Varianta :   I
