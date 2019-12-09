@@ -112,7 +112,6 @@ tToken* get_token(void) {
                                                 break;
                                         } else {
                                                 ungetc(c, stdin);
-                                                ungetc(c, stdin);
                                                 state = sLexError;
                                                 break;
                                         }
@@ -339,6 +338,10 @@ tToken* get_token(void) {
 
                 /************** sBlockComment Start ****************/
                 case sBlockComment:
+                        if(c == EOF) {
+                                state = sEOF;
+                                break;
+                        }
 
                         if(c == '"') {
                                 /* 1st " */
@@ -351,12 +354,24 @@ tToken* get_token(void) {
 
                                                 state = sStart;
                                         } else {
+                                                if (c == EOF) {
+                                                        state = sEOF;
+                                                        break;
+                                                }
                                                 state = sBlockComment;
                                         }
                                 } else {
+                                        if (c == EOF) {
+                                                state = sEOF;
+                                                break;
+                                        }
                                         state = sBlockComment;
                                 }
                         } else {
+                                if (c == EOF) {
+                                        state = sEOF;
+                                        break;
+                                }
                                 state = sBlockComment;
                         }
 
@@ -854,7 +869,8 @@ tToken* get_token(void) {
                 /********* Operators End *******************************/
 
                 case sLexError:
-                        //stringAddString(&(token->data), "Lexikálna chyba");
+                        ungetc(c, stdin);
+                        stringAddString(&(token->data), "#");
                         token->type = sLexError;
                         token->line = line_cnt;
                         return token;
