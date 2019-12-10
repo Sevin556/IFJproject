@@ -354,12 +354,12 @@ int instruction1op (tDLListInst *L, int Type, tOperand operand1){
     }*/
     instructionGenerator(L , Type, _operand1, "", "");
     free(_operand1);
-    return ok;
+    return OK;
 }
 
 //instrukcia s 2 operandmi//////////////////////////////////////////////////////////
 
-void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand operand2){
+int instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand operand2){
 //operand 1
      char* _operand1 = malloc(sizeof(tOperand)*10);
         if(_operand1 == NULL){
@@ -469,10 +469,10 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 instructionGenerator(L , Type, _operand1, _operand2, "");
 free(_operand1);
 free(_operand2);
-    return ok;
+    return OK;
 }
 //instrukcia s 3 operandmi ///////////////////////////////////////////////////////////////
-void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand operand2, tOperand operand3){
+int instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand operand2, tOperand operand3){
 //operand 1
       char* _operand1 = malloc(sizeof(tOperand)*10);
         if(_operand1 == NULL){
@@ -636,7 +636,7 @@ instructionGenerator(L , Type, _operand1, _operand2, _operand3);
 free(_operand1);
 free(_operand2);
 free(_operand3);
-    return ok;
+    return OK;
 }
 //vypis instrukcii /////////////////////////////////////////////////////////////////////////////////////////////////////
 void instructionPrinter(tDLListInst *L){
