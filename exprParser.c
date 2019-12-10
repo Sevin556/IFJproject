@@ -119,7 +119,10 @@ int exprParsing(tToken *dostanyToken)
     }
 
     //printf("EXPR mam token %s \n",actToken->data.value);
-    shiftToStack(&exprStack,actToken);
+    ret =shiftToStack(&exprStack,actToken);
+    if (ret != OK){
+        return ret;
+    }
     actToken = get_token();
     if (actToken->type == sLexError )
         return ERR_LEX;
@@ -144,8 +147,10 @@ int exprParsing(tToken *dostanyToken)
         case H:
             //printf("EXPR ROBIM L s %s\n",actToken->data.value);
             ret = ApplyRule(&exprStack);
-            if (ret != OK)
-            return ret;
+            if (ret != OK){
+                return ret;
+            }
+                
             break;
         case EQUAL://len pri redukovani zatvoriek
             //printf("ROBIM EQ \n");
@@ -209,12 +214,11 @@ int shiftToStack (tStack *stack,tToken* token)
         tRedukToken* new_token = createNewToken(token);
 
         if (new_token->TokenType  == sIdentificator)
-        {
-                tBSTNodePtr ID_uzlu = symTableSearch(&gTable,new_token->tokenData);
-
+        {    tBSTNodePtr ID_uzlu =symTableSearch(&lTable,new_token->tokenData);
+            
             if ( ID_uzlu != NULL)
             {
-                if(!inMain)
+                if(!inMain)//ak sme ju nasli v globalnej a musi byt aj v lokalnej
                 {
                     ID_uzlu = symTableSearch(&lTable,new_token->tokenData);
                     if ( ID_uzlu == NULL)
@@ -231,13 +235,12 @@ int shiftToStack (tStack *stack,tToken* token)
                 else 
                 return ERR_SEM_VAR;
             }
-            else  //ak sme ju nasli v globalnej a musi byt aj v lokalnej
+            else  
             {
                 if(!inMain)
                 {
                     ID_uzlu = symTableSearch(&lTable,new_token->tokenData);
-                    if ( ID_uzlu == NULL)
-                    {
+                    if ( ID_uzlu == NULL){
                         return ERR_SEM_VAR;
                     }
                     else 

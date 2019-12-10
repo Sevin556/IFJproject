@@ -11,10 +11,30 @@ int checkIfExist(tToken*);
 int checkFunctionParams(tToken* ID, int numberOfParam )
 {
     tToken* aktToken;
-    
-    if (checkIfExist(ID) !=OK)
+
+    if (checkIfExist(ID) !=OK){
         return ERR_SEM_FCE;
+    }
         
+
+
+    aktToken = get_token();
+    if (aktToken->type == sLexError ){
+            return ERR_LEX;
+    }
+
+    if(aktToken->type == sIdentificator && numberOfParam>0)
+        {
+            if (checkIfExist(aktToken) !=OK)
+                return ERR_SEM_VAR;
+        }
+        else if ((aktToken->type == sNumber || aktToken->type == sString) && numberOfParam > 0 )
+        {
+            ;
+        }
+        else 
+            return ERR_SEM_FCE;
+                   
     for (int i = 1;i < numberOfParam;i++)
     {
         //Kontrola ci je pred dalsim parametrom ciarka

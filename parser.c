@@ -74,11 +74,11 @@ int doParse() {      //toto budes rekurzivne volat
         case sWhile:
         case sReturn:
             //ak neni prvy na riadku tak je to chyba 
-             if (firstTokenOfTheLine) {
+            /* if (firstTokenOfTheLine) {
                 firstTokenOfTheLine = false;
             } else {
                 return ERR_SYN;
-            }   
+            }   */
 
             rett = keyWords();
             if (rett != OK)
@@ -87,11 +87,11 @@ int doParse() {      //toto budes rekurzivne volat
             break;
         case sIdentificator:
         //ak neni prvy na riadku tak je to chyba 
-            if (firstTokenOfTheLine) {
+           /* if (firstTokenOfTheLine) {
                 firstTokenOfTheLine = false;
             } else {
                 return ERR_SYN;
-            }
+            }*/
                 
             if ((rett = declaration()) != OK) {
                 return rett;
@@ -103,11 +103,11 @@ int doParse() {      //toto budes rekurzivne volat
             break;
         case sDef:
             //ak neni prvy na riadku tak je to chyba 
-            if (firstTokenOfTheLine) {
+            /*if (firstTokenOfTheLine) {
                 firstTokenOfTheLine = false;
             } else {
                 return ERR_SYN;
-            }                
+            }    */           
 
             firstTokenOfTheLine = false;
             rett = declarationFunctionHead();
@@ -119,8 +119,11 @@ int doParse() {      //toto budes rekurzivne volat
         case sDedent:
             /* vracia špeciálnu hodnotu pre kontrolu potreby dedentu */
             return sDedent;
+            
         case sEOF:
             return OK;
+        case sPass:
+            break;
         default: 
             return ERR_SYN;
     }
@@ -217,7 +220,9 @@ int keyWords() {
             rett = doParse() ;
             if(rett  != sDedent) {
                 return ERR_SYN;
-            }
+            } else {
+                rett=OK;
+             }
 
             /***********************nasleduje else************************ */
             aktToken = get_token();
@@ -226,6 +231,13 @@ int keyWords() {
             }
 
             if (aktToken->type != sElse)
+                return ERR_SYN;
+            
+            aktToken=get_token();
+            if(aktToken->type == sLexError) {
+                return ERR_LEX;
+            }
+            if (aktToken->type != sColon)
                 return ERR_SYN;
             
 
@@ -246,6 +258,8 @@ int keyWords() {
             rett = doParse() ;
             if(rett  != sDedent) {
                 return ERR_SYN;
+            }else {
+                rett=OK;
             }
 
             return OK;
@@ -267,13 +281,6 @@ int keyWords() {
 // zjištění jeslti se jedná o proměnnou nebo o funkci nebo argument
 int declaration() {
     int rett= OK;
-    if (argumentBool == true) { // kdyz zpracovavam argumenty tak se uz muzu vratit
-        prevToken = aktToken;
-        /*??????????????????????
-        rett = declarationVariable();
-        return rett;*/
-        return OK;
-    }
 
     prevToken = aktToken;
     aktToken = get_token();
@@ -288,12 +295,23 @@ int declaration() {
         rett = declarationVariable();
         return rett;
     }
+    if (aktToken->subtype == sLeftBracket)
+    {
+        node = symTableSearch(&gTable,prevToken->data);
+        if (node == NULL)
+            return ERR_SEM_VAR;
+        rett =checkFunctionParams(aktToken,((tFunction *) node->Data)->paramCounter);
+        if (rett != OK){
+            return rett;
+        }
+    }
     
-            
+       /*     
     if (aktToken->subtype == sLeftBracket){
         rett = checkFunction();
-            return rett;
-    }
+        return rett;
+    }*/
+    
             
     
     return ERR_SYN;
@@ -340,14 +358,18 @@ int declarationVariable() {
             if (temp->subtype == sLeftBracket) {
                /* SKONTROLUJ PARAMETRE FUNKCIE*/
                 
-               rett =checkFunctionParams(aktToken,((tFunction *) node->Data)->paramCounter);
+                if (symTableSearch(&gTable, aktToken->data) == NULL)
+                    return ERR_SEM_VAR;
+                rett =checkFunctionParams(aktToken,((tFunction *) node->Data)->paramCounter);
+                if(rett != OK)
+                    return rett; 
             } else {
                 unget_token(temp);
-            }            
-
-            rett = exprParsing(aktToken);
-            if(rett != OK)
-                return rett;
+                rett = exprParsing(aktToken);
+                if(rett != OK)
+                    return rett;         
+            } 
+            
     } else {
         rett = exprParsing(aktToken);
         if(rett != OK) {
@@ -425,17 +447,17 @@ int typPromenne(int type) {
     return ERR_SYN;
 }
 
-// kontrola, jeslti bylla uz funkce definovana
+// kontrola, jeslti bylla uz funkce definovana vracia ERR_SEM_VAR ak neexistuje inak je node dana funkcia
 int checkFunction() {
-    int rett= OK;
+  
     if (symTableSearch(&gTable, prevToken->data) == NULL) {
-        symTableInsertFunction(&gTable, prevToken->data);
+        return ERR_SEM_VAR;
     } else {
         node = symTableSearch(&gTable, prevToken->data);
     }
-    rett =doParse();
+    /*rett =doParse();
             if (rett != OK)
-                return rett;
+                return rett;*/
     /*while () {
         if (aktToken->type != sIdentificator)
             return ERR_SEM_FCE;
@@ -500,6 +522,14 @@ int declarationFunctionBody() {
     aktToken = get_token();
     if(aktToken->type == sLexError)
         return ERR_LEX;
+    if (aktToken->type != sColon)
+        return ERR_SYN;
+
+
+    aktToken = get_token();
+    if(aktToken->type == sLexError)
+        return ERR_LEX;
+
 
     if (aktToken->type != sEOL)
         return ERR_SYN;
@@ -514,7 +544,9 @@ int declarationFunctionBody() {
     ret = doParse();
     if (ret != sDedent)
         return ret;
-
+    else {
+        ret=OK;
+    }
     inMain = true;
     return ret;
 }
@@ -543,6 +575,7 @@ int loadParams()
                 //zvys pocet parametrov do symtable
                 ((tFunction *) IDFunkcie->Data)->paramName[((tFunction *) IDFunkcie->Data)->paramCounter] = aktToken->data ;
                 (((tFunction *) IDFunkcie->Data)->paramCounter)++ ;
+                symTableInsertVariable(&lTable,aktToken->data);
             }
             else 
             {
@@ -551,6 +584,7 @@ int loadParams()
                        //zvys pocet parametrov
                     ((tFunction *) IDFunkcie->Data)->paramName[((tFunction *) IDFunkcie->Data)->paramCounter] = aktToken->data ;
                     (((tFunction *) IDFunkcie->Data)->paramCounter)++ ;
+                    symTableInsertVariable(&lTable,aktToken->data);
                     ciarka = false;
                 }
                 else 
