@@ -292,7 +292,7 @@ tOperand initOperand(tOperand operand, char* value, bool Label, bool tmp, int ty
     return operand;
 }
 //instrukcia bez operandov
-void instruction0op (tDLListInst *L, int Type){
+int instruction0op (tDLListInst *L, int Type){
     instructionGenerator(L , Type, NULL, NULL, NULL);
 }
 //instrukcia s 1 operandom/////////////////////////////////////////////////////////////
@@ -717,7 +717,7 @@ void functionLen(){
 
 }
 
-void functionChr(){
+void functionChr()
 {
     operand1 = initOperand(operand1, "chr",true,false, sChr,-1,"");
 	instruction1op(&instList, LABEL, operand1);

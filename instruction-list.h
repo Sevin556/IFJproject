@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "scanner.h"
-#include "err_code"
+#include "err_code.h"
 
 
 
