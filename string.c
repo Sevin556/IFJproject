@@ -13,7 +13,7 @@
 #include "string.h"
 
 int stringInit(string *str) {
-    str->value = (char *) malloc(sizeof(char) * INIT_ALLOC_SIZE);
+    str->value = malloc(sizeof(char) * INIT_ALLOC_SIZE);
     if (str->value == NULL)
         return ERR_INTERN;
     str->length = 0;
@@ -24,7 +24,7 @@ int stringInit(string *str) {
 
 int stringAddChar(string *str, char c) {
     if (str->length + 1 >= str->lengthAllocated) {
-        str->value = (char *) realloc(str->value, str->lengthAllocated + INIT_ALLOC_SIZE + sizeof(char));
+        str->value = realloc(str->value, str->lengthAllocated + INIT_ALLOC_SIZE + sizeof(char));
         if (str->value == NULL)
             return ERR_INTERN;
         str->lengthAllocated += INIT_ALLOC_SIZE;
@@ -43,6 +43,12 @@ int stringAddString(string *str, char *c) {
     return result_code;
 }
 
+bool stringCompare(string *a, string *b){
+    if (strcmp(a->value, b->value) == 0)
+        return true;
+    return false;
+}
+
 void stringChangeLastChar(string *str, char c) {
     if (str->length > 0) {
         str->value[str->length - 1] = c;
@@ -56,5 +62,6 @@ void stringDeleteLastChar(string *str) {
 
 void stringFree(string *str) {
     free(str->value);
-    free(str);
+    str->value = NULL;
+    str->length = str->lengthAllocated = 0;
 }
