@@ -14,14 +14,16 @@
 #define IFJ_EXPRPARSER_H
 
 #include <stdio.h>
+
 #include <stdbool.h>
 #include <stdlib.h>
-//#include "parser.h"
+#include "parser.h"
 #include "symtable.h"
 #include "scanner.h"
 #include "string.h"
 #include "lifo.h"
 #include "instruction-list.h"
+
 
 typedef enum
 {

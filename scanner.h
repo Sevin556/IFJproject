@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include "string.h"
 
+
 #define MAX_DENT 50
 
 /* jednoducé pole pre počítanie indentov používané ako LIFO zásobník */
@@ -25,98 +26,98 @@ typedef int tIndentStack;
 
 /* štrukturovaný dátový typ tToken */
 typedef struct structToken {
-    int type;             /* typ lexému */
-    int subtype;          /* pomocný podtyp */
-    int line;             /* riadok lexému */
-    string data;          /* obsah lexému */
+        int type;             /* typ lexému */
+        int subtype;          /* pomocný podtyp */
+        int line;             /* riadok lexému */
+        string data;          /* obsah lexému */
 } tToken;
 
 /* deklarácia globálnych premenných */
-/*extern int line_cnt;
 extern bool FirstToken;
 extern bool FirstInit;
-extern tIndentStack stackI[MAX_DENT];*/
 
 typedef enum {
-    sStart,                     /* počiatočný stav */
+        sStart,                     /* počiatočný stav */
 
-    sEOL,                       /* návratový typ */
-    sEOF,                       /* návratový typ */
+        sEOL,                       /* návratový typ */
+        sEOF,                       /* návratový typ */
 
-    sIndent,                    /* návratový typ */
-    sDedent,                    /* návratový typ */
-    sDentDecide,
-    //sDentEnd, -redundant
+        sIndent,                    /* návratový typ */
+        sDedent,                    /* návratový typ */
+        sDentDecide,
+        //sDentEnd, -redundant
 
-    /* operandy*/
-            sOperand,                   /* návratový typ */
-    sMore,                      /* návratový podtyp */
-    sMoreEqual,                 /* návratový podtyp */
-    sLess,                      /* návratový podtyp */
-    sLessEqual,                 /* návratový podtyp */
-    sInequal,                   /* návratový podtyp */
-    sEqual,                     /* návratový podtyp */
-    sDivideFloat,               /* návratový podtyp */
-    sDivideInteger,             /* návratový podtyp */
-    sMultiplication,            /* návratový podtyp */
-    sMinus,                     /* návratový podtyp */
-    sPlus,                      /* návratový podtyp */
-    sLeftBracket,               /* návratový podtyp */
-    sRightBracket,              /* návratový podtyp */
+        /* operandy*/
+        sOperand,                   /* návratový typ */
+        sMore,                      /* návratový podtyp */
+        sMoreEqual,                 /* návratový podtyp */
+        sLess,                      /* návratový podtyp */
+        sLessEqual,                 /* návratový podtyp */
+        sInequal,                   /* návratový podtyp */
+        sEqual,                     /* návratový podtyp */
+        sDivideFloat,               /* návratový podtyp */
+        sDivideInteger,             /* návratový podtyp */
+        sMultiplication,            /* návratový podtyp */
+        sMinus,                     /* návratový podtyp */
+        sPlus,                      /* návratový podtyp */
+        sLeftBracket,               /* návratový podtyp */
+        sRightBracket,              /* návratový podtyp */
 
-    /* , */
-            sComma,                     /* návratový typ */
-    sAssignment,                /* návratový typ */
-    sColon,                     /* návratový typ */
-    sDollar,                    /* návratový typ */
+        /* , */
+        sComma,                     /* návratový typ */
+        sAssignment,                /* návratový typ */
+        sColon,                     /* návratový typ */
+        sSemicolon,                 /* návratový typ */
+        sDollar,                    /* návratový typ */
 
-    /* id */
-            sIdentificatorOrKeyword,
-    sIdentificator,             /* návratový typ */
+        /* id */
+        sIdentificatorOrKeyword,
+        sIdentificator,             /* návratový typ */
 
-    /* keywords */
-            sDef,                       /* návratový typ */
-    sElse,                      /* návratový typ */
-    sIf,                        /* návratový typ */
-    sNone,                      /* návratový typ */
-    sPass,                      /* návratový typ */
-    sReturn,                    /* návratový typ */
-    sWhile,                     /* návratový typ */
+        /* keywords */
+        sDef,                       /* návratový typ */
+        sElse,                      /* návratový typ */
+        sIf,                        /* návratový typ */
+        sNone,                      /* návratový typ */
+        sPass,                      /* návratový typ */
+        sReturn,                    /* návratový typ */
+        sWhile,                     /* návratový typ */
 
-    /* built-in functions */
-            sInputS,                    /* návratový typ */
-    sInputI,                    /* návratový typ */
-    sInputF,                    /* návratový typ */
-    sPrint,                     /* návratový typ */
-    sLen,                       /* návratový typ */
-    sSubstr,                    /* návratový typ */
-    sOrd,                       /* návratový typ */
-    sChr,                       /* návratový typ */
+        /* built-in functions */
+        sInputS,                    /* návratový typ */
+        sInputI,                    /* návratový typ */
+        sInputF,                    /* návratový typ */
+        sPrint,                     /* návratový typ */
+        sLen,                       /* návratový typ */
+        sSubstr,                    /* návratový typ */
+        sOrd,                       /* návratový typ */
+        sChr,                       /* návratový typ */
 
-    /* komentáre */
-            sLineComment,
-    sBlockComment,
+        /* komentáre */
+        sLineComment,
+        sBlockComment,
 
-    /* string */
-            sStringStart,
-    sStringRead,
-    sStringEscape,
-    sStringEscapeHex,
-    //sStringEscapeHexValue, -redundant
-            sString,                    /* návratový typ */
+        /* string */
+        sStringStart,
+        sStringRead,
+        sStringEscape,
+        sStringEscapeHex,
+        //sStringEscapeHexValue, -redundant
+        sString,                    /* návratový typ */
 
-    /* čísla */
-            sNumber,                    /* návratový typ */
-    sIntegerOrDouble,
-    sInteger,                   /* návratový podtyp */
-    sDoublePoint,
-    sDoublePointNumber,         /* návratový podtyp */
-    sDoubleExponent,
-    sDoubleExponentOperator,
-    sDoubleExponentNumber,       /* návratový podtyp */
+        /* čísla */
+        sNumber,                    /* návratový typ */
+        sIntegerOrDouble,
+        sInteger,                   /* návratový podtyp */
+        sDoublePoint,
+        sDoublePointNumber,         /* návratový podtyp */
+        sDoubleExponent,
+        sDoubleExponentOperator,
+        sDoubleExponentNumber,       /* návratový podtyp */
 
-    /* chyba */
-            sLexError
+        /* chyba */
+        sLexError,
+        sBool
 } tState;
 
 

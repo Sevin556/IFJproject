@@ -17,10 +17,10 @@
 #include "scanner.h"
 #include "string.h"
 #include "err_code.h"
-#include "instruction-list.h"
 #include "symtable.h"
 #include "exprParser.h"
 #include "functionParser.h"
+#include "instruction-list.h"
 
 int parse();
 

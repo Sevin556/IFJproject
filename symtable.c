@@ -1,4 +1,14 @@
-
+/*
+* Predmet  :   IFJ / IAL
+* Súbor    :   symtable.c
+* Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
+* Tým č    :   127
+* Varianta :   I
+* Autoři   : xhalom00, Ivan Halomi
+*            xhiner00, Martin Hiner
+*            xsevci64, Adam Ševčík
+*            xzakji02, Jiří Žák
+*/
 #include "symtable.h"
 
 void BSTInit(tBSTNodePtr *root) {
@@ -117,11 +127,9 @@ void symTableInsertFunction(tSymtable *Tab, string str) {
     tFunction *data = malloc(sizeof(struct function));
     if (data == NULL)
         return;
-    string parametrs;
-    stringInit(&parametrs);
     data->retType = -1;
     data->declared = data->defined = NULL;
-    data->param = parametrs;
+    data->paramCounter = 0;
     BSTInsert(&(Tab->root), str.value, data, ndtFunction);
 }
 
@@ -149,7 +157,7 @@ void symTableInsertVesFunction(tSymtable *Tab){
     node = symTableSearch(Tab, len);
     fun = (tFunction *)(node->Data);
     fun->declared = fun->defined = true;
-    stringAddChar(&(fun->param), 's');
+    fun->paramCounter = 1;
     stringInit(&(fun->paramName[0]));
     stringAddChar(&(fun->paramName[0]), 's');
     fun->retType = sInteger;
@@ -162,7 +170,7 @@ void symTableInsertVesFunction(tSymtable *Tab){
     node = symTableSearch(Tab, substr);
     fun = (tFunction *)(node->Data);
     fun->defined = fun->declared = true;
-    stringAddString(&(fun->param), "sii");
+    fun->paramCounter = 3;
     stringInit(&(fun->paramName[0]));
     stringAddChar(&(fun->paramName[0]), 's');
     stringInit(&(fun->paramName[1]));
@@ -179,7 +187,7 @@ void symTableInsertVesFunction(tSymtable *Tab){
     node = symTableSearch(Tab, ord);
     fun = (tFunction *)(node->Data);
     fun->declared = fun->defined = true;
-    stringAddString(&(fun->param), "si");
+    fun->paramCounter = 2;
     stringInit(&(fun->paramName[0]));
     stringAddChar(&(fun->paramName[0]), 's');
     stringInit(&(fun->paramName[1]));
@@ -194,8 +202,41 @@ void symTableInsertVesFunction(tSymtable *Tab){
     node = symTableSearch(Tab, chr);
     fun = (tFunction *)(node->Data);
     fun->defined = fun->declared = true;
-    stringAddString(&(fun->param), "i");
+    fun->paramCounter = 1;
     stringInit(&(fun->paramName[0]));
     stringAddChar(&(fun->paramName[0]), 'i');
     fun->retType = sString;
+
+    //inputs
+    string inputs;
+    stringInit(&inputs);
+    stringAddString(&inputs, "inputs");
+    symTableInsertFunction(Tab, inputs);
+    node = symTableSearch(Tab, inputs);
+    fun = (tFunction *)(node->Data);
+    fun->defined = fun->declared = true;
+    fun->paramCounter = 0;
+    fun->retType = sString;
+
+    //inputi
+    string inputi;
+    stringInit(&inputi);
+    stringAddString(&inputi, "inputi");
+    symTableInsertFunction(Tab, inputi);
+    node = symTableSearch(Tab, inputi);
+    fun = (tFunction *)(node->Data);
+    fun->defined = fun->declared = true;
+    fun->paramCounter = 0;
+    fun->retType = sInteger;
+
+    //inputf
+    string inputf;
+    stringInit(&inputf);
+    stringAddString(&inputf, "inputf");
+    symTableInsertFunction(Tab, inputf);
+    node = symTableSearch(Tab, inputf);
+    fun = (tFunction *)(node->Data);
+    fun->defined = fun->declared = true;
+    fun->paramCounter = 0;
+    fun->retType = sDoublePointNumber;
 }

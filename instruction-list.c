@@ -336,7 +336,6 @@ void instruction1op(tDLListInst *L, int Type, tOperand operand1) {
     else if(operand1.subtype == sNil){
             strcat(_operand1,"nil@");
             strcat(_operand1,operand1.value);
-
     }*/
     instructionGenerator(L, Type, _operand1, "", "");
 }
@@ -362,8 +361,7 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand1, "$tmp");
         }
         if (operand1.Label == true) {
-            strcat(_operand1, "$");
-            strcat(_operand1, operand1.value);
+            strcat("$", _operand1);
         }
     }
 //konstatna
@@ -386,7 +384,6 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
      else if(operand1.subtype == sNil){
              strcat(_operand1,"nil@");
              strcat(_operand1,operand1.value);
-
      }*/
 //operand 2
 
@@ -407,8 +404,7 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, "$tmp");
         }
         if (operand2.Label == true) {
-            strcat(_operand2, "$");
-            strcat(_operand2, operand1.value);
+            strcat("$", _operand2);
         }
     }
 //konstatna
@@ -431,7 +427,6 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
     else if(operand2.subtype == sNil){
             strcat(_operand2,"nil@");
             strcat(_operand2,operand2.value);
-
     } */
     instructionGenerator(L, Type, _operand1, _operand2, "");
 }
@@ -456,8 +451,7 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand1, "$tmp");
         }
         if (operand1.Label == true) {
-            strcat(_operand1, "$");
-            strcat(_operand1, operand1.value);
+            strcat("$", _operand1);
         }
     }
 //konstatna
@@ -480,7 +474,6 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
       else if(operand1.subtype == sNil){
               strcat(_operand1,"nil@");
               strcat(_operand1,operand1.value);
-
       }*/
 //operand 2
 
@@ -501,8 +494,7 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, "$tmp");
         }
         if (operand2.Label == true) {
-            strcat(_operand2, "$");
-            strcat(_operand2, operand1.value);
+            strcat("$", _operand2);
         }
     }
 //konstatna
@@ -525,7 +517,6 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
      else if(operand2.subtype == sNil){
              strcat(_operand2,"nil@");
              strcat(_operand2,operand2.value);
-
      } */
 
 //operand 3
@@ -546,8 +537,8 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand3, "$tmp");
         }
         if (operand3.Label == true) {
-            strcat(_operand3, "$");
-            strcat(_operand3, operand1.value);
+            strcat( _operand3,"$");
+            strcat("$",_operand3);
         }
     }
 //konstatna
@@ -570,7 +561,6 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
      else if(operand3.subtype == sNil){
              strcat(_operand3,"nil@");
              strcat(_operand3,operand3.value);
-
      } */
 
     instructionGenerator(L, Type, _operand1, _operand2, _operand3);
@@ -782,4 +772,3 @@ void functionOrd(){
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
 }
-

@@ -12,13 +12,12 @@
 #include "exprParser.h"
 
 
- tSymtable gTable;            //GL tabulka symbolů
- tSymtable lTable;            //Lokální tabulka
+extern tSymtable gTable;            //GL tabulka symbolů
+extern tSymtable lTable;            //Lokální tabulka
 extern bool inMain;         //Indikátor, že se kontroluje tělo funkce
 extern tDLListInst instList; 
-extern tBSTNodePtr *node;             
-//bool inFunctionBody;             
-int ret;                            //return value
+extern tBSTNodePtr node;             //uzol kam vraciam typ hodnoty
+
 int IndexTerminalu = -1;                     //index terminalu v stacku 
 
 exprTable Table[15][15] =
@@ -45,32 +44,25 @@ exprTable Table[15][15] =
  */
 int tableIndexSelect(int type, int subtype){
 
-    //if (token->TokenType == NULL)
-    //return 13;
-    //printf("EXPR INDEX zacinam s %d a %d\n ",type,subtype);
+
     if (type == sDollar)
     {
         return 13;
     }
     if (type == sIdentificator || type == sNumber || type == sString)
     {
-        //printf("EXPR INDEXTABLE vybral som 14 \n");
         return 14;
     }    
     
     int arr[15] = {sPlus,sMinus,sMultiplication,sDivideInteger,sDivideFloat,sEqual,sLess,sMore,sMoreEqual,sLessEqual,
 				sInequal,sLeftBracket,sRightBracket,sEOL,sColon};
-    //printf("EXPR INDEXTABLE nevybral som  14 \n");
         for (int i = 0; i < 15 ; i++ )
          {
-             //printf(" %d a je to porovbnanie %d a %d \n",i,subtype,arr[i]);
              if (subtype == arr[i] || type == arr[i]) {
-                // printf("EXPR INDEXTABLE vybral som %d \n",i);
                 if (i==14)
                 {
                     i =13;
                 }
-                //printf("EXPR INDEXTABLE vybral som %d \n",i);
                 return i;
              }
                 
@@ -84,6 +76,7 @@ int tableIndexSelect(int type, int subtype){
  */
 int exprParsing(tToken *dostanyToken)
 {
+    int ret = OK;                            //return value
     tStack exprStack;
     tStack Rstack;
     stackInit (&exprStack);
@@ -98,8 +91,6 @@ int exprParsing(tToken *dostanyToken)
     firstToken->Redukuj = true;
     tOperand operand1 = initOperand(operand1,firstToken->tokenData.value,false,false,firstToken->TokenType,firstToken->subtype,"GF" );
     instruction1op(&instList,PUSHS,operand1);
-    
-    //stringAddString(firstToken->tokenData,"Dollar");
     stackPush(&exprStack,firstToken);
     IndexTerminalu = 0;
     tToken *actToken;
@@ -108,47 +99,64 @@ int exprParsing(tToken *dostanyToken)
     {
         
        actToken = get_token();
-       //printf("EXPR  nacitavam token %s \n",actToken->data.value);
+       if (actToken->type == sLexError )
+        return ERR_LEX;
     }
     else 
     {
         actToken = dostanyToken;
-        //printf("EXPR  mam token %s \n",actToken->data.value);
+        if (actToken->type == sLexError )
+            return ERR_LEX;
     }
 
-    //printf("EXPR mam token %s \n",actToken->data.value);
-    shiftToStack(&exprStack,actToken);
+    ret =shiftToStack(&exprStack,actToken);
+    if (ret != OK){
+        return ret;
+    }
     actToken = get_token();
+    if (actToken->type == sLexError ){
+        return ERR_LEX;
+    }
+        
+        
+    tRedukToken* temp;
     while (1)
     {
         if (actToken->type == sLexError )
-        return ERR_LEX;
+            return ERR_LEX;
         
-       int indexInTable = tableIndexSelect(stackIndex(&exprStack,IndexTerminalu)->TokenType,stackIndex(&exprStack,IndexTerminalu)->subtype);
+        temp=stackIndex(&exprStack,IndexTerminalu);
+        if (temp == NULL)
+        {
+            return ERR_INTERN;
+        }
+       int indexInTable = tableIndexSelect(temp->TokenType,temp->subtype);
        switch (Table[indexInTable][tableIndexSelect(actToken->type,actToken->subtype)])
         {
         case L:
-            //printf("EXPR ROBIM H s %s \n",actToken->data.value);
             ret = shiftToStack(&exprStack,actToken);
             if (ret != OK)
-            return ret;
+                return ret;
             actToken = get_token();
-             //printf("EXPR Koncim H s %s \n",actToken->data.value);
+            if (actToken->type == sLexError )
+                return ERR_LEX;
             break;
         case H:
-            //printf("EXPR ROBIM L s %s\n",actToken->data.value);
             ret = ApplyRule(&exprStack);
-            if (ret != OK)
-            return ret;
+            if (ret != OK){
+                return ret;
+            }
+                
             break;
         case EQUAL://len pri redukovani zatvoriek
-            //printf("ROBIM EQ \n");
             shiftToStack(&exprStack,actToken);
             ret = reduceBrackets(&exprStack);
              if (ret != OK) {
                     return ret;
                 }
             actToken = get_token();
+            if (actToken->type == sLexError )
+                return ERR_LEX;
             if (actToken == NULL)
             {
                 return ERR_SYN;
@@ -156,12 +164,10 @@ int exprParsing(tToken *dostanyToken)
             
             break;
         case ERROR:                
-            //printf("ROBIM ERROR \n");
             return ERR_SYN;
         case EXITPARSE:
-            //printf(" \n EXPR top stack je %s \n",stackTop(&exprStack)->tokenData.value);
-            //printf("ROBIM EXIT \n");
-            //(*node)->nodeDataType = stackTop(&exprStack)->type;
+            if (node != NULL)
+            ((tVariable *) node->Data)->retType = stackTop(&exprStack)->subtype;
             return OK;
         default:
             //printf("robim default");
@@ -181,6 +187,9 @@ tRedukToken* createNewToken(tToken *token)
     tRedukToken *temp;
     temp = (tRedukToken*) malloc(sizeof(int)*32);
     if (temp == NULL)
+    {
+        return NULL;
+    }
     temp->Redukuj=false;
     temp->terminal = true;
     temp->TableIndex=tableIndexSelect(token->type,token->subtype);
@@ -194,19 +203,22 @@ tRedukToken* createNewToken(tToken *token)
  */
 int shiftToStack (tStack *stack,tToken* token)
 {
+    
     if (!stackEmpty(stack))
     {
-        stackIndex(stack,IndexTerminalu)->Redukuj= true;
+        tRedukToken* temp =stackIndex(stack,IndexTerminalu);
+        temp->Redukuj= true;
             
         tRedukToken* new_token = createNewToken(token);
+        if (new_token == NULL)
+            return ERR_INTERN;
 
         if (new_token->TokenType  == sIdentificator)
-        {
-                tBSTNodePtr ID_uzlu = symTableSearch(&gTable,new_token->tokenData);
-
+        {    tBSTNodePtr ID_uzlu =symTableSearch(&lTable,new_token->tokenData);
+            
             if ( ID_uzlu != NULL)
             {
-                if(!inMain)
+                if(!inMain)//ak sme ju nasli v globalnej a musi byt aj v lokalnej
                 {
                     ID_uzlu = symTableSearch(&lTable,new_token->tokenData);
                     if ( ID_uzlu == NULL)
@@ -216,25 +228,26 @@ int shiftToStack (tStack *stack,tToken* token)
                     else 
                     {
                         /*ULOZ JEJ TYP*/
-                     //  new_token->type = ((tDataFunction *) node->Data)->declared = true;
+                       new_token->type = ((tVariable *) ID_uzlu->Data)->retType ;
+                        new_token->subtype = ((tVariable *) ID_uzlu->Data)->retType ;
                     }
                 }
                 else 
                 return ERR_SEM_VAR;
             }
-            else  //ak sme ju nasli v globalnej a musi byt aj v lokalnej
+            else  
             {
                 if(!inMain)
                 {
                     ID_uzlu = symTableSearch(&lTable,new_token->tokenData);
-                    if ( ID_uzlu == NULL)
-                    {
+                    if ( ID_uzlu == NULL){
                         return ERR_SEM_VAR;
                     }
                     else 
                     {
                         /*ULOZ JEJ TYP*/
-                      // new_token->type = ((tDataFunction *) node->Data)->declared = true;
+                        new_token->type = ((tVariable *) ID_uzlu->Data)->retType ;
+                        new_token->subtype = ((tVariable *) ID_uzlu->Data)->retType ;
                     }
                 }
                 else 
@@ -401,7 +414,8 @@ int ApplyRule(tStack* stack)
         stackPop(stack);
         stackPop(stack);
         IndexTerminalu = IndexOfTop(stack)-1;
-        stackIndex(stack,IndexTerminalu)->Redukuj = false;
+        temp = stackIndex(stack,IndexTerminalu);
+        temp->Redukuj = false;
 
     }
     else 
@@ -416,6 +430,7 @@ int ApplyRule(tStack* stack)
  */
 int  checkOperator(tStack* stack,int znamienko)
 {
+    int ret = OK;                            //return value
     //printf("EXPR zacinam CheckOperator s %d \n",znamienko);
     if (!stackEmpty(stack))
     {
@@ -428,7 +443,7 @@ int  checkOperator(tStack* stack,int znamienko)
         //printf("EXPR  operator je  %s \n",operator->tokenData.value);
         tRedukToken* LeftOperand = stackTopPop(stack);
         if (LeftOperand->TableIndex != 14)
-        return ERR_SYN;
+            return ERR_SYN;
 
         //printf("EXPR lavy operator %s \n",LeftOperand->tokenData.value);
         
@@ -439,10 +454,10 @@ int  checkOperator(tStack* stack,int znamienko)
         {
             return ERR_SYN;
         }
-
-        if (checkSemantic(LeftOperand,RightOperand,znamienko) !=OK )
+        ret = checkSemantic(LeftOperand,RightOperand,znamienko);
+        if (ret !=OK )
         {
-            return ERR_RUN;
+            return ret;
         }
         
         stackPush(stack,LeftOperand);
@@ -481,13 +496,13 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     /*PRETYPUJ*/
                    if(inMain)
                     {
-                         operand1 = initOperand(operand1, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                         operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
-                        operand1 = initOperand(operand1, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"LF" );
+                        operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand1);
@@ -504,17 +519,17 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     
                     if(inMain)
                     {
-                         operand1 = initOperand(operand1, LeftOperand->tokenData.value,
-                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"GF" );
-                         operand2 = initOperand(operand2, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                         operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"GF" );
+                         operand2 = initOperand(operand2, "tmp2",
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
-                        operand1 = initOperand(operand1, LeftOperand->tokenData.value,
-                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"LF" );
-                        operand2 = initOperand(operand2, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                        operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"LF" );
+                        operand2 = initOperand(operand2, "tmp2",
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand2);
@@ -539,23 +554,26 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 break;
 
         case sDivideFloat:
+                if (strcmp(RightOperand->tokenData.value,"0") == 0){
+                    return ERR_ZERO;
+                }
                 if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {   
                     
                    /*PRETYPUJ OBA*/
                    if(inMain)
                     {
-                         operand1 = initOperand(operand1, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
-                         operand2 = initOperand(operand2, LeftOperand->tokenData.value,
-                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"GF" );
+                         operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"GF" );
+                         operand2 = initOperand(operand2, "tmp2",
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
-                        operand1 = initOperand(operand1, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"LF" );
-                        operand2 = initOperand(operand2, LeftOperand->tokenData.value,
-                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"LF" );
+                        operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"LF" );
+                        operand2 = initOperand(operand2, "tmp2",
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand1);
@@ -577,13 +595,13 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     /*PRETYPUJ*/
                     if(inMain)
                     {
-                         operand1 = initOperand(operand1, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                         operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
-                        operand1 = initOperand(operand1, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"LF" );
+                        operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand1);
@@ -599,17 +617,17 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     /*PRETYPUJ*/
                      if(inMain)
                     {
-                         operand1 = initOperand(operand1, LeftOperand->tokenData.value,
-                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"GF" );
-                         operand2 = initOperand(operand2, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                         operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"GF" );
+                         operand2 = initOperand(operand2, "tmp2",
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
-                        operand1 = initOperand(operand1, LeftOperand->tokenData.value,
-                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"LF" );
-                        operand2 = initOperand(operand2, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                        operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"LF" );
+                        operand2 = initOperand(operand2, "tmp2",
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand2);
@@ -631,6 +649,9 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                 return OK;
                 break;
          case sDivideInteger:
+                if (strcmp(RightOperand->tokenData.value,"0") == 0){
+                    return ERR_ZERO;
+                }
                 if (LeftOperand->subtype ==sInteger && RightOperand->subtype == sInteger)
                 {
                    return OK;
@@ -651,13 +672,13 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     /*PRETYPUJ*/
                     if(inMain)
                     {
-                         operand1 = initOperand(operand1, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                         operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
-                        operand1 = initOperand(operand1, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"LF" );
+                        operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand1);
@@ -672,17 +693,17 @@ int checkSemantic(tRedukToken* LeftOperand,tRedukToken* RightOperand, int operat
                     /*PRETYPUJ*/
                    if(inMain)
                     {
-                         operand1 = initOperand(operand1, LeftOperand->tokenData.value,
-                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"GF" );
-                         operand2 = initOperand(operand2, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                         operand1 =initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"GF" );
+                         operand2 = initOperand(operand2, "tmp2",
+                                           false,true,sIdentificator,-1,"GF" );
                     }
                     else
                     {
-                        operand1 = initOperand(operand1, LeftOperand->tokenData.value,
-                                           false, false,LeftOperand->TokenType,LeftOperand->subtype,"LF" );
-                        operand2 = initOperand(operand2, RightOperand->tokenData.value,
-                                           false, false,RightOperand->TokenType,RightOperand->subtype,"GF" );
+                        operand1 = initOperand(operand1, "tmp",
+                                           false,true,sIdentificator,-1,"LF" );
+                        operand2 = initOperand(operand2, "tmp2",
+                                           false,true,sIdentificator,-1,"LF" );
                     }
                     
                     instruction1op(&instList,POPS,operand2);
@@ -724,7 +745,8 @@ int reduceBrackets(tStack *stack)
             if (stackTop(stack)->terminal == true)
             {
                 IndexTerminalu = IndexOfTop(stack);
-                stackIndex(stack,IndexTerminalu)->Redukuj = false;
+                tRedukToken* temp4=stackIndex(stack,IndexTerminalu);
+                temp4->Redukuj = false;
             }
             stackPush(stack,temp2);
         }
