@@ -23,6 +23,9 @@ void DLInitList (tDLListInst *L) {
     L->First = NULL;
     L->Last = NULL;
     L->Act = NULL;
+    functionChr();
+    functionLen();
+    functionOrd();
     
 }
 
@@ -294,6 +297,7 @@ tOperand initOperand(tOperand operand, char* value, bool Label, bool tmp, int ty
 //instrukcia bez operandov
 int instruction0op (tDLListInst *L, int Type){
     instructionGenerator(L , Type, NULL, NULL, NULL);
+    return OK;
 }
 //instrukcia s 1 operandom/////////////////////////////////////////////////////////////
 
@@ -438,9 +442,7 @@ int instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand operan
         if(operand2.tmp == true){
             strcat(_operand2,"$tmp");
         }
-        if(operand2.Label == true){
-            strcat("$",_operand2);
-        }
+       
     }
 //konstatna
     else if(operand2.type == sString){
@@ -551,9 +553,7 @@ int instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand operan
         if(operand2.tmp == true){
             strcat(_operand2,"$tmp");
         }
-        if(operand2.Label == true){
-            strcat("$",_operand2);
-        }
+       
     }
 //konstatna
     else if(operand2.type == sString){
@@ -602,9 +602,6 @@ int instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand operan
         }
         if(operand3.tmp == true){
             strcat(_operand3,"$tmp");
-        }
-        if(operand3.Label == true){
-            strcat("$",_operand3);
         }
     }
 //konstatna
@@ -714,7 +711,6 @@ void functionLen(){
     operand2 = initOperand(operand2, "s", false,false,sString,-1,"LF");
     instruction2op(&instList, STRLEN, operand1, operand2);
     instruction0op(&instList, RETURN);
-
 }
 
 void functionChr()
