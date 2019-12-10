@@ -15,6 +15,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "err_code.h"
 
 #define INIT_ALLOC_SIZE 10
@@ -30,6 +31,8 @@ int stringInit(string *);
 int stringAddChar(string *, char);
 
 int stringAddString(string *, char *);
+
+bool stringCompare(string *, string *);
 
 void stringChangeLastChar(string *, char);
 
