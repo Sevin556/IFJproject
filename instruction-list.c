@@ -297,10 +297,10 @@ void instruction0op (tDLListInst *L, int Type){
 }
 //instrukcia s 1 operandom/////////////////////////////////////////////////////////////
 
-void instruction1op (tDLListInst *L, int Type, tOperand operand1){
+int instruction1op (tDLListInst *L, int Type, tOperand operand1){
     char* _operand1 = malloc(sizeof(tOperand)*10);
         if(_operand1 == NULL){
-            return 60;
+            return ERR_INTERN;
         }
     
 //premenna identifikator
@@ -353,6 +353,8 @@ void instruction1op (tDLListInst *L, int Type, tOperand operand1){
             
     }*/
     instructionGenerator(L , Type, _operand1, "", "");
+    free(_operand1);
+    return ok;
 }
 
 //instrukcia s 2 operandmi//////////////////////////////////////////////////////////
@@ -361,7 +363,7 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 //operand 1
      char* _operand1 = malloc(sizeof(tOperand)*10);
         if(_operand1 == NULL){
-            return 60;
+            return ERR_INTERN;
         }
 
 //premenna identifikator
@@ -416,7 +418,7 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 
           char* _operand2 = malloc(sizeof(tOperand)*10);
         if(_operand2 == NULL){
-            return 60;
+            return ERR_INTERN;
         }
 
 //premenna identifikator
@@ -465,13 +467,16 @@ void instruction2op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
            
     } */
 instructionGenerator(L , Type, _operand1, _operand2, "");
+free(_operand1);
+free(_operand2);
+    return ok;
 }
 //instrukcia s 3 operandmi ///////////////////////////////////////////////////////////////
 void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand operand2, tOperand operand3){
 //operand 1
       char* _operand1 = malloc(sizeof(tOperand)*10);
         if(_operand1 == NULL){
-            return 60;
+           return ERR_INTERN;
         }
 
 //premenna identifikator
@@ -526,7 +531,7 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 
           char* _operand2 = malloc(sizeof(tOperand)*10);
         if(_operand2 == NULL){
-            return 60;
+            return ERR_INTERN;
         }
 
 //premenna identifikator
@@ -578,7 +583,7 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
 //operand 3
       char* _operand3 = malloc(sizeof(tOperand)*10);
         if(_operand3 == NULL){
-            return 60;
+            return ERR_INTERN;
         }
 
 //premenna identifikator
@@ -628,6 +633,10 @@ void instruction3op (tDLListInst *L, int Type, tOperand operand1, tOperand opera
     } */
     
 instructionGenerator(L , Type, _operand1, _operand2, _operand3);
+free(_operand1);
+free(_operand2);
+free(_operand3);
+    return ok;
 }
 //vypis instrukcii /////////////////////////////////////////////////////////////////////////////////////////////////////
 void instructionPrinter(tDLListInst *L){
@@ -698,7 +707,7 @@ void instructionPrinter(tDLListInst *L){
 }
 
 void functionLen(){
-    operand1 = initOperand(operand1, "length",true,false, sKeyWord,sLen,"");
+    operand1 = initOperand(operand1, "length",true,false,sLen,-1,"");
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
     operand1 = initOperand(operand1,"a",false,true,sNumber,sInteger,"GF");
@@ -710,7 +719,7 @@ void functionLen(){
 
 void functionChr(){
 {
-    operand1 = initOperand(operand1, "chr",true,false, sKeyWord,sChr,"");
+    operand1 = initOperand(operand1, "chr",true,false, sChr,-1,"");
 	instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
     operand1 = initOperand(operand1,"a",false,true,sNumber,sInteger,"GF");
@@ -720,7 +729,7 @@ void functionChr(){
 }
 
 void functionOrd(){
-    operand1 = initOperand(operand1, "ord",true,false, sKeyWord,sOrd,"");
+    operand1 = initOperand(operand1, "ord",true,false,sOrd,-1,"");
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
 }

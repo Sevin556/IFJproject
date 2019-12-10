@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "scanner.h"
+#include "err_code"
 
 
 
@@ -76,10 +77,10 @@ void instructionPrinter(tDLListInst *);
 
 tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); //operand, hodnota, typ, subtyp, frame
 
-void instruction0op(tDLListInst *, int);
-void instruction1op(tDLListInst *, int, tOperand);
-void instruction2op(tDLListInst *, int, tOperand, tOperand);
-void instruction3op(tDLListInst *, int, tOperand, tOperand, tOperand);
+int instruction0op(tDLListInst *, int);
+int instruction1op(tDLListInst *, int, tOperand);
+int instruction2op(tDLListInst *, int, tOperand, tOperand);
+int instruction3op(tDLListInst *, int, tOperand, tOperand, tOperand);
 
 void functionLen();
 void functionSubstr();
