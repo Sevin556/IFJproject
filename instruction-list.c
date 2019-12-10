@@ -362,7 +362,8 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand1, "$tmp");
         }
         if (operand1.Label == true) {
-            strcat("$", _operand1);
+            strcat(_operand1, "$");
+            strcat(_operand1, operand1.value);
         }
     }
 //konstatna
@@ -406,7 +407,8 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, "$tmp");
         }
         if (operand2.Label == true) {
-            strcat("$", _operand2);
+            strcat(_operand2, "$");
+            strcat(_operand2, operand1.value);
         }
     }
 //konstatna
@@ -454,7 +456,8 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand1, "$tmp");
         }
         if (operand1.Label == true) {
-            strcat("$", _operand1);
+            strcat(_operand1, "$");
+            strcat(_operand1, operand1.value);
         }
     }
 //konstatna
@@ -498,7 +501,8 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, "$tmp");
         }
         if (operand2.Label == true) {
-            strcat("$", _operand2);
+            strcat(_operand2, "$");
+            strcat(_operand2, operand1.value);
         }
     }
 //konstatna
@@ -542,7 +546,8 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand3, "$tmp");
         }
         if (operand3.Label == true) {
-            strcat("$", _operand3);
+            strcat(_operand3, "$");
+            strcat(_operand3, operand1.value);
         }
     }
 //konstatna
