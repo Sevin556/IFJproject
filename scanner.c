@@ -15,13 +15,12 @@
 #include "string.h"
 
 /* definícia premenných */
-int line_cnt = 1;
 bool FirstToken = true;
 bool FirstInit = true;
-tIndentStack stackI[MAX_DENT];
 
 tToken* get_token(void) {
         tState state;
+        static tIndentStack stackI[MAX_DENT];
         char c;
         if(FirstInit) {
                 stackInitI(stackI);
@@ -31,6 +30,7 @@ tToken* get_token(void) {
         tToken *token = init_token();
 
         int indent_cnt = 0;
+        static int line_cnt = 1;
 
         state = sStart;       /* počiatocný stav */
 

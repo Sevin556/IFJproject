@@ -33,10 +33,8 @@ typedef struct structToken {
 } tToken;
 
 /* deklarácia globálnych premenných */
-extern int line_cnt;
 extern bool FirstToken;
 extern bool FirstInit;
-extern tIndentStack stackI[MAX_DENT];
 
 typedef enum {
         sStart,                     /* počiatočný stav */
