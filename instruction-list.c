@@ -23,6 +23,9 @@ void DLInitList(tDLListInst *L) {
     L->First = NULL;
     L->Last = NULL;
     L->Act = NULL;
+    functionChr();
+    functionLen();
+    functionOrd();
 }
 
 void DLDisposeList(tDLListInst *L) {
@@ -292,9 +295,14 @@ void instruction0op(tDLListInst *L, int Type) {
 
 void instruction1op(tDLListInst *L, int Type, tOperand operand1) {
     char *_operand1 = malloc(sizeof(char) * 100);
+    if(_operand1 == NULL)
+        return;
 //premenna identifikator
     if (operand1.type == sIdentificator) {
-        if (strcmp(operand1.frame, "GF") == 0) {
+        if (operand1.Label == true) {
+            strcat(_operand1, "$");
+            strcat(_operand1, operand1.value);
+        } else if (strcmp(operand1.frame, "GF") == 0) {
             strcat(_operand1, "GF@");
             strcat(_operand1, operand1.value);
         } else if (strcmp(operand1.frame, "LF") == 0) {
@@ -306,9 +314,6 @@ void instruction1op(tDLListInst *L, int Type, tOperand operand1) {
         }
         if (operand1.tmp == true) {
             strcat(_operand1, "$tmp");
-        }
-        if (operand1.Label == true) {
-            strcat("$", _operand1);
         }
     }
 //konstatna
@@ -331,7 +336,7 @@ void instruction1op(tDLListInst *L, int Type, tOperand operand1) {
     else if(operand1.subtype == sNil){
             strcat(_operand1,"nil@");
             strcat(_operand1,operand1.value);
-            
+
     }*/
     instructionGenerator(L, Type, _operand1, "", "");
 }
@@ -424,7 +429,7 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
     else if(operand2.subtype == sNil){
             strcat(_operand2,"nil@");
             strcat(_operand2,operand2.value);
-           
+
     } */
     instructionGenerator(L, Type, _operand1, _operand2, "");
 }
@@ -744,5 +749,32 @@ void instructionPrinter(tDLListInst *L) {
         }
         DLSucc(L);
     }
+}
+
+void functionLen(){
+    operand1 = initOperand(operand1, "length",true,false,sIdentificator,-1,"");
+    instruction1op(&instList, LABEL, operand1);
+    instruction0op(&instList, PUSHFRAME);
+    operand1 = initOperand(operand1,"a",false,true,sNumber,sInteger,"GF");
+    operand2 = initOperand(operand2, "s", false,false,sString,-1,"LF");
+    instruction2op(&instList, STRLEN, operand1, operand2);
+    instruction0op(&instList, RETURN);
+}
+
+void functionChr()
+{
+    operand1 = initOperand(operand1, "chr",true,false, sIdentificator,-1,"");
+    instruction1op(&instList, LABEL, operand1);
+    instruction0op(&instList, PUSHFRAME);
+    operand1 = initOperand(operand1,"a",false,true,sNumber,sInteger,"GF");
+    operand2 = initOperand(operand2, "i", false,false,sString,-1,"LF");
+    instruction2op(&instList, INT2CHAR, operand1, operand2);
+    instruction0op(&instList, RETURN);
+}
+
+void functionOrd(){
+    operand1 = initOperand(operand1, "ord",true,false,sIdentificator,-1,"");
+    instruction1op(&instList, LABEL, operand1);
+    instruction0op(&instList, PUSHFRAME);
 }
 
