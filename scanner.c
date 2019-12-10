@@ -163,6 +163,14 @@ tToken* get_token(void) {
                                 state = sColon;
                                 break;
                         } else
+                        /* semicolon */
+                        if(c == ';') {
+                                token->line = line_cnt;
+                                stringAddChar(&(token->data), c);
+
+                                state = sSemicolon;
+                                break;
+                        } else
 
                         /* operators */
                         if(c == '+') {
@@ -225,7 +233,7 @@ tToken* get_token(void) {
                                 token->line = line_cnt;
                                 stringAddChar(&(token->data), c);
 
-                                state = sLeftBracket;//TODO
+                                state = sLeftBracket;
                                 break;
                         } else
                         if(c == ')') {
@@ -717,6 +725,15 @@ tToken* get_token(void) {
                         return token;
                         break;
                 /************** sColon End ****************/
+
+                /************** sSemiolon Start ****************/
+                case sSemicolon:
+                        ungetc(c, stdin);
+
+                        token->type = sSemicolon;
+                        return token;
+                        break;
+                /************** sSemiolon End ****************/
 
 
                 /********* Operators Start *******************************/
