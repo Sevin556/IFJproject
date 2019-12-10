@@ -78,6 +78,10 @@ void instruction1op(tDLListInst *, int, tOperand);
 void instruction2op(tDLListInst *, int, tOperand, tOperand);
 void instruction3op(tDLListInst *, int, tOperand, tOperand, tOperand);
 
+void functionLen();
+void functionChr();
+void functionOrd();
+
 typedef enum{
     MOVE,
 	CREATEFRAME,
