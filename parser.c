@@ -165,6 +165,10 @@ int keyWords() {
             printf("%d\n", rett);*/
 
             aktToken = get_token();
+            if(aktToken->type == sLexError)
+                return ERR_LEX;
+            if(aktToken->type != sEOL)
+                return ERR_SYN;
             aktToken = get_token();
             if (aktToken->type == sLexError)
                 return ERR_LEX;
