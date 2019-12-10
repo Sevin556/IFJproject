@@ -1,2 +1,3 @@
 # IFJproject
-Rip skupina
+
+Už len tak trochu Rip skupina
