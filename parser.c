@@ -316,7 +316,9 @@ int keyWords() {
             operand3 = initOperand(operand3, "true", false, true, -1,
                                    sBool, "");
             instruction3op(&instList, JUMPIFNEQ, operand2,operand1,operand3);
-                
+            instruction0op(&instList,PUSHFRAME);
+            instruction0op(&instList,CREATEFRAME);
+
             aktToken = get_token();
             if (aktToken->type == sLexError)
                 return ERR_LEX;
@@ -347,6 +349,7 @@ int keyWords() {
                                    aktToken->subtype, "");
             instruction1op(&instList,LABEL,operand1);
             keyWordNumber++;
+            instruction0op(&instList,POPFRAME);
             return rett;
         case sReturn:
             if (inMain) {
