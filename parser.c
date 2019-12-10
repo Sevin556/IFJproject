@@ -35,6 +35,9 @@ int parse() {
 
     int rett = OK;
 
+    instruction0op(&instList, CREATEFRAME);
+    operand2 = initOperand(operand2, "tmp", false, true, sIdentificator, -1, "GF");
+    instruction1op(&instList, DEFVAR, operand2);
     if ((rett = doParse()) != OK) {
         return rett;
     }
@@ -186,8 +189,7 @@ int keyWords() {
             }
 
             /* VYTVORENIE DOCASNEJ PREMENNEJ NA POROVNANIE VYSLEDKU*/
-            operand1 = initOperand(operand1, "tmp", false, true, sIdentificator, -1, "TF");
-            instruction1op(&instList, DEFVAR, operand1);
+            operand1 = initOperand(operand1, "tmp", false, true, sIdentificator, -1, "GF");
 
             rett = exprParsing(aktToken);
             if (rett != OK) {
@@ -204,7 +206,6 @@ int keyWords() {
             //operand2=initOperand(operand2,"true",false,true,sIdentificator,-1,"TF");
             operand3 = initOperand(operand3, "labelElse", true, false, sIdentificator, -1, "");
             instruction3op(&instList, JUMPIFNEQ, operand3, operand1, operand2);
-
             instruction0op(&instList, PUSHFRAME);
             instruction0op(&instList, CREATEFRAME);
             inMain = false;
@@ -303,13 +304,13 @@ int keyWords() {
             operand2 = initOperand(operand2, endWhile, true, false, sIdentificator,
                                    aktToken->subtype, "");
 
-            
+
 
             rett = exprParsing(aktToken);
             if (rett != OK){
                 return rett;
             }
-            
+
             operand1 = initOperand(operand1, "tmp", false, true, sIdentificator,
                                    aktToken->subtype, "GF");
             instruction1op(&instList,POPS,operand1);
@@ -337,7 +338,7 @@ int keyWords() {
                 return ERR_SYN;
             if(rett == sDedent)
                 rett = OK;
-            
+
             inMain = true;
             //jump na zaciatok while
             operand1 = initOperand(operand1, labelWhile, true, false, sIdentificator,
@@ -474,13 +475,11 @@ int declarationVariable() {
     if (inMain) {
         operand1 = initOperand(operand1, prevToken->data.value, false, false, prevToken->type, prevToken->subtype,
                                "GF");
-        operand2 = initOperand(operand2, "tmp", false, true, sIdentificator, -1, "GF");
     } else {
         operand1 = initOperand(operand1, prevToken->data.value, false, false, prevToken->type, prevToken->subtype,
                                "LF");
-        operand2 = initOperand(operand2, "tmp", false, true, sIdentificator, -1, "LF");
     }
-
+    operand2 = initOperand(operand2, "tmp", false, true, sIdentificator, -1, "GF");
     instruction1op(&instList, POPS, operand2);
     instruction2op(&instList, MOVE, operand1, operand2);
 
@@ -501,7 +500,6 @@ int declarationVariable() {
         case sInputF:
         case sDoublePointNumber:
             ((tVariable *) node->Data)->retType = sDoublePointNumber;
-
             break;
     }*/
     return OK;
