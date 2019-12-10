@@ -1,7 +1,14 @@
-//
-// Created by zak on 09.11.19.
-//
-
+/*
+* Predmet  :   IFJ / IAL
+* Súbor    :   symtable.h
+* Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
+* Tým č    :   127
+* Varianta :   I
+* Autoři   : xhalom00, Ivan Halomi
+*            xhiner00, Martin Hiner
+*            xsevci64, Adam Ševčík
+*            xzakji02, Jiří Žák
+*/
 #ifndef IFJ_SYMTABLE_H
 #define IFJ_SYMTABLE_H
 
