@@ -467,7 +467,7 @@ tToken* get_token(void) {
                                 break;
 
                         case '\\':
-                                stringAddString(&(token->data), "\092");
+                                stringAddString(&(token->data), "\\092");
                                 state = sStringRead;
                                 break;
 
@@ -497,6 +497,12 @@ tToken* get_token(void) {
                 /************** sStringEscapeHex Start ****************/
                 case sStringEscapeHex:
 
+                        if(c == '\'') {
+                                /* end of string input */
+                                stringAddString(&(token->data), "\\092");
+                                stringAddChar(&(token->data), 'x');
+                                return token;
+                        } else
                         if(c == EOF) {
                                 ungetc(c, stdin);
                                 state = sLexError;
@@ -504,25 +510,37 @@ tToken* get_token(void) {
                         } else
                         if((isdigit(c)) || ((c >= 65) && (c <= 70)) || ((c >= 97) && (c <= 102))) {
                                 /*   0-9                   A-F                         a-f   */
-                                char temp = c;
+                                char temp[5];
+                                temp[0] = c;
                                 c = getchar();
 
+                                if(c == '\'') {
+                                        /* end of string input */
+                                        stringAddString(&(token->data), "\\092");
+                                        stringAddChar(&(token->data), 'x');
+                                        stringAddChar(&(token->data), temp[0]);
+                                        return token;
+                                } else
                                 if((isdigit(c)) || ((c >= 65) && (c <= 70)) || ((c >= 97) && (c <= 102))) {
-                                        /* escape success - return xx */
-                                        stringAddChar(&(token->data), temp);
-                                        stringAddChar(&(token->data), c);
+                                        /* escape success - return xx as escape sequence */
+                                        temp[1] = c;                                    /* 0xXX as tring */
+                                        int value = (int) strtol(temp, NULL, 16);       /* string to int */
+                                        sprintf(temp, "\\%03d", value);                 /* formatting */
+                                
+                                        stringAddString(&(token->data), temp);
                                         state = sStringRead;
                                 } else {
                                         /* escape failed - return \xx */
-                                        stringAddChar(&(token->data), '\\');
-                                        stringAddChar(&(token->data), temp);
+                                        stringAddString(&(token->data), "\\092");
+                                        stringAddChar(&(token->data), 'x');
+                                        stringAddChar(&(token->data), temp[0]);
                                         stringAddChar(&(token->data), c);
                                         state = sStringRead;
                                 }
 
                         } else {
-                                /* escape failde return \x */
-                                stringAddChar(&(token->data), '\\');
+                                /* escape faild - return \x */
+                                stringAddString(&(token->data), "\\092");
                                 stringAddChar(&(token->data), 'x');
                                 stringAddChar(&(token->data), c);
                                 state = sStringRead;
