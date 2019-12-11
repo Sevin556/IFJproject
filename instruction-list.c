@@ -23,9 +23,9 @@ void DLInitList(tDLListInst *L) {
     L->First = NULL;
     L->Last = NULL;
     L->Act = NULL;
-    //functionChr();
-    //functionLen();
-    //functionOrd();
+    functionChr();
+    functionLen();
+    functionOrd();
 }
 
 void DLDisposeList(tDLListInst *L) {
@@ -300,7 +300,7 @@ void instruction1op(tDLListInst *L, int Type, tOperand operand1) {
 //premenna identifikator
     if (operand1.type == sIdentificator) {
         if (operand1.Label == true) {
-            strcat(_operand1, "$");
+            
             strcat(_operand1, operand1.value);
         } else if (strcmp(operand1.frame, "GF") == 0) {
             strcat(_operand1, "GF@");
@@ -361,7 +361,7 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand1, "$tmp");
         }
         if (operand1.Label == true) {
-            strcat(_operand1, "$");
+           
             strcat(_operand1, operand1.value);
         }
     }
@@ -400,12 +400,12 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
         } else if (strcmp(operand2.frame, "TF") == 0) {
             strcat(_operand2, "TF@");
             strcat(_operand2, operand2.value);
-        }
+        } 
         if (operand2.tmp == true) {
             strcat(_operand2, "$tmp");
         }
         if (operand2.Label == true) {
-            strcat(_operand2, "$");
+            
             strcat(_operand2, operand1.value);
         }
     }
@@ -453,7 +453,7 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand1, "$tmp");
         }
         if (operand1.Label == true) {
-            strcat(_operand1, "$");
+           
             strcat(_operand1, operand1.value);
         }
     }
@@ -497,7 +497,7 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, "$tmp");
         }
         if (operand2.Label == true) {
-            strcat(_operand2, "$");
+            
             strcat(_operand2, operand1.value);
         }
     }
@@ -541,8 +541,8 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand3, "$tmp");
         }
         if (operand3.Label == true) {
-            strcat(_operand3, "$");
-            strcat(_operand3, operand1.value);
+           
+            strcat(_operand3, operand3.value);
         }
     }
 //konstatna
@@ -599,7 +599,7 @@ void instructionPrinter(tDLListInst *L,int IFJCODE) {
                 printf("CALL %s\n", printinst.o1);
                 break;
             case RETURN:
-                printf("RETURN\n");
+                printf("RETURN \n");
                 break;
             case PUSHS:
                 printf("PUSHS %s\n", printinst.o1);
@@ -747,14 +747,18 @@ void instructionPrinter(tDLListInst *L,int IFJCODE) {
                 break;
             case DPRINT:
                 printf("DPRINT %s\n", printinst.o1);
-                break;
+                break; 
+            case ENTER:
+                printf("\n");
+                break;   
         }
         DLSucc(L);
     }
 }
 
 void functionLen(){
-    operand1 = initOperand(operand1, "length",true,false,sIdentificator,-1,"");
+    
+    operand1 = initOperand(operand1, "$length",true,false,sIdentificator,-1,"");
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
     operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
@@ -766,11 +770,13 @@ void functionLen(){
     operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
     instruction1op(&instList,PUSHS,operand1);
     instruction0op(&instList, RETURN);
+    instruction0op(&instList,ENTER);
 }
 
 void functionChr()
 {
-    operand1 = initOperand(operand1, "chr",true,false, sIdentificator,-1,"");
+    instruction0op(&instList,ENTER);
+    operand1 = initOperand(operand1, "$chr",true,false, sIdentificator,-1,"");
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
     operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
@@ -782,10 +788,11 @@ void functionChr()
     operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
     instruction1op(&instList,PUSHS,operand1);
     instruction0op(&instList, RETURN);
+    instruction0op(&instList,ENTER);
 }
 
 void functionOrd(){
-    operand1 = initOperand(operand1, "ord",true,false,sIdentificator,-1,"");
+    operand1 = initOperand(operand1, "$ord",true,false,sIdentificator,-1,"");
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
      operand1 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
@@ -795,28 +802,28 @@ void functionOrd(){
     instruction2op(&instList, STRLEN, operand1, operand2);
 
     operand1 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
-    operand3 = initOperand(operand1,"1",false,true,sNumber,sInteger,"LF");
+    operand2 = initOperand(operand2,"len",false,true,sIdentificator,-1,"LF");
+    operand3 = initOperand(operand3,"1",false,true,sNumber,sInteger,"LF");
     instruction3op(&instList,SUB,operand1,operand2,operand3);
 
-    operand1 = initOperand(operand1,"",false,true,-1,sBool,"LF");
-    operand2 = initOperand(operand1,"i",false,true,sIdentificator,-1,"LF");
-    operand3 = initOperand(operand1,"0",false,true,sNumber,sInteger,"LF");
+    operand1 = initOperand(operand1,"tmp1",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2,"i",false,true,sIdentificator,-1,"LF");
+    operand3 = initOperand(operand3,"0",false,true,sNumber,sInteger,"LF");
     instruction3op(&instList,LT,operand1,operand2,operand3);
 
-    operand1 = initOperand(operand1,"",false,true,-1,sBool,"LF");
-    operand2 = initOperand(operand1,"i",false,true,sIdentificator,-1,"LF");
-    operand3 = initOperand(operand1,"len",false,true,sNumber,sInteger,"LF");
+    operand1 = initOperand(operand1,"tmp2",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2,"i",false,true,sIdentificator,-1,"LF");
+    operand3 = initOperand(operand3,"len",false,true,sNumber,sInteger,"LF");
     instruction3op(&instList,GT,operand1,operand2,operand3);
 
-    operand1 = initOperand(operand1,"",false,true,-1,sBool,"LF");
-    operand2 = initOperand(operand1,"",false,true,-1,sBool,"LF");
-    operand3 = initOperand(operand1,"",false,true,-1,sBool,"LF");
+    operand1 = initOperand(operand1,"tmp3",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2,"tmp1",false,true,sIdentificator,-1,"LF");
+    operand3 = initOperand(operand3,"tmp2",false,true,sIdentificator,-1,"LF");
     instruction3op(&instList,OR,operand1,operand2,operand3);
 
-    operand1 = initOperand(operand1,"err_end",true,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand1,"",false,true,-1,sBool,"LF");
-    operand3 = initOperand(operand1,"true",false,true,-1,sBool,"LF");
+    operand1 = initOperand(operand1,"$err_end",true,false,sIdentificator,-1,"");
+    operand2 = initOperand(operand2,"tmp",false,true,sIdentificator,-1,"LF");
+    operand3 = initOperand(operand3,"true",false,true,-1,sBool,"LF");
     instruction3op(&instList,JUMPIFEQ,operand1,operand2,operand3);
 
     operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
@@ -829,9 +836,10 @@ void functionOrd(){
     instruction1op(&instList,PUSHS,operand1);
     instruction0op(&instList, RETURN);
 
-    operand1 = initOperand(operand1,"err_end",true,true,sIdentificator,-1,"LF");
+    operand1 = initOperand(operand1,"$err_end",true,false,sIdentificator,-1,"LF");
     instruction1op(&instList,LABEL,operand1);
     instruction0op(&instList,RETURN);
+    instruction0op(&instList,ENTER);
 }
 
 void convToHexa(char *dec, char *a){
