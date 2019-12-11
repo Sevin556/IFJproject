@@ -23,13 +23,9 @@ void DLInitList(tDLListInst *L) {
     L->First = NULL;
     L->Last = NULL;
     L->Act = NULL;
-    printf("##########################Funkcia chr#################################");
-    functionChr();
-    printf("##########################Funkcia len#################################");
-    functionLen();
-    printf("##########################Funkcia ord#################################");
-    functionOrd();
-    printf("#################Koniec generovania funcií############################");
+    //functionChr();
+    //functionLen();
+    //functionOrd();
 }
 
 void DLDisposeList(tDLListInst *L) {
@@ -319,10 +315,6 @@ void instruction1op(tDLListInst *L, int Type, tOperand operand1) {
         if (operand1.tmp == true) {
             strcat(_operand1, "$tmp");
         }
-         if (operand1.Label == true) {
-            strcat(_operand1, "$");
-            strcat(_operand1, operand1.value);
-        }
     }
 //konstatna
     else if (operand1.type == sString) {
@@ -334,18 +326,17 @@ void instruction1op(tDLListInst *L, int Type, tOperand operand1) {
             strcat(_operand1, operand1.value);
         } else if (operand1.subtype == sDoublePointNumber || operand1.subtype == sDoubleExponentNumber) {
             strcat(_operand1, "float@");
-            strcat(_operand1, operand1.value);
+            convToHexa(_operand1, operand1.value);
         }
     }
     else if(operand1.subtype == sBool){
-            strcat(_operand1,"bool@");
-            strcat(_operand1,operand1.value);
-    }/*
-    else if(operand1.subtype == sNil){
-            strcat(_operand1,"nil@");
-            strcat(_operand1,operand1.value);
-
-    }*/
+        strcat(_operand1,"bool@");
+        strcat(_operand1,operand1.value);
+    }
+    else if(operand1.subtype == sNone){
+        strcat(_operand1,"nil@");
+        strcat(_operand1,operand1.value);
+    }
     instructionGenerator(L, Type, _operand1, "", "");
 }
 
@@ -384,19 +375,17 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand1, operand1.value);
         } else if (operand1.subtype == sDoublePointNumber || operand1.subtype == sDoubleExponentNumber) {
             strcat(_operand1, "float@");
-            strcat(_operand1, operand1.value);
+            convToHexa(_operand1, operand1.value);
         }
     }
-     else if(operand1.subtype == sBool){
-             strcat(_operand1,"bool@");
-             strcat(_operand1,operand1.value);
-     }
-     /*
-     else if(operand1.subtype == sNil){
-             strcat(_operand1,"nil@");
-             strcat(_operand1,operand1.value);
-
-     }*/
+    else if(operand1.subtype == sBool){
+        strcat(_operand1,"bool@");
+        strcat(_operand1,operand1.value);
+    }
+    else if(operand1.subtype == sNone){
+        strcat(_operand1,"nil@");
+        strcat(_operand1,operand1.value);
+    }
 //operand 2
 
     char *_operand2 = malloc(sizeof(char) * 100);
@@ -430,18 +419,17 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, operand2.value);
         } else if (operand2.subtype == sDoublePointNumber || operand2.subtype == sDoubleExponentNumber) {
             strcat(_operand2, "float@");
-            strcat(_operand2, operand1.value);
+            convToHexa(_operand2, operand1.value);
         }
     }
     else if(operand2.subtype == sBool){
-            strcat(_operand2,"bool@");
-            strcat(_operand2,operand2.value);
-    }/*
-    else if(operand2.subtype == sNil){
-            strcat(_operand2,"nil@");
-            strcat(_operand2,operand2.value);
-
-    } */
+        strcat(_operand2,"bool@");
+        strcat(_operand2,operand2.value);
+    }
+    else if(operand2.subtype == sNone){
+        strcat(_operand2,"nil@");
+        strcat(_operand2,operand2.value);
+    }
     instructionGenerator(L, Type, _operand1, _operand2, "");
 }
 
@@ -479,18 +467,17 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand1, operand1.value);
         } else if (operand1.subtype == sDoublePointNumber || operand1.subtype == sDoubleExponentNumber) {
             strcat(_operand1, "float@");
-            strcat(_operand1, operand1.value);
+            convToHexa(_operand1, operand1.value);
         }
     }
-      else if(operand1.subtype == sBool){
-              strcat(_operand1,"bool@");
-              strcat(_operand1,operand1.value);
-      }/*
-      else if(operand1.subtype == sNil){
-              strcat(_operand1,"nil@");
-              strcat(_operand1,operand1.value);
-
-      }*/
+    else if(operand1.subtype == sBool){
+        strcat(_operand1,"bool@");
+        strcat(_operand1,operand1.value);
+    }
+    else if(operand1.subtype == sNone){
+        strcat(_operand1,"nil@");
+        strcat(_operand1,operand1.value);
+    }
 //operand 2
 
     char *_operand2 = malloc(sizeof(char) * 100);
@@ -524,18 +511,17 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, operand2.value);
         } else if (operand2.subtype == sDoublePointNumber || operand2.subtype == sDoubleExponentNumber) {
             strcat(_operand2, "float@");
-            strcat(_operand2, operand1.value);
+            convToHexa(_operand2, operand1.value);
         }
     }
-     else if(operand2.subtype == sBool){
-             strcat(_operand2,"bool@");
-             strcat(_operand2,operand2.value);
-     }/*
-     else if(operand2.subtype == sNil){
-             strcat(_operand2,"nil@");
-             strcat(_operand2,operand2.value);
-
-     } */
+    else if(operand2.subtype == sBool){
+        strcat(_operand2,"bool@");
+        strcat(_operand2,operand2.value);
+    }
+    else if(operand2.subtype == sNone){
+        strcat(_operand2,"nil@");
+        strcat(_operand2,operand2.value);
+    }
 
 //operand 3
     char *_operand3 = malloc(sizeof(char) * 100);
@@ -569,25 +555,27 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand3, operand3.value);
         } else if (operand3.subtype == sDoublePointNumber || operand3.subtype == sDoubleExponentNumber) {
             strcat(_operand3, "float@");
-            strcat(_operand3, operand3.value);
+            convToHexa(_operand3, operand3.value);
         }
     }
-     else if(operand3.subtype == sBool){
-             strcat(_operand3,"bool@");
-             strcat(_operand3,operand3.value);
-     }/*
-     else if(operand3.subtype == sNil){
-             strcat(_operand3,"nil@");
-             strcat(_operand3,operand3.value);
-
-     } */
+    else if(operand3.subtype == sBool){
+        strcat(_operand3,"bool@");
+        strcat(_operand3,operand3.value);
+    }
+    else if(operand3.subtype == sNone){
+        strcat(_operand3,"nil@");
+        strcat(_operand3,operand3.value);
+    }
 
     instructionGenerator(L, Type, _operand1, _operand2, _operand3);
 }
 
 //vypis instrukcii /////////////////////////////////////////////////////////////////////////////////////////////////////
-void instructionPrinter(tDLListInst *L) {
-    printf(".IFJcode19\n");
+void instructionPrinter(tDLListInst *L,int IFJCODE) {
+    if (IFJCODE ==1){
+        printf(".IFJcode19\n");
+    }
+
     DLFirst(L);
     while (DLActive(L)) {
         DLCopy(L, &printinst);
@@ -769,9 +757,14 @@ void functionLen(){
     operand1 = initOperand(operand1, "length",true,false,sIdentificator,-1,"");
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
-    operand1 = initOperand(operand1,"a",false,true,sNumber,sInteger,"GF");
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
+    instruction1op(&instList, DEFVAR, operand1);
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
     operand2 = initOperand(operand2, "s", false,false,sString,-1,"LF");
     instruction2op(&instList, STRLEN, operand1, operand2);
+
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
+    instruction1op(&instList,PUSHS,operand1);
     instruction0op(&instList, RETURN);
 }
 
@@ -780,9 +773,14 @@ void functionChr()
     operand1 = initOperand(operand1, "chr",true,false, sIdentificator,-1,"");
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
-    operand1 = initOperand(operand1,"a",false,true,sNumber,sInteger,"GF");
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
+    instruction1op(&instList, DEFVAR, operand1);
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
     operand2 = initOperand(operand2, "i", false,false,sString,-1,"LF");
     instruction2op(&instList, INT2CHAR, operand1, operand2);
+
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
+    instruction1op(&instList,PUSHS,operand1);
     instruction0op(&instList, RETURN);
 }
 
@@ -790,5 +788,53 @@ void functionOrd(){
     operand1 = initOperand(operand1, "ord",true,false,sIdentificator,-1,"");
     instruction1op(&instList, LABEL, operand1);
     instruction0op(&instList, PUSHFRAME);
+     operand1 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
+    instruction1op(&instList, DEFVAR, operand1);
+    operand1 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2, "s", false,false,sString,-1,"LF");
+    instruction2op(&instList, STRLEN, operand1, operand2);
+
+    operand1 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
+    operand3 = initOperand(operand1,"1",false,true,sNumber,sInteger,"LF");
+    instruction3op(&instList,SUB,operand1,operand2,operand3);
+
+    operand1 = initOperand(operand1,"",false,true,-1,sBool,"LF");
+    operand2 = initOperand(operand1,"i",false,true,sIdentificator,-1,"LF");
+    operand3 = initOperand(operand1,"0",false,true,sNumber,sInteger,"LF");
+    instruction3op(&instList,LT,operand1,operand2,operand3);
+
+    operand1 = initOperand(operand1,"",false,true,-1,sBool,"LF");
+    operand2 = initOperand(operand1,"i",false,true,sIdentificator,-1,"LF");
+    operand3 = initOperand(operand1,"len",false,true,sNumber,sInteger,"LF");
+    instruction3op(&instList,GT,operand1,operand2,operand3);
+
+    operand1 = initOperand(operand1,"",false,true,-1,sBool,"LF");
+    operand2 = initOperand(operand1,"",false,true,-1,sBool,"LF");
+    operand3 = initOperand(operand1,"",false,true,-1,sBool,"LF");
+    instruction3op(&instList,OR,operand1,operand2,operand3);
+
+    operand1 = initOperand(operand1,"err_end",true,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand1,"",false,true,-1,sBool,"LF");
+    operand3 = initOperand(operand1,"true",false,true,-1,sBool,"LF");
+    instruction3op(&instList,JUMPIFEQ,operand1,operand2,operand3);
+
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
+    instruction1op(&instList, DEFVAR, operand1);
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2, "i", false,false,sString,-1,"LF");
+    instruction2op(&instList, INT2CHAR, operand1, operand2);
+
+    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
+    instruction1op(&instList,PUSHS,operand1);
+    instruction0op(&instList, RETURN);
+
+    operand1 = initOperand(operand1,"err_end",true,true,sIdentificator,-1,"LF");
+    instruction1op(&instList,LABEL,operand1);
+    instruction0op(&instList,RETURN);
 }
 
+void convToHexa(char *dec, char *a){
+    double rett = strtod(a, NULL);
+    sprintf(dec,"%a", rett);
+}
