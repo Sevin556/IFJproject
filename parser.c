@@ -41,6 +41,7 @@ int parse() {
     instruction1op(&funcList, JUMP, operand1);
     instruction1op(&instList,LABEL,operand1);
     instruction0op(&instList, CREATEFRAME);
+    instruction0op(&instList,PUSHFRAME);
     //tmp a tmp2 vyuziva pretypovanie a podmienky
     operand2 = initOperand(operand2, "tmp", false, true, sIdentificator, -1, "GF");
     instruction1op(&instList, DEFVAR, operand2);
@@ -108,13 +109,13 @@ int doParse() {      //toto budes rekurzivne volat
                 }
 
                 if (inFunction){
-                    instruction0op(&funcList, PUSHFRAME);
+                    //instruction0op(&funcList, PUSHFRAME);
                     instruction0op(&funcList, CREATEFRAME);
                     operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
                     instruction1op(&funcList,CALL,operand1);
                 } else
                 {
-                    instruction0op(&instList, PUSHFRAME);
+                    //instruction0op(&instList, PUSHFRAME);
                     instruction0op(&instList, CREATEFRAME);
                     operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
                     instruction1op(&instList,CALL,operand1);
@@ -192,8 +193,10 @@ int keyWords() {
                             return ERR_SYN;
                         break;
                     case sIdentificator:
-                        if (prevToken->type != sComma)
-                            return ERR_SYN;
+                        if (prevToken->type != sComma){
+                            if(prevToken->subtype != sLeftBracket)
+                                return ERR_SYN;
+                        }
                         rett = checkVariable();
                         if (rett != OK)
                             return rett;
@@ -254,13 +257,15 @@ int keyWords() {
             tOperand operandElse = initOperand(operand3, labelElse, true, false, sIdentificator, -1, "");
             if (inFunction){
                 instruction3op(&funcList, JUMPIFNEQ, operandElse, operand1, operand2);
-                instruction0op(&funcList, PUSHFRAME);
+                //instruction0op(&funcList, PUSHFRAME);
                 instruction0op(&funcList, CREATEFRAME);
+                instruction0op(&funcList,PUSHFRAME);
             } else
             {
                 instruction3op(&instList, JUMPIFNEQ, operandElse, operand1, operand2);
-                instruction0op(&instList, PUSHFRAME);
+                //instruction0op(&instList, PUSHFRAME);
                 instruction0op(&instList, CREATEFRAME);
+                instruction0op(&instList,PUSHFRAME);
             }
             
 
@@ -544,13 +549,13 @@ int declaration() {
         }
 
         if (inFunction){
-            instruction0op(&funcList, PUSHFRAME);
+            //instruction0op(&funcList, PUSHFRAME);
             instruction0op(&funcList, CREATEFRAME);
             operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
             instruction1op(&funcList,CALL,operand1);
         } else
         {
-            instruction0op(&instList, PUSHFRAME);
+            //instruction0op(&instList, PUSHFRAME);
             instruction0op(&instList, CREATEFRAME);
             operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
             instruction1op(&instList,CALL,operand1);
@@ -642,13 +647,13 @@ int declarationVariable() {
                 return rett;
             
             if (inFunction){
-                instruction0op(&funcList, PUSHFRAME);
+                //instruction0op(&funcList, PUSHFRAME);
                 instruction0op(&funcList, CREATEFRAME);
                 operand1 = initOperand(operand1,aktToken->data.value,true,false,sIdentificator,-1,"GF");
                 instruction1op(&funcList,CALL,operand1);
             } else
             {
-                instruction0op(&instList, PUSHFRAME);
+                //instruction0op(&instList, PUSHFRAME);
                 instruction0op(&instList, CREATEFRAME);
                 operand1 = initOperand(operand1,aktToken->data.value,true,false,sIdentificator,-1,"GF");
                 instruction1op(&instList,CALL,operand1);
