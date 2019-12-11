@@ -12,10 +12,10 @@ int checkFunctionParams(tToken* ID, int numberOfParam )
 {
     tToken* aktToken;
 
-    if (checkIfExist(ID) !=OK){
+    /*if (checkIfExist(ID) !=OK){
         return ERR_SEM_FCE;
-    }
-        
+    }*/
+    aktToken=ID;
 
 
     aktToken = get_token();
@@ -28,13 +28,19 @@ int checkFunctionParams(tToken* ID, int numberOfParam )
             if (checkIfExist(aktToken) !=OK)
                 return ERR_SEM_VAR;
         }
-        else if ((aktToken->type == sNumber || aktToken->type == sString) && numberOfParam > 0 )
+    else if ((aktToken->type == sNumber || aktToken->type == sString) && numberOfParam > 0 )
         {
             ;
         }
-        else 
-            return ERR_SEM_FCE;
-                   
+    else if (aktToken->subtype == sRightBracket)
+        return OK;
+    else 
+        return ERR_SEM_FCE;
+
+    if (aktToken->subtype == sRightBracket)
+        return OK;
+
+
     for (int i = 1;i < numberOfParam;i++)
     {
         //Kontrola ci je pred dalsim parametrom ciarka
@@ -75,7 +81,6 @@ int checkIfExist(tToken* token)
 {
     if (symTableSearch(&gTable, token->data) == NULL)
         return ERR_SEM_VAR;
-    if (symTableSearch(&lTable, token->data) == NULL)
-        return ERR_SEM_VAR;
+   
     return OK;
 }

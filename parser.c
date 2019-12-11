@@ -15,11 +15,12 @@
 extern tSymtable gTable;               // globalna tabulka
 extern tSymtable lTable;               // lokalna tabulka
 extern tDLListInst instList;
+extern tDLListInst funcList;
 
 tToken *aktToken;               // aktualne cteny token
 tToken *prevToken;              // predchazejici token
 bool inMain = true;             // TRUE kdyz jsme v mainu, false ve funkci
-bool argumentBool = false;      // FALSE kdyz nezpracovavam argumenty
+bool inFunction= false;      // FALSE kdyz nezpracovavam argumenty
 tBSTNodePtr node;               // node na pridavani promenych nebo funkci
 tBSTNodePtr gNode;              // node na hledani v globalni tabulce
 string functionName;            // pomocna promenna pro zapamatovani nazvu funkce
@@ -35,8 +36,15 @@ int parse() {
 
     int rett = OK;
 
+
+    operand1 = initOperand(operand1, "$main", true, false, sIdentificator, -1, "");
+    instruction1op(&funcList, JUMP, operand1);
+    instruction1op(&instList,LABEL,operand1);
     instruction0op(&instList, CREATEFRAME);
+    //tmp a tmp2 vyuziva pretypovanie a podmienky
     operand2 = initOperand(operand2, "tmp", false, true, sIdentificator, -1, "GF");
+    instruction1op(&instList, DEFVAR, operand2);
+    operand2 = initOperand(operand2, "tmp2", false, true, sIdentificator, -1, "GF");
     instruction1op(&instList, DEFVAR, operand2);
     if ((rett = doParse()) != OK) {
         return rett;
@@ -98,6 +106,22 @@ int doParse() {      //toto budes rekurzivne volat
                 if (rett != OK) {
                     return rett;
                 }
+
+                if (inFunction){
+                    instruction0op(&funcList, PUSHFRAME);
+                    instruction0op(&funcList, CREATEFRAME);
+                    operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
+                    instruction1op(&funcList,CALL,operand1);
+                } else
+                {
+                    instruction0op(&instList, PUSHFRAME);
+                    instruction0op(&instList, CREATEFRAME);
+                    operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
+                    instruction1op(&instList,CALL,operand1);
+                }
+                
+                
+                
                 aktToken = get_token();
                 if (aktToken->type == sLexError) {
                     return ERR_LEX;
@@ -154,7 +178,14 @@ int keyWords() {
                             operand1 = initOperand(operand1, aktToken->data.value, false, false, aktToken->type,
                                                    aktToken->subtype, "LF");
                         }
-                        instruction1op(&instList, WRITE, operand1);
+                        if (inFunction){
+                            instruction1op(&funcList, WRITE, operand1);
+                        } else
+                        {
+                            instruction1op(&instList, WRITE, operand1);
+                        }
+                        
+                        
                         break;
                     case sComma:
                         if (prevToken->subtype == sLeftBracket)
@@ -173,7 +204,15 @@ int keyWords() {
                             operand1 = initOperand(operand1, aktToken->data.value, false, false, aktToken->type,
                                                    aktToken->subtype, "LF");
                         }
-                        instruction1op(&instList, WRITE, operand1);
+
+                        if (inFunction){
+                            instruction1op(&instList, WRITE, operand1);
+                        } else
+                        {
+                            instruction1op(&instList, WRITE, operand1);
+                        }
+                        
+                        
                         break;
                 }
                 prevToken = aktToken;
@@ -195,19 +234,36 @@ int keyWords() {
             if (rett != OK) {
                 return rett;
             }
-            instruction1op(&instList, POPS, operand1);
+            if (inFunction)
+            {
+                instruction1op(&funcList, POPS, operand1);
+            } else
+            {
+                instruction1op(&instList, POPS, operand1);
+            }
+            
+            
 
             char labelElse[10];
-            sprintf(labelElse, "else%d", keyWordNumber);
+            sprintf(labelElse, "else%d", keyWordNumber++);
 
             operand2 = initOperand(operand2, "true", false, true, -1, sBool, "TF");
 
             //instruction2op(&instList,MOVE,operand1,operand2);
             //operand2=initOperand(operand2,"true",false,true,sIdentificator,-1,"TF");
-            operand3 = initOperand(operand3, "labelElse", true, false, sIdentificator, -1, "");
-            instruction3op(&instList, JUMPIFNEQ, operand3, operand1, operand2);
-            instruction0op(&instList, PUSHFRAME);
-            instruction0op(&instList, CREATEFRAME);
+            tOperand operandElse = initOperand(operand3, labelElse, true, false, sIdentificator, -1, "");
+            if (inFunction){
+                instruction3op(&funcList, JUMPIFNEQ, operandElse, operand1, operand2);
+                instruction0op(&funcList, PUSHFRAME);
+                instruction0op(&funcList, CREATEFRAME);
+            } else
+            {
+                instruction3op(&instList, JUMPIFNEQ, operandElse, operand1, operand2);
+                instruction0op(&instList, PUSHFRAME);
+                instruction0op(&instList, CREATEFRAME);
+            }
+            
+
             inMain = false;
             aktToken = get_token();
             if (aktToken->type == sLexError) {
@@ -233,9 +289,18 @@ int keyWords() {
                 rett = OK;
             }
             char labelEnd[10];
-            sprintf(labelEnd, "endif%d", keyWordNumber);
-            operand2 = initOperand(operand2, "labelEnd", true, false, sIdentificator, -1, "");
-            instruction1op(&instList, JUMP, operand2);
+            sprintf(labelEnd, "endif%d", keyWordNumber++);
+            tOperand operandEndIF = initOperand(operand2, labelEnd, true, false, sIdentificator, -1, "");
+            if (inFunction)
+            {
+                instruction1op(&funcList, JUMP, operandEndIF);
+            } else
+            {
+                instruction1op(&instList, JUMP, operandEndIF);
+            }
+            
+            
+            
 
             /***********************nasleduje else************************ */
             aktToken = get_token();
@@ -270,8 +335,16 @@ int keyWords() {
             if (aktToken->type != sIndent)
                 return ERR_SYN;
 
-            //skok do ELSE            
-            instruction1op(&instList, LABEL, operand3);
+            //skok do ELSE
+            //operand3 = initOperand(operand3, labelElse, true, false, sIdentificator, -1, ""); 
+            if (inFunction){
+                instruction1op(&funcList, LABEL, operandElse);
+            } else
+            {
+                instruction1op(&instList, LABEL, operandElse);
+            }
+            
+            
 
 
             rett = doParse();
@@ -281,11 +354,18 @@ int keyWords() {
                 rett = OK;
             }
             //skok po vykonani IF
-            operand2 = initOperand(operand2, "labelEnd", true, false, sIdentificator, -1, "");
-            instruction1op(&instList, LABEL, operand2);
-            instruction0op(&instList, POPFRAME);
+            operand2 = initOperand(operand2, labelEnd, true, false, sIdentificator, -1, "");
+            if (inFunction){
+                instruction1op(&funcList, LABEL, operandEndIF);
+                instruction0op(&funcList, POPFRAME);
+            } else
+            {
+                instruction1op(&instList, LABEL, operandEndIF);
+                instruction0op(&instList, POPFRAME);
+            }
+            
+            
             inMain = true;
-            keyWordNumber++;
             return OK;
         case sWhile:
 
@@ -300,7 +380,14 @@ int keyWords() {
 
             operand1 = initOperand(operand1, labelWhile, true, false, sIdentificator,
                                    aktToken->subtype, "");
-            instruction1op(&instList, LABEL, operand1);
+            if (inFunction){
+                instruction1op(&funcList, LABEL, operand1);
+            } else
+            {
+                instruction1op(&instList, LABEL, operand1);
+            }
+            
+            
             operand2 = initOperand(operand2, endWhile, true, false, sIdentificator,
                                    aktToken->subtype, "");
 
@@ -313,12 +400,29 @@ int keyWords() {
 
             operand1 = initOperand(operand1, "tmp", false, true, sIdentificator,
                                    aktToken->subtype, "GF");
-            instruction1op(&instList,POPS,operand1);
+            
+            if (inFunction){
+                instruction1op(&funcList,POPS,operand1);
+            } else
+            {
+                instruction1op(&instList,POPS,operand1);
+            }
+            
+            
             operand3 = initOperand(operand3, "true", false, true, -1,
                                    sBool, "");
-            instruction3op(&instList, JUMPIFNEQ, operand2,operand1,operand3);
-            instruction0op(&instList,PUSHFRAME);
-            instruction0op(&instList,CREATEFRAME);
+            if (inFunction){
+                instruction3op(&funcList, JUMPIFNEQ, operand2,operand1,operand3);
+                instruction0op(&funcList,PUSHFRAME);
+                instruction0op(&funcList,CREATEFRAME);
+            } else
+            {
+                instruction3op(&instList, JUMPIFNEQ, operand2,operand1,operand3);
+                instruction0op(&instList,PUSHFRAME);
+                instruction0op(&instList,CREATEFRAME);
+            }
+            
+
 
             aktToken = get_token();
             if (aktToken->type == sLexError)
@@ -343,22 +447,72 @@ int keyWords() {
             //jump na zaciatok while
             operand1 = initOperand(operand1, labelWhile, true, false, sIdentificator,
                                    aktToken->subtype, "");
-            instruction1op(&instList,JUMP,operand1);
+            if (inFunction){
+                instruction1op(&funcList,JUMP,operand1);
+            } else
+            {
+                instruction1op(&instList,JUMP,operand1);
+            }
+            
 
             //LABEL s koncom WHILE
             operand1 = initOperand(operand1, endWhile, true, false, sIdentificator,
                                    aktToken->subtype, "");
-            instruction1op(&instList,LABEL,operand1);
-            keyWordNumber++;
-            instruction0op(&instList,POPFRAME);
+
+            if (inFunction){
+                instruction1op(&funcList,LABEL,operand1);
+                keyWordNumber++;
+                instruction0op(&funcList,POPFRAME);
+            } else
+            {
+                instruction1op(&instList,LABEL,operand1);
+                keyWordNumber++;
+                instruction0op(&instList,POPFRAME);
+            }
+            
+            
             return rett;
         case sReturn:
             if (inMain) {
                 return ERR_SEM_FCE;
             }
-
             // call instruction gen return with parametr
-            instruction0op(&instList, RETURN);
+            aktToken=get_token();
+            if (aktToken->type == sLexError) {
+                return ERR_LEX;
+            }
+            if (aktToken->type == sEOL){
+                operand1 = initOperand(operand1,"nil",false,true,-1,sNone,"GF");
+                if (inFunction){
+                    instruction1op(&funcList,PUSHS,operand1);
+                } else
+                {
+                    instruction1op(&instList,PUSHS,operand1);
+                }
+                
+                
+            }
+            else {
+                operand1 = initOperand(operand1,aktToken->data.value,false,true,aktToken->type,aktToken->subtype,"TF");
+                if (inFunction){
+                    instruction1op(&funcList,PUSHS,operand1);
+                } else
+                {
+                    instruction1op(&instList,PUSHS,operand1);
+                }
+                
+                
+            }
+
+            if (inFunction){
+                instruction0op(&funcList, RETURN);
+            } else
+            {
+                instruction0op(&instList, RETURN);
+            }
+            
+            
+            
             return OK;
     }
     return OK;
@@ -384,10 +538,26 @@ int declaration() {
         node = symTableSearch(&gTable, prevToken->data);
         if (node == NULL)
             return ERR_SEM_VAR;
-        rett = checkFunctionParams(aktToken, ((tFunction *) node->Data)->paramCounter);
+        rett = checkFunctionParams(prevToken,((tFunction *) node->Data)->paramCounter);
         if (rett != OK) {
             return rett;
         }
+
+        if (inFunction){
+            instruction0op(&funcList, PUSHFRAME);
+            instruction0op(&funcList, CREATEFRAME);
+            operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
+            instruction1op(&funcList,CALL,operand1);
+        } else
+        {
+            instruction0op(&instList, PUSHFRAME);
+            instruction0op(&instList, CREATEFRAME);
+            operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
+            instruction1op(&instList,CALL,operand1);
+        }
+        
+
+        
         aktToken = get_token();
         if (aktToken->type == sLexError) {
             return ERR_LEX;
@@ -417,7 +587,14 @@ int declarationVariable() {
             symTableInsertVariable(&gTable, prevToken->data);
             operand1 = initOperand(operand1, prevToken->data.value, false, false, sIdentificator, prevToken->subtype,
                                    "GF");
-            instruction1op(&instList, DEFVAR, operand1);
+            if (inFunction){
+                instruction1op(&funcList, DEFVAR, operand1);
+            } else
+            {
+                instruction1op(&instList, DEFVAR, operand1);
+            }
+            
+            
         }
 
         node = symTableSearch(&gTable, prevToken->data);
@@ -426,7 +603,15 @@ int declarationVariable() {
             symTableInsertVariable(&lTable, prevToken->data);
             operand1 = initOperand(operand1, prevToken->data.value, false, false, sIdentificator, prevToken->subtype,
                                    "LF");
-            instruction1op(&instList, DEFVAR, operand1);
+
+            if (inFunction){
+                instruction1op(&funcList, DEFVAR, operand1);
+            } else
+            {
+                instruction1op(&instList, DEFVAR, operand1);
+            }
+            
+            
         }
 
         node = symTableSearch(&lTable, prevToken->data);
@@ -455,6 +640,22 @@ int declarationVariable() {
             rett = checkFunctionParams(aktToken, ((tFunction *) node->Data)->paramCounter);
             if (rett != OK)
                 return rett;
+            
+            if (inFunction){
+                instruction0op(&funcList, PUSHFRAME);
+                instruction0op(&funcList, CREATEFRAME);
+                operand1 = initOperand(operand1,aktToken->data.value,true,false,sIdentificator,-1,"GF");
+                instruction1op(&funcList,CALL,operand1);
+            } else
+            {
+                instruction0op(&instList, PUSHFRAME);
+                instruction0op(&instList, CREATEFRAME);
+                operand1 = initOperand(operand1,aktToken->data.value,true,false,sIdentificator,-1,"GF");
+                instruction1op(&instList,CALL,operand1);
+            }
+            
+
+
         } else {
             unget_token(temp);
             rett = exprParsing(aktToken);
@@ -480,8 +681,18 @@ int declarationVariable() {
                                "LF");
     }
     operand2 = initOperand(operand2, "tmp", false, true, sIdentificator, -1, "GF");
-    instruction1op(&instList, POPS, operand2);
-    instruction2op(&instList, MOVE, operand1, operand2);
+    if (inFunction)
+    {
+        instruction1op(&funcList, POPS, operand2);
+        instruction2op(&funcList, MOVE, operand1, operand2);
+    } else
+    {
+        instruction1op(&instList, POPS, operand2);
+        instruction2op(&instList, MOVE, operand1, operand2);
+    }
+    
+    
+    
 
 
 
@@ -560,7 +771,7 @@ int declarationFunctionHead() {
     if (aktToken->type != sIdentificator) {
         return ERR_SYN;
     }
-
+    inFunction= true;
     functionName = aktToken->data;
     //kontrola, jestli už nebyla definovana
     if (symTableSearch(&gTable, aktToken->data) != NULL) {
@@ -569,7 +780,14 @@ int declarationFunctionHead() {
         symTableInsertFunction(&gTable, aktToken->data);
         node = symTableSearch(&gTable, aktToken->data);
         operand1 = initOperand(operand1, aktToken->data.value, true, false, sIdentificator, aktToken->subtype, "GF");
-        instruction1op(&instList, LABEL, operand1);
+        if (inFunction){
+            instruction1op(&funcList, LABEL, operand1);
+        } else
+        {
+            instruction1op(&instList, LABEL, operand1);
+        }
+        
+        
     }
 
     prevToken = aktToken;
@@ -587,6 +805,7 @@ int declarationFunctionHead() {
 
 
     rett = declarationFunctionBody();
+    inFunction=false;
     return rett;
 }
 

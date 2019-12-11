@@ -1,30 +1,50 @@
-#include "scanner.h"
-#include "exprParser.h"
-#include "instruction-list.h"
+/*
+* Predmet  :   IFJ / IAL
+* Súbor    :   main.c
+* Projekt  :   Implementácia prekladača imperatívneho jazyka IFJ19
+* Tým č    :   127
+* Varianta :   I
+* Autoři   : xhalom00, Ivan Halomi
+*            xhiner00, Martin Hiner
+*            xsevci64, Adam Ševčík
+*            xzakji02, Jiří Žák
+*/
+#include <stdio.h>
+#include "parser.h"
 #include "err_code.h"
-bool inMain = true;
+#include "instruction-list.h"
 
+tSymtable gTable;               // globalna tabulka
+tSymtable lTable;               // lokalni tabulka
+tDLListInst instList;
+tDLListInst funcList;
 
-int main() {
-
-    //for (int i = 0;i<20; i++)
-    tToken* hej;
-    hej = get_token();
-    while (hej->type != 2)
-
-    
-    {
-         
-    //hej = get_token();
-    int vysledok = 0;
-    vysledok = exprParsing(hej);
-    printf("****************************************************************************************\n");
-    printf("MAIN vysledok je %d ",vysledok);
-    hej = get_token();
-
-    printf("\n MAIN dalsi token je %d \n",hej->type);
+int main(int argc, char **argv) {
+    (void)argv;
+    if(argc > 1) {
+        fprintf(stderr, "Program nesmi být volán s parametry");
+        return ERR_INTERN;
     }
-   
-    return OK;
-}
 
+    int rett = OK;
+    symTableInit(&gTable);
+    symTableInit(&lTable);
+    DLInitList(&instList);
+    DLInitList(&funcList);
+    symTableInsertVesFunction(&gTable);
+
+    rett = parse();
+
+    //printf("%d\n", rett);
+    if(rett == OK){
+        instructionPrinter(&funcList,1);
+        instructionPrinter(&instList,0);
+    }
+        
+
+    DLDisposeList(&instList);
+    symTableDispose(&gTable);
+    symTableDispose(&lTable);
+
+    return rett;
+}

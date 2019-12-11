@@ -69,14 +69,18 @@ void DLPred (tDLListInst *);
 int DLActive (tDLListInst *);
 
 void instructionGenerator(tDLListInst *, int, char*, char*, char*);
-void instructionPrinter(tDLListInst *);
-//operand, label, temp hodnota, typ, subtyp, frame
-tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); 
+void instructionPrinter(tDLListInst *,int);
+
+tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); //operand, hodnota, typ, subtyp, frame
 
 void instruction0op(tDLListInst *, int);
 void instruction1op(tDLListInst *, int, tOperand);
 void instruction2op(tDLListInst *, int, tOperand, tOperand);
 void instruction3op(tDLListInst *, int, tOperand, tOperand, tOperand);
+
+void functionLen();
+void functionChr();
+void functionOrd();
 
 typedef enum{
     MOVE,
