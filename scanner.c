@@ -938,6 +938,8 @@ tToken* get_token(void) {
                 case sOrd:
                 case sChr:
                 case sDollar:
+                case sBool:
+                case sNil:
                 case sOperand: break;
 
                 }
