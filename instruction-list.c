@@ -579,6 +579,7 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
 void instructionPrinter(tDLListInst *L,int IFJCODE) {
     if (IFJCODE ==1){
         printf(".IFJcode19\n");
+        printf("JUMP $MAIN\n");
     }
 
     DLFirst(L);
@@ -776,7 +777,7 @@ void functionLen(){
     operand2 = initOperand(operand2, "s", false,false,sString,-1,"LF");
     instruction2op(&funcList, STRLEN, operand1, operand2);
 
-    instructio01op(&funcList,POPFRAME);
+    instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList, RETURN);
     instruction0op(&funcList,ENTER);
 }
@@ -869,7 +870,7 @@ void functionOrd(){
     operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
     instruction1op(&funcList, DEFVAR, operand1);
     operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2,"int",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2,"int",false,false,sIdentificator,-1,"");
      instruction2op(&funcList,READ,operand1,operand2);
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList,RETURN);
@@ -877,7 +878,7 @@ void functionOrd(){
 }
 
  void functionInputf(){
-     operand1 = initOperand(operand1, "inputi",true,false,sIdentificator,-1,"");
+     operand1 = initOperand(operand1, "inputf",true,false,sIdentificator,-1,"");
     instruction1op(&funcList, LABEL, operand1);
     instruction0op(&funcList,PUSHFRAME);
     tOperand returnOperand= initOperand(returnOperand,"retOperand",false,true,sIdentificator,-1,"LF");
@@ -887,9 +888,8 @@ void functionOrd(){
     operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
     instruction1op(&funcList, DEFVAR, operand1);
     operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2,"float",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2,"float",false,false,sIdentificator,-1,"");
     instruction2op(&funcList,READ,operand1,operand2);
-
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList,RETURN);
     instruction0op(&funcList,ENTER);       
