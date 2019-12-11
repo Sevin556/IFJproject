@@ -113,12 +113,16 @@ int doParse() {      //toto budes rekurzivne volat
                     instruction0op(&funcList, CREATEFRAME);
                     operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
                     instruction1op(&funcList,CALL,operand1);
+                    operand2 = initOperand(operand2,"retOperand",false,true,sIdentificator,-1,"TF");
+                    instruction1op(&funcList,PUSHS,operand2);
                 } else
                 {
                     //instruction0op(&instList, PUSHFRAME);
                     instruction0op(&instList, CREATEFRAME);
                     operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
                     instruction1op(&instList,CALL,operand1);
+                    operand2 = initOperand(operand2,"retOperand",false,true,sIdentificator,-1,"TF");
+                    instruction1op(&instList,PUSHS,operand2);
                 }
                 
                 
@@ -341,7 +345,7 @@ int keyWords() {
                 return ERR_SYN;
 
             //skok do ELSE
-            //operand3 = initOperand(operand3, labelElse, true, false, sIdentificator, -1, ""); 
+            
             if (inFunction){
                 instruction1op(&funcList, LABEL, operandElse);
             } else
@@ -418,13 +422,15 @@ int keyWords() {
                                    sBool, "");
             if (inFunction){
                 instruction3op(&funcList, JUMPIFNEQ, operand2,operand1,operand3);
-                instruction0op(&funcList,PUSHFRAME);
+                //instruction0op(&funcList,PUSHFRAME);
                 instruction0op(&funcList,CREATEFRAME);
+                instruction0op(&funcList,PUSHFRAME);
             } else
             {
                 instruction3op(&instList, JUMPIFNEQ, operand2,operand1,operand3);
-                instruction0op(&instList,PUSHFRAME);
+                //instruction0op(&instList,PUSHFRAME);
                 instruction0op(&instList,CREATEFRAME);
+                instruction0op(&instList,PUSHFRAME);
             }
             
 
@@ -486,38 +492,14 @@ int keyWords() {
             if (aktToken->type == sLexError) {
                 return ERR_LEX;
             }
-            if (aktToken->type == sEOL){
-                operand1 = initOperand(operand1,"nil",false,true,-1,sNone,"GF");
-                if (inFunction){
-                    instruction1op(&funcList,PUSHS,operand1);
-                } else
-                {
-                    instruction1op(&instList,PUSHS,operand1);
-                }
-                
-                
+            if (aktToken->type != sEOL){
+                operand1 = initOperand(operand1,aktToken->data.value,false,false,aktToken->type,aktToken->subtype,"");
+                operand2 = initOperand(operand2,"retOperand",false,true,sIdentificator,-1,"LF");
+                instruction2op(&funcList,MOVE,operand2,operand1);    
             }
-            else {
-                operand1 = initOperand(operand1,aktToken->data.value,false,true,aktToken->type,aktToken->subtype,"TF");
-                if (inFunction){
-                    instruction1op(&funcList,PUSHS,operand1);
-                } else
-                {
-                    instruction1op(&instList,PUSHS,operand1);
-                }
-                
-                
-            }
-
-            if (inFunction){
-                instruction0op(&funcList, RETURN);
-            } else
-            {
-                instruction0op(&instList, RETURN);
-            }
-            
-            
-            
+            instruction0op(&funcList,POPFRAME);
+            instruction0op(&funcList,RETURN);
+              
             return OK;
     }
     return OK;
@@ -553,12 +535,16 @@ int declaration() {
             instruction0op(&funcList, CREATEFRAME);
             operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
             instruction1op(&funcList,CALL,operand1);
+            operand2 = initOperand(operand2,"retOperand",false,true,sIdentificator,-1,"TF");
+            instruction1op(&funcList,PUSHS,operand2);
         } else
         {
             //instruction0op(&instList, PUSHFRAME);
             instruction0op(&instList, CREATEFRAME);
             operand1 = initOperand(operand1,prevToken->data.value,true,false,sIdentificator,-1,"GF");
             instruction1op(&instList,CALL,operand1);
+            operand2 = initOperand(operand2,"retOperand",false,true,sIdentificator,-1,"TF");
+            instruction1op(&instList,PUSHS,operand2);
         }
         
 
@@ -629,7 +615,9 @@ int declarationVariable() {
         return ERR_LEX;
     }
 
-    if (aktToken->type == sIdentificator) {
+    if (aktToken->type == sIdentificator || aktToken->type ==sLen ||
+     aktToken->type == sSubstr || aktToken->type == sOrd ||aktToken->type == sChr || aktToken->type ==sInputF 
+     || aktToken->type == sInputS || aktToken->type == sInputI ) {
         tToken *temp;
         temp = get_token();
 
@@ -639,10 +627,10 @@ int declarationVariable() {
 
         if (temp->subtype == sLeftBracket) {
             /* SKONTROLUJ PARAMETRE FUNKCIE*/
-
-            if (symTableSearch(&gTable, aktToken->data) == NULL)
+            tBSTNodePtr temp =symTableSearch(&gTable, aktToken->data);
+            if ( temp == NULL)
                 return ERR_SEM_VAR;
-            rett = checkFunctionParams(aktToken, ((tFunction *) node->Data)->paramCounter);
+            rett = checkFunctionParams(aktToken, ((tFunction *) temp->Data)->paramCounter);
             if (rett != OK)
                 return rett;
             
@@ -651,12 +639,16 @@ int declarationVariable() {
                 instruction0op(&funcList, CREATEFRAME);
                 operand1 = initOperand(operand1,aktToken->data.value,true,false,sIdentificator,-1,"GF");
                 instruction1op(&funcList,CALL,operand1);
+                operand2 = initOperand(operand2,"retOperand",false,true,sIdentificator,-1,"TF");
+                instruction1op(&funcList,PUSHS,operand2);
             } else
             {
                 //instruction0op(&instList, PUSHFRAME);
                 instruction0op(&instList, CREATEFRAME);
                 operand1 = initOperand(operand1,aktToken->data.value,true,false,sIdentificator,-1,"GF");
                 instruction1op(&instList,CALL,operand1);
+                operand2 = initOperand(operand2,"retOperand",false,true,sIdentificator,-1,"TF");
+                instruction1op(&instList,PUSHS,operand2);
             }
             
 
@@ -679,45 +671,21 @@ int declarationVariable() {
     //printf("%s\n", node->Key);
 
     if (inMain) {
-        operand1 = initOperand(operand1, prevToken->data.value, false, false, prevToken->type, prevToken->subtype,
-                               "GF");
+        operand1 = initOperand(operand1, prevToken->data.value, false, false, prevToken->type, prevToken->subtype,"GF");
+        
+        
     } else {
-        operand1 = initOperand(operand1, prevToken->data.value, false, false, prevToken->type, prevToken->subtype,
-                               "LF");
+        operand1 = initOperand(operand1, prevToken->data.value, false, false, prevToken->type, prevToken->subtype,"LF");
     }
-    operand2 = initOperand(operand2, "tmp", false, true, sIdentificator, -1, "GF");
     if (inFunction)
     {
-        instruction1op(&funcList, POPS, operand2);
-        instruction2op(&funcList, MOVE, operand1, operand2);
+        instruction1op(&funcList, POPS, operand1);
     } else
     {
-        instruction1op(&instList, POPS, operand2);
-        instruction2op(&instList, MOVE, operand1, operand2);
+        instruction1op(&instList, POPS, operand1);
+
     }
-    
-    
-    
 
-
-
-    /*rett = typPromenne(prevToken->type);
-        if (rett != OK)
-        return rett;
-    switch (prevToken->type) {
-        case sInputI:
-        case sInteger:
-            ((tVariable *) node->Data)->retType = sInteger;
-            break;
-        case sInputS:
-        case sString:
-            ((tVariable *) node->Data)->retType = sString;
-            break;
-        case sInputF:
-        case sDoublePointNumber:
-            ((tVariable *) node->Data)->retType = sDoublePointNumber;
-            break;
-    }*/
     return OK;
 }
 
@@ -817,10 +785,10 @@ int declarationFunctionHead() {
 int declarationFunctionBody() {
     inMain = false;
     //ERR_VAL rett;
-
     symTableInit(&lTable);
     gNode = symTableSearch(&gTable, functionName);
     int ret = OK;
+    
     aktToken = get_token();
     if (aktToken->type == sLexError)
         return ERR_LEX;
@@ -842,6 +810,19 @@ int declarationFunctionBody() {
 
     if (aktToken->type != sIndent)
         return ERR_SYN;
+
+    /*tlacenie kodu*/
+    instruction0op(&funcList,PUSHFRAME);
+    tOperand returnOperand= initOperand(returnOperand,"retOperand",false,true,sIdentificator,-1,"LF");
+    operand1 = initOperand(operand1,"nil",false,false,sNone,sNone,"");
+    instruction1op(&funcList,DEFVAR,returnOperand);
+    instruction2op(&funcList,MOVE,returnOperand,operand1);
+    for (int i=((tFunction *) gNode->Data)->paramCounter; i >0 ; i--){
+        operand1 = initOperand(operand1,((tFunction *) gNode->Data)->paramName[i-1].value,false,false,sIdentificator,-1,"LF");
+        instruction1op(&funcList,DEFVAR,operand1);
+        instruction1op(&funcList,POPS,operand1);
+           
+    }
 
     ret = doParse();
     if (ret != sDedent)
