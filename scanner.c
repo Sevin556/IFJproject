@@ -256,6 +256,13 @@ tToken* get_token(void) {
 
                 /************** sEOF Start ****************/
                 case sEOF:
+                        if(!stackEmptyI(stackI)) {
+                                ungetc(c, stdin);
+                                stackPopI(stackI);
+                                state = sDedent;
+                                break;
+                        }
+
                         stringAddString(&(token->data), "EOF");
                         token->line = line_cnt;
                         token->type = sEOF;
