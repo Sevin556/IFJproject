@@ -30,6 +30,7 @@ void DLInitList(tDLListInst *L, int IFJCODE) {
         functionOrd();
         functionInputf();
         functionInputi();
+        functionInputs();
     }
 }
 
@@ -411,7 +412,7 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
         }
         if (operand2.Label == true) {
             
-            strcat(_operand2, operand1.value);
+            strcat(_operand2, operand2.value);
         }
     }
 //konstatna
@@ -424,7 +425,7 @@ void instruction2op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, operand2.value);
         } else if (operand2.subtype == sDoublePointNumber || operand2.subtype == sDoubleExponentNumber) {
             strcat(_operand2, "float@");
-            convToHexa(_operand2, operand1.value);
+            convToHexa(_operand2, operand2.value);
         }
     }
     else if(operand2.subtype == sBool){
@@ -503,7 +504,7 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
         }
         if (operand2.Label == true) {
             
-            strcat(_operand2, operand1.value);
+            strcat(_operand2, operand2.value);
         }
     }
 //konstatna
@@ -516,7 +517,7 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
             strcat(_operand2, operand2.value);
         } else if (operand2.subtype == sDoublePointNumber || operand2.subtype == sDoubleExponentNumber) {
             strcat(_operand2, "float@");
-            convToHexa(_operand2, operand1.value);
+            convToHexa(_operand2, operand2.value);
         }
     }
     else if(operand2.subtype == sBool){
@@ -579,7 +580,7 @@ void instruction3op(tDLListInst *L, int Type, tOperand operand1, tOperand operan
 void instructionPrinter(tDLListInst *L,int IFJCODE) {
     if (IFJCODE ==1){
         printf(".IFJcode19\n");
-        printf("JUMP $MAIN\n");
+        printf("JUMP $main\n");
     }
 
     DLFirst(L);
@@ -683,13 +684,13 @@ void instructionPrinter(tDLListInst *L,int IFJCODE) {
                 printf("NOTS \n");
                 break;
             case INT2FLOAT:
-                printf("INT2FLOAT %s %s\n", printinst.o1, printinst.o1);
+                printf("INT2FLOAT %s %s\n", printinst.o1, printinst.o2);
                 break;
             case FLOAT2INT:
-                printf("FLOAT2INT %s %s\n", printinst.o1, printinst.o1);
+                printf("FLOAT2INT %s %s\n", printinst.o1, printinst.o2);
                 break;
             case INT2CHAR:
-                printf("INT2CHAR %s %s\n", printinst.o1, printinst.o1);
+                printf("INT2CHAR %s %s\n", printinst.o1, printinst.o2);
                 break;
             case STRI2INT:
                 printf("STRI2INT %s %s %s\n", printinst.o1, printinst.o2, printinst.o3);
@@ -766,17 +767,18 @@ void functionLen(){
     
     operand1 = initOperand(operand1, "len",true,false,sIdentificator,-1,"");
     instruction1op(&funcList, LABEL, operand1);
-     instruction0op(&funcList,PUSHFRAME);
+    instruction0op(&funcList,PUSHFRAME);
     tOperand returnOperand= initOperand(returnOperand,"retOperand",false,true,sIdentificator,-1,"LF");
     operand1 = initOperand(operand1,"nil",false,false,sNone,sNone,"");
     instruction1op(&funcList,DEFVAR,returnOperand);
     instruction2op(&funcList,MOVE,returnOperand,operand1);
-    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
-    instruction1op(&funcList, DEFVAR, operand1);
-    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2, "s", false,false,sString,-1,"LF");
-    instruction2op(&funcList, STRLEN, operand1, operand2);
-
+    operand2 = initOperand(operand2, "s", false,false,sIdentificator,-1,"LF");
+    instruction1op(&funcList,DEFVAR,operand2);
+    instruction1op(&funcList,POPS,operand2);
+    returnOperand= initOperand(returnOperand,"retOperand",false,true,sIdentificator,-1,"LF");
+    instruction2op(&funcList, STRLEN, returnOperand, operand2);
+    
+    //instruction2op(&funcList,MOVE,returnOperand,operand1);
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList, RETURN);
     instruction0op(&funcList,ENTER);
@@ -792,11 +794,12 @@ void functionChr()
     operand1 = initOperand(operand1,"nil",false,false,sNone,sNone,"");
     instruction1op(&funcList,DEFVAR,returnOperand);
     instruction2op(&funcList,MOVE,returnOperand,operand1);
-    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
-    instruction1op(&funcList, DEFVAR, operand1);
-    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2, "i", false,false,sString,-1,"LF");
-    instruction2op(&funcList, INT2CHAR, operand1, operand2);
+    
+    operand2 = initOperand(operand2, "s", false,false,sIdentificator,-1,"LF");
+    instruction1op(&funcList,DEFVAR,operand2);
+    instruction1op(&funcList,POPS,operand2);
+    instruction2op(&funcList, INT2CHAR, returnOperand, operand2);
+
 
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList, RETURN);
@@ -811,10 +814,20 @@ void functionOrd(){
     operand1 = initOperand(operand1,"nil",false,false,sNone,sNone,"");
     instruction1op(&funcList,DEFVAR,returnOperand);
     instruction2op(&funcList,MOVE,returnOperand,operand1);
+
+   
+    
+    //nacita index
+    operand1 = initOperand(operand1,"i",false,true,sIdentificator,-1,"LF"); 
+    instruction1op(&funcList, DEFVAR, operand1);
+    instruction1op(&funcList, POPS, operand1);
+    //nacita string
+    operand2 = initOperand(operand2,"s",false,true,sIdentificator,-1,"LF");
+    instruction1op(&funcList, DEFVAR, operand2);
+    instruction1op(&funcList,POPS,operand2);
+
     operand1 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
     instruction1op(&funcList, DEFVAR, operand1);
-    operand1 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2, "s", false,false,sString,-1,"LF");
     instruction2op(&funcList, STRLEN, operand1, operand2);
 
     operand1 = initOperand(operand1,"len",false,true,sIdentificator,-1,"LF");
@@ -823,13 +836,21 @@ void functionOrd(){
     instruction3op(&funcList,SUB,operand1,operand2,operand3);
 
     operand1 = initOperand(operand1,"tmp1",false,true,sIdentificator,-1,"LF");
+    instruction1op(&funcList, DEFVAR, operand1);
+    operand1 = initOperand(operand1,"tmp2",false,true,sIdentificator,-1,"LF");
+    instruction1op(&funcList, DEFVAR, operand1);
+    operand1 = initOperand(operand1,"tmp3",false,true,sIdentificator,-1,"LF");
+    instruction1op(&funcList, DEFVAR, operand1);
+   
+
+    operand1 = initOperand(operand1,"tmp1",false,true,sIdentificator,-1,"LF");
     operand2 = initOperand(operand2,"i",false,true,sIdentificator,-1,"LF");
     operand3 = initOperand(operand3,"0",false,true,sNumber,sInteger,"LF");
     instruction3op(&funcList,LT,operand1,operand2,operand3);
 
     operand1 = initOperand(operand1,"tmp2",false,true,sIdentificator,-1,"LF");
     operand2 = initOperand(operand2,"i",false,true,sIdentificator,-1,"LF");
-    operand3 = initOperand(operand3,"len",false,true,sNumber,sInteger,"LF");
+    operand3 = initOperand(operand3,"len",false,true,sIdentificator,-1,"LF");
     instruction3op(&funcList,GT,operand1,operand2,operand3);
 
     operand1 = initOperand(operand1,"tmp3",false,true,sIdentificator,-1,"LF");
@@ -841,14 +862,12 @@ void functionOrd(){
     operand2 = initOperand(operand2,"tmp3",false,true,sIdentificator,-1,"LF");
     operand3 = initOperand(operand3,"true",false,true,-1,sBool,"LF");
     instruction3op(&funcList,JUMPIFEQ,operand1,operand2,operand3);
+    
+    operand1 = initOperand(operand1,"i",false,true,sIdentificator,-1,"LF"); 
+    operand2 = initOperand(operand2,"s",false,true,sIdentificator,-1,"LF");
 
-    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
-    instruction1op(&funcList, DEFVAR, operand1);
-    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2, "i", false,false,sString,-1,"LF");
-    instruction2op(&funcList, INT2CHAR, operand1, operand2);
+    instruction3op(&funcList, STRI2INT,returnOperand,operand2,operand1);
 
-    operand1 = initOperand(operand1,"a",false,true,sIdentificator,-1,"LF");
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList, RETURN);
 
@@ -867,29 +886,39 @@ void functionOrd(){
     operand1 = initOperand(operand1,"nil",false,false,sNone,sNone,"");
     instruction1op(&funcList,DEFVAR,returnOperand);
     instruction2op(&funcList,MOVE,returnOperand,operand1);
-    operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
-    instruction1op(&funcList, DEFVAR, operand1);
-    operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2,"int",false,false,sIdentificator,-1,"");
-     instruction2op(&funcList,READ,operand1,operand2);
+    operand2 = initOperand(operand2,"int",true,false,sIdentificator,-1,"");
+     instruction2op(&funcList,READ,returnOperand,operand2);
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList,RETURN);
     instruction0op(&funcList,ENTER);       
 }
 
  void functionInputf(){
-     operand1 = initOperand(operand1, "inputf",true,false,sIdentificator,-1,"");
+    operand1 = initOperand(operand1, "inputf",true,false,sIdentificator,-1,"");
     instruction1op(&funcList, LABEL, operand1);
     instruction0op(&funcList,PUSHFRAME);
     tOperand returnOperand= initOperand(returnOperand,"retOperand",false,true,sIdentificator,-1,"LF");
     operand1 = initOperand(operand1,"nil",false,false,sNone,sNone,"");
     instruction1op(&funcList,DEFVAR,returnOperand);
     instruction2op(&funcList,MOVE,returnOperand,operand1);
-    operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
-    instruction1op(&funcList, DEFVAR, operand1);
-    operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2,"float",false,false,sIdentificator,-1,"");
-    instruction2op(&funcList,READ,operand1,operand2);
+    
+    operand3 = initOperand(operand3,"float",true,false,sIdentificator,-1,"");
+    instruction2op(&funcList,READ,returnOperand,operand3);
+    instruction0op(&funcList,POPFRAME);
+    instruction0op(&funcList,RETURN);
+    instruction0op(&funcList,ENTER);       
+}
+
+void functionInputs(){
+     operand1 = initOperand(operand1, "inputs",true,false,sIdentificator,-1,"");
+    instruction1op(&funcList, LABEL, operand1);
+    instruction0op(&funcList,PUSHFRAME);
+    tOperand returnOperand= initOperand(returnOperand,"retOperand",false,true,sIdentificator,-1,"LF");
+    operand1 = initOperand(operand1,"nil",false,false,sNone,sNone,"");
+    instruction1op(&funcList,DEFVAR,returnOperand);
+    instruction2op(&funcList,MOVE,returnOperand,operand1);
+    operand2 = initOperand(operand2,"string",true,false,sIdentificator,-1,"");
+     instruction2op(&funcList,READ,returnOperand,operand2);
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList,RETURN);
     instruction0op(&funcList,ENTER);       
