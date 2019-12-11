@@ -190,7 +190,7 @@ int DLPostInsert(tDLListInst *L, tInstr instruction) {
         if (elemToJoin == NULL) {
             L->Act->rptr = newElem;
             newElem->lptr = L->Act;
-            newElem->rptr = NULL;
+            newElem->rptr = NULL;IFJCODE
             L->Last = newElem;
         } else { // vlozenie prvku mezi act a elemToJoin
             newElem->lptr = L->Act;
@@ -824,7 +824,7 @@ void functionOrd(){
     instruction3op(&instList,OR,operand1,operand2,operand3);
 
     operand1 = initOperand(operand1,"$err_end",true,false,sIdentificator,-1,"");
-    operand2 = initOperand(operand2,"tmp",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2,"tmp3",false,true,sIdentificator,-1,"LF");
     operand3 = initOperand(operand3,"true",false,true,-1,sBool,"LF");
     instruction3op(&instList,JUMPIFEQ,operand1,operand2,operand3);
 
