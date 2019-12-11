@@ -69,6 +69,7 @@ typedef enum {
         sColon,                     /* návratový typ */
         sSemicolon,                 /* návratový typ */
         sDollar,                    /* návratový typ */
+        sBool,
 
         /* id */
         sIdentificatorOrKeyword,
@@ -82,6 +83,7 @@ typedef enum {
         sPass,                      /* návratový typ */
         sReturn,                    /* návratový typ */
         sWhile,                     /* návratový typ */
+        sNil,
 
         /* built-in functions */
         sInputS,                    /* návratový typ */
