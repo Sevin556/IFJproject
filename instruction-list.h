@@ -40,15 +40,15 @@ typedef struct {
 
 typedef struct operand{
     char* value; // a, 9, 1s5615c, Hello world
-	bool tmp;
-	bool Label;
+    bool tmp;
+    bool Label;
     int type;  //sIdentifikator,SNumber,sString
-	int subtype; //sDouble,sInteger
+    int subtype; //sDouble,sInteger
     char* frame; //GF,LF,TF
 }tOperand;
 
 
-void DLInitList (tDLListInst *);
+void DLInitList (tDLListInst *, int);
 void DLDisposeList (tDLListInst *);
 int DLInsertFirst (tDLListInst *, tInstr);
 int DLInsertLast(tDLListInst *, tInstr);
@@ -69,7 +69,7 @@ void DLPred (tDLListInst *);
 int DLActive (tDLListInst *);
 
 void instructionGenerator(tDLListInst *, int, char*, char*, char*);
-void instructionPrinter(tDLListInst *);
+void instructionPrinter(tDLListInst *,int);
 
 tOperand initOperand(tOperand , char*, bool, bool, int, int, char*); //operand, hodnota, typ, subtyp, frame
 
@@ -82,63 +82,66 @@ void functionLen();
 void functionChr();
 void functionOrd();
 
+void convToHexa(char *dec, char *a);
+
 typedef enum{
     MOVE,
-	CREATEFRAME,
-	PUSHFRAME,
-	POPFRAME,
-	DEFVAR,
-	CALL,
-	RETURN,
-	PUSHS,
-	POPS,
-	CLEARS,
-	ADD,
-	SUB,
-	MUL,
-	DIV,
-	IDIV,
-	ADDS,
-	SUBS,
-	MULS,
-	DIVS,
-	IDIVS,
-	LT,
-	GT,
-	EQ,
-	LTS,
-	GTS,
-	EQS,
-	AND,
-	OR,
-	NOT,
-	ANDS,
-	ORS,
-	NOTS,
-	INT2FLOAT,
-	FLOAT2INT,
-	INT2CHAR,
-	STRI2INT,
-	INT2FLOATS,
-	FLOAT2INTS,
-	INT2CHARS,
-	STRI2INTS,
-	READ,
-	WRITE,
-	CONCAT,
-	STRLEN,
-	GETCHAR,
-	SETCHAR,
-	TYPE,
-	LABEL,
-	JUMP,
-	JUMPIFEQ,
-	JUMPIFNEQ,
-	JUMPIFEQS,
-	JUMPIFNEQS,
-	EXIT,
-	BREAK,
-	DPRINT,
+    CREATEFRAME,
+    PUSHFRAME,
+    POPFRAME,
+    DEFVAR,
+    CALL,
+    RETURN,
+    PUSHS,
+    POPS,
+    CLEARS,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    IDIV,
+    ADDS,
+    SUBS,
+    MULS,
+    DIVS,
+    IDIVS,
+    LT,
+    GT,
+    EQ,
+    LTS,
+    GTS,
+    EQS,
+    AND,
+    OR,
+    NOT,
+    ANDS,
+    ORS,
+    NOTS,
+    INT2FLOAT,
+    FLOAT2INT,
+    INT2CHAR,
+    STRI2INT,
+    INT2FLOATS,
+    FLOAT2INTS,
+    INT2CHARS,
+    STRI2INTS,
+    READ,
+    WRITE,
+    CONCAT,
+    STRLEN,
+    GETCHAR,
+    SETCHAR,
+    TYPE,
+    LABEL,
+    JUMP,
+    JUMPIFEQ,
+    JUMPIFNEQ,
+    JUMPIFEQS,
+    JUMPIFNEQS,
+    EXIT,
+    BREAK,
+    DPRINT,
+    ENTER
 } I_TYPE;
 
 #endif //IFJ_INSTRUCTION_LIST_H
