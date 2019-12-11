@@ -869,7 +869,7 @@ void functionOrd(){
     operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
     instruction1op(&funcList, DEFVAR, operand1);
     operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2,"tmp",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2,"int",false,true,sIdentificator,-1,"LF");
      instruction2op(&funcList,READ,operand1,operand2);
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList,RETURN);
@@ -887,8 +887,9 @@ void functionOrd(){
     operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
     instruction1op(&funcList, DEFVAR, operand1);
     operand1 = initOperand(operand1,"in",false,true,sIdentificator,-1,"LF");
-    operand2 = initOperand(operand2,"tmp",false,true,sIdentificator,-1,"LF");
+    operand2 = initOperand(operand2,"float",false,true,sIdentificator,-1,"LF");
     instruction2op(&funcList,READ,operand1,operand2);
+
     instruction0op(&funcList,POPFRAME);
     instruction0op(&funcList,RETURN);
     instruction0op(&funcList,ENTER);       
