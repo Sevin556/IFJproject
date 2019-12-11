@@ -1,0 +1,84 @@
+#0
+.IFJcode19
+JUMP $main
+
+LABEL chr
+PUSHFRAME
+DEFVAR LF@retOperand$tmp
+MOVE LF@retOperand$tmp nil@nil
+DEFVAR LF@s
+POPS LF@s
+INT2CHAR LF@retOperand$tmp LF@s
+POPFRAME
+RETURN 
+
+LABEL len
+PUSHFRAME
+DEFVAR LF@retOperand$tmp
+MOVE LF@retOperand$tmp nil@nil
+DEFVAR LF@s
+POPS LF@s
+STRLEN LF@retOperand$tmp LF@s
+POPFRAME
+RETURN 
+
+LABEL ord
+PUSHFRAME
+DEFVAR LF@retOperand$tmp
+MOVE LF@retOperand$tmp nil@nil
+DEFVAR LF@len$tmp
+STRLEN LF@len$tmp string@s
+SUB LF@len$tmp LF@len$tmp int@1
+DEFVAR LF@tmp1$tmp
+DEFVAR LF@tmp2$tmp
+DEFVAR LF@tmp3$tmp
+DEFVAR LF@i$tmp
+POPS LF@i$tmp
+LT LF@tmp1$tmp LF@i$tmp int@0
+GT LF@tmp2$tmp LF@i$tmp LF@len$tmp
+OR LF@tmp3$tmp LF@tmp1$tmp LF@tmp2$tmp
+JUMPIFEQ $err_end LF@tmp3$tmp bool@true
+INT2CHAR LF@retOperand$tmp string@i
+POPFRAME
+RETURN 
+LABEL $err_end
+POPFRAME
+RETURN 
+
+LABEL inputf
+PUSHFRAME
+DEFVAR LF@retOperand$tmp
+MOVE LF@retOperand$tmp nil@nil
+READ LF@retOperand$tmp float
+POPFRAME
+RETURN 
+
+LABEL inputi
+PUSHFRAME
+DEFVAR LF@retOperand$tmp
+MOVE LF@retOperand$tmp nil@nil
+READ LF@retOperand$tmp int
+POPFRAME
+RETURN 
+
+LABEL inputs
+PUSHFRAME
+DEFVAR LF@retOperand$tmp
+MOVE LF@retOperand$tmp nil@nil
+READ LF@retOperand$tmp string
+POPFRAME
+RETURN 
+
+LABEL $main
+CREATEFRAME
+PUSHFRAME
+DEFVAR GF@tmp$tmp
+DEFVAR GF@tmp2$tmp
+DEFVAR GF@b
+PUSHS string@string
+PUSHS int@3
+CREATEFRAME
+CALL ord
+PUSHS TF@retOperand$tmp
+POPS GF@b
+WRITE GF@b

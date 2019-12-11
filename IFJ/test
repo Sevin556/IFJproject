@@ -1,0 +1,5 @@
+
+b = ord('string',3)
+
+print(b)
+

@@ -1,0 +1,126 @@
+===================================================================== test session starts =====================================================================
+platform linux2 -- Python 2.7.15+, pytest-4.6.7, py-1.8.0, pluggy-0.13.1 -- /usr/bin/python2
+cachedir: .pytest_cache
+rootdir: /mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master
+plugins: timeout-1.3.3
+collected 76 items                                                                                                                                            
+
+testing.py::test_IFJ_project[factorial.py-comp_code0-int_code0-5-extention_must0-extentions_cant0] FAILED                                               [  1%]
+testing.py::test_IFJ_project[factorial.py-comp_code1-int_code1-2-extention_must1-extentions_cant1] FAILED                                               [  2%]
+testing.py::test_IFJ_project[factorial2.py-comp_code2-int_code2-5-extention_must2-extentions_cant2] FAILED                                              [  3%]
+testing.py::test_IFJ_project[factorial2.py-comp_code3-int_code3-2-extention_must3-extentions_cant3] FAILED                                              [  5%]
+testing.py::test_IFJ_project[buildin.py-comp_code4-int_code4-abcedfgh\nabcdefgh-extention_must4-extentions_cant4] FAILED                                [  6%]
+testing.py::test_IFJ_project[buildin.py-comp_code5-int_code5-abcdefgh-extention_must5-extentions_cant5] FAILED                                          [  7%]
+testing.py::test_IFJ_project[factorial.py-comp_code6-int_code6-a-extention_must6-extentions_cant6] FAILED                                               [  9%]
+testing.py::test_IFJ_project[factorial.py-comp_code7-int_code7-None-extention_must7-extentions_cant7] FAILED                                            [ 10%]
+testing.py::test_IFJ_project[factorial2.py-comp_code8-int_code8-a-extention_must8-extentions_cant8] FAILED                                              [ 11%]
+testing.py::test_IFJ_project[factorial2.py-comp_code9-int_code9-None-extention_must9-extentions_cant9] FAILED                                           [ 13%]
+testing.py::test_IFJ_project[badcomment.py-comp_code10-int_code10-None-extention_must10-extentions_cant10] FAILED                                       [ 14%]
+testing.py::test_IFJ_project[baddot.py-comp_code11-int_code11-None-extention_must11-extentions_cant11] FAILED                                           [ 15%]
+testing.py::test_IFJ_project[badchars.py-comp_code12-int_code12-None-extention_must12-extentions_cant12] FAILED                                         [ 17%]
+testing.py::test_IFJ_project[badcomment2.py-comp_code13-int_code13-None-extention_must13-extentions_cant13] FAILED                                      [ 18%]
+testing.py::test_IFJ_project[badexponent.py-comp_code14-int_code14-None-extention_must14-extentions_cant14] FAILED                                      [ 19%]
+testing.py::test_IFJ_project[badindent2.py-comp_code15-int_code15-None-extention_must15-extentions_cant15] FAILED                                       [ 21%]
+testing.py::test_IFJ_project[badstring.py-comp_code16-int_code16-None-extention_must16-extentions_cant16] FAILED                                        [ 22%]
+testing.py::test_IFJ_project[emptyexponent.py-comp_code17-int_code17-None-extention_must17-extentions_cant17] FAILED                                    [ 23%]
+testing.py::test_IFJ_project[morezeroes.py-comp_code18-int_code18-None-extention_must18-extentions_cant18] FAILED                                       [ 25%]
+testing.py::test_IFJ_project[nonasci.py-comp_code19-int_code19-None-extention_must19-extentions_cant19] FAILED                                          [ 26%]
+testing.py::test_IFJ_project[badfunction5.py-comp_code20-int_code20-None-extention_must20-extentions_cant20] FAILED                                     [ 27%]
+testing.py::test_IFJ_project[badindent.py-comp_code21-int_code21-None-extention_must21-extentions_cant21] PASSED                                        [ 28%]
+testing.py::test_IFJ_project[badfunction.py-comp_code22-int_code22-None-extention_must22-extentions_cant22] PASSED                                      [ 30%]
+testing.py::test_IFJ_project[badfunction2.py-comp_code23-int_code23-None-extention_must23-extentions_cant23] PASSED                                     [ 31%]
+testing.py::test_IFJ_project[badfunction3.py-comp_code24-int_code24-None-extention_must24-extentions_cant24] PASSED                                     [ 32%]
+testing.py::test_IFJ_project[badfunction4.py-comp_code25-int_code25-None-extention_must25-extentions_cant25] PASSED                                     [ 34%]
+testing.py::test_IFJ_project[badfunction7.py-comp_code26-int_code26-None-extention_must26-extentions_cant26] PASSED                                     [ 35%]
+testing.py::test_IFJ_project[badindent3.py-comp_code27-int_code27-None-extention_must27-extentions_cant27] PASSED                                       [ 36%]
+testing.py::test_IFJ_project[badwhile.py-comp_code28-int_code28-None-extention_must28-extentions_cant28] PASSED                                         [ 38%]
+testing.py::test_IFJ_project[badwhile2.py-comp_code29-int_code29-None-extention_must29-extentions_cant29] PASSED                                        [ 39%]
+testing.py::test_IFJ_project[badwhile3.py-comp_code30-int_code30-None-extention_must30-extentions_cant30] PASSED                                        [ 40%]
+testing.py::test_IFJ_project[badif.py-comp_code31-int_code31-None-extention_must31-extentions_cant31] PASSED                                            [ 42%]
+testing.py::test_IFJ_project[badif2.py-comp_code32-int_code32-None-extention_must32-extentions_cant32] PASSED                                           [ 43%]
+testing.py::test_IFJ_project[badif3.py-comp_code33-int_code33-None-extention_must33-extentions_cant33] PASSED                                           [ 44%]
+testing.py::test_IFJ_project[badcall.py-comp_code34-int_code34-None-extention_must34-extentions_cant34] FAILED                                          [ 46%]
+testing.py::test_IFJ_project[badcall2.py-comp_code35-int_code35-None-extention_must35-extentions_cant35] FAILED                                         [ 47%]
+testing.py::test_IFJ_project[badcall3.py-comp_code36-int_code36-None-extention_must36-extentions_cant36] PASSED                                         [ 48%]
+testing.py::test_IFJ_project[badexpr.py-comp_code37-int_code37-None-extention_must37-extentions_cant37] PASSED                                          [ 50%]
+testing.py::test_IFJ_project[badexpr2.py-comp_code38-int_code38-None-extention_must38-extentions_cant38] PASSED                                         [ 51%]
+testing.py::test_IFJ_project[badexpr3.py-comp_code39-int_code39-None-extention_must39-extentions_cant39] PASSED                                         [ 52%]
+testing.py::test_IFJ_project[badexpr4.py-comp_code40-int_code40-None-extention_must40-extentions_cant40] PASSED                                         [ 53%]
+testing.py::test_IFJ_project[badexpr5.py-comp_code41-int_code41-None-extention_must41-extentions_cant41] PASSED                                         [ 55%]
+testing.py::test_IFJ_project[badreturn.py-comp_code42-int_code42-None-extention_must42-extentions_cant42] FAILED                                        [ 56%]
+testing.py::test_IFJ_project[badvar3.py-comp_code43-int_code43-None-extention_must43-extentions_cant43] FAILED                                          [ 57%]
+testing.py::test_IFJ_project[badfunction8.py-comp_code44-int_code44-None-extention_must44-extentions_cant44] PASSED                                     [ 59%]
+testing.py::test_IFJ_project[badfunction9.py-comp_code45-int_code45-None-extention_must45-extentions_cant45] PASSED                                     [ 60%]
+testing.py::test_IFJ_project[badfunction10.py-comp_code46-int_code46-None-extention_must46-extentions_cant46] PASSED                                    [ 61%]
+testing.py::test_IFJ_project[badcall4.py-comp_code47-int_code47-None-extention_must47-extentions_cant47] PASSED                                         [ 63%]
+testing.py::test_IFJ_project[badcall5.py-comp_code48-int_code48-None-extention_must48-extentions_cant48] PASSED                                         [ 64%]
+testing.py::test_IFJ_project[badfunction6.py-comp_code49-int_code49-None-extention_must49-extentions_cant49] PASSED                                     [ 65%]
+testing.py::test_IFJ_project[badtype.py-comp_code50-int_code50-None-extention_must50-extentions_cant50] PASSED                                          [ 67%]
+testing.py::test_IFJ_project[badtype2.py-comp_code51-int_code51-None-extention_must51-extentions_cant51] PASSED                                         [ 68%]
+testing.py::test_IFJ_project[badtype3.py-comp_code52-int_code52-None-extention_must52-extentions_cant52] PASSED                                         [ 69%]
+testing.py::test_IFJ_project[badtype4.py-comp_code53-int_code53-None-extention_must53-extentions_cant53] PASSED                                         [ 71%]
+testing.py::test_IFJ_project[badtype5.py-comp_code54-int_code54-None-extention_must54-extentions_cant54] PASSED                                         [ 72%]
+testing.py::test_IFJ_project[badtype6.py-comp_code55-int_code55-None-extention_must55-extentions_cant55] PASSED                                         [ 73%]
+testing.py::test_IFJ_project[badtype7.py-comp_code56-int_code56-None-extention_must56-extentions_cant56] PASSED                                         [ 75%]
+testing.py::test_IFJ_project[badtype8.py-comp_code57-int_code57-None-extention_must57-extentions_cant57] PASSED                                         [ 76%]
+testing.py::test_IFJ_project[badtype9.py-comp_code58-int_code58-None-extention_must58-extentions_cant58] PASSED                                         [ 77%]
+testing.py::test_IFJ_project[zerodiv.py-comp_code59-int_code59-None-extention_must59-extentions_cant59] PASSED                                          [ 78%]
+testing.py::test_IFJ_project[zerodiv2.py-comp_code60-int_code60-None-extention_must60-extentions_cant60] PASSED                                         [ 80%]
+testing.py::test_IFJ_project[badbuildin.py-comp_code61-int_code61-None-extention_must61-extentions_cant61] FAILED                                       [ 81%]
+testing.py::test_IFJ_project[badbuildin2.py-comp_code62-int_code62-None-extention_must62-extentions_cant62] FAILED                                      [ 82%]
+testing.py::test_IFJ_project[badbuildin3.py-comp_code63-int_code63-None-extention_must63-extentions_cant63] FAILED                                      [ 84%]
+testing.py::test_IFJ_project[badbuildin6.py-comp_code64-int_code64-None-extention_must64-extentions_cant64] FAILED                                      [ 85%]
+testing.py::test_IFJ_project[badbuildin7.py-comp_code65-int_code65-None-extention_must65-extentions_cant65] FAILED                                      [ 86%]
+testing.py::test_IFJ_project[badbuildin4.py-comp_code66-int_code66-None-extention_must66-extentions_cant66] FAILED                                      [ 88%]
+testing.py::test_IFJ_project[badbuildin5.py-comp_code67-int_code67-None-extention_must67-extentions_cant67] FAILED                                      [ 89%]
+testing.py::test_IFJ_project[badbuildin8.py-comp_code68-int_code68-None-extention_must68-extentions_cant68] FAILED                                      [ 90%]
+testing.py::test_IFJ_project[emptyprogram.py-comp_code69-int_code69-None-extention_must69-extentions_cant69] FAILED                                     [ 92%]
+testing.py::test_IFJ_project[specstring.py-comp_code70-int_code70-None-extention_must70-extentions_cant70] FAILED                                       [ 93%]
+testing.py::test_IFJ_project[lotofparams.py-comp_code71-int_code71-None-extention_must71-extentions_cant71] FAILED                                      [ 94%]
+testing.py::test_IFJ_project[longidentif.py-comp_code72-int_code72-None-extention_must72-extentions_cant72] FAILED                                      [ 96%]
+testing.py::test_IFJ_project[geometry.py-comp_code73-int_code73-abc\n-extention_must73-extentions_cant73] FAILED                                        [ 97%]
+testing.py::test_IFJ_project[geometry.py-comp_code74-int_code74-square\n5\nrectangle\n5.4\n10.4\n\n-extention_must74-extentions_cant74] FAILED          [ 98%]
+testing.py::test_IFJ_project[geometry.py-comp_code75-int_code75-circle\n4.7\ntriangle\n1.1\n2.2\n2.2\n2.8\nsquare\n0\n\n-extention_must75-extentions_cant75] FAILED [100%]
+
+========================================================================== FAILURES ===========================================================================
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: factorial.py - Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: factorial.py - Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: factorial2.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: factorial2.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: buildin.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: buildin.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: factorial.py - Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: factorial.py - Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: factorial2.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: factorial2.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badcomment.py - Unexpected exit code of IFJ compiler. Actual: 2 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: baddot.py - Unexpected exit code of IFJ compiler. Actual: 2 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badchars.py - Unexpected exit code of IFJ compiler. Actual: 0 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badcomment2.py - Unexpected exit code of IFJ compiler. Actual: 0 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badexponent.py - Unexpected exit code of IFJ compiler. Actual: -11 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badindent2.py - Unexpected exit code of IFJ compiler. Actual: 2 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badstring.py - Unexpected exit code of IFJ compiler. Actual: 0 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: emptyexponent.py - Unexpected exit code of IFJ compiler. Actual: -11 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: morezeroes.py - Unexpected exit code of IFJ compiler. Actual: -11 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: nonasci.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badfunction5.py - Unexpected exit code of IFJ compiler. Actual: 2 Expected: [1].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badcall.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [2].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badcall2.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [2].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badreturn.py - Unexpected exit code of IFJ compiler. Actual: 5 Expected: [2].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badvar3.py - Unexpected exit code of IFJ compiler. Actual: 0 Expected: [3].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badbuildin.py - Unexpected exit code of IFJ compiler. Actual: 5 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:93: RuntimeError: badbuildin2.py - Unexpected exit code of IFJ interpreter. Actual: 51 Expected: [53, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:93: RuntimeError: badbuildin3.py - Unexpected exit code of IFJ interpreter. Actual: 51 Expected: [53, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badbuildin6.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badbuildin7.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badbuildin4.py - Unexpected exit code of IFJ compiler. Actual: 5 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badbuildin5.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0, 4].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: badbuildin8.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0, 4, 6].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:93: RuntimeError: emptyprogram.py - Unexpected exit code of IFJ interpreter. Actual: 51 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:93: RuntimeError: specstring.py - Unexpected exit code of IFJ interpreter. Actual: 51 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: lotofparams.py - Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: longidentif.py - Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: geometry.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: geometry.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+/mnt/c/Users/Sevin556/Desktop/IFJproject-master/ifj19-testsuite-master/testing.py:82: RuntimeError: geometry.py - Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+============================================================ 40 failed, 36 passed in 2.12 seconds =============================================================
